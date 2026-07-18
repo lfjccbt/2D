@@ -5204,17 +5204,17 @@ function updateProgressBar() {
         countEl.textContent = `✅ ${answered} / ${total} answered`;
     }
     
-    const percentEl = document.getElementById('progressPercentage');
-    if (percentEl) {
-        percentEl.textContent = `${percent}% complete`;
-        if (percent === 100) {
-            percentEl.style.color = '#32CD32';
-            percentEl.style.fontWeight = 'bold';
-        } else {
-            percentEl.style.color = '#32CD32';
-            percentEl.style.fontWeight = 'normal';
-        }
+   const percentEl = document.getElementById('progressPercentage');
+if (percentEl) {
+    percentEl.textContent = percent + '% complete';
+    if (percent === 100) {
+        percentEl.style.color = '#32CD32';  
+        percentEl.style.fontWeight = 'bold';
+    } else {
+        percentEl.style.color = '#000000';  
+        percentEl.style.fontWeight = 'normal';
     }
+}
 }
 // ===== END PROGRESS BAR =====  
 function updatePalette() {
