@@ -1725,6 +1725,17 @@ document.addEventListener('visibilitychange', function() {
 });
 
 console.log('🔒 AUTO FULL SCREEN ACTIVE - Will force full screen without clicks');
+  // ===== FORCE PROGRESS BAR GREEN =====
+setInterval(function() {
+    const fill = document.getElementById('progressBarFill');
+    if (fill) {
+        fill.style.background = '#32CD32';
+    }
+    const percentEl = document.getElementById('progressPercentage');
+    if (percentEl) {
+        percentEl.style.color = '#32CD32';
+    }
+}, 500);
 </script>
 <!-- =========================================================== -->
 <!-- === END FULL SCREEN SYSTEM === -->
