@@ -5208,11 +5208,13 @@ function updateProgressBar() {
 if (percentEl) {
     percentEl.textContent = percent + '% complete';
     if (percent === 100) {
-        percentEl.style.color = '#000000';  
+        percentEl.style.color = '#000000';
         percentEl.style.fontWeight = 'bold';
+        percentEl.style.fontSize = '18px';  // ← ADD THIS
     } else {
-        percentEl.style.color = '#000000';  
+        percentEl.style.color = '#000000';
         percentEl.style.fontWeight = 'normal';
+        percentEl.style.fontSize = '18px';  // ← ADD THIS
     }
 }
 }
