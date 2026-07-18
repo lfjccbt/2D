@@ -1938,7 +1938,15 @@ console.log('🔒 AUTO FULL SCREEN ACTIVE - Will force full screen without click
             <span id="violationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚠️ Violations: 0/3</span>
         </div>
     </div>
-
+    <!-- ===== PROGRESS BAR ===== -->
+    <div id="progressBarWrapper" style="width: 100%; height: 8px; background: #e8e8e8; border-radius: 4px; margin: 10px 0 5px 0; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+        <div id="progressBarFill" style="width: 0%; height: 100%; background: #4B0082; border-radius: 4px; transition: width 0.5s ease;"></div>
+    </div>
+    <div id="progressStats" style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin: 0 0 10px 0; padding: 0 2px;">
+        <span id="answeredCount">0 / 0</span>
+        <span id="progressPercentage">0%</span>
+    </div>
+    <!-- ===== END PROGRESS BAR ===== -->
     <div class="exam-layout">
         <div class="exam-main">
             <div id="questionContainer" style="text-align:center;margin-top:10px;"></div>
@@ -4504,9 +4512,9 @@ document.addEventListener('visibilitychange', function() {
 
 
 function handleNumericalInput(inputElement, questionIndex) {
-    
     progress.answers[questionIndex] = inputElement.value;
     updatePalette();
+    updateProgressBar(); // <--- ADDED THIS LINE
     if (examInProgress) {
         setTimeout(() => saveExamProgress(), 500);
     }
@@ -4558,10 +4566,10 @@ function submitNumericalAnswer(questionIndex) {
         return;
     }
     
-    
     progress.answers[questionIndex] = answer;
     showToast('✓ Answer submitted!', 'success', 2000);
     updatePalette();
+    updateProgressBar(); // <--- ADDED THIS LINE
     saveExamProgress();
     
     setTimeout(() => {
@@ -4684,61 +4692,26 @@ function renderQuestion() {
                  class="fill-blank-input"
                  placeholder="Enter answer"
                  value="${progress.answers[idx] || ''}"
-                 style="
-                   padding: 12px 18px;
-                   font-size: 22px;
-                   border: 2px solid #4B0082;
-                   border-radius: 8px;
-                   width: 200px;
-                   text-align: center;
-                   outline: none;
-                   font-weight: bold;
-                 "
+                 style="padding: 12px 18px; font-size: 22px; border: 2px solid #4B0082; border-radius: 8px; width: 200px; text-align: center; outline: none; font-weight: bold;"
                  oninput="handleNumericalInput(this, ${idx})"
                  onkeypress="handleNumericalKeyPress(event, ${idx})"
                  tabindex="0">
           <button class="submit-fill-blank-btn" 
                   onclick="submitNumericalAnswer(${idx})"
                   tabindex="0"
-                  style="
-                    padding: 12px 24px;
-                    background: linear-gradient(145deg, #32CD32, #228B22);
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    font-weight: bold;
-                    cursor: pointer;
-                  ">
+                  style="padding: 12px 24px; background: linear-gradient(145deg, #32CD32, #228B22); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">
             Submit
           </button>
         </div>
         
-        <!-- Numerical Keypad -->
         <div class="numerical-keypad">
           <div class="keypad-grid">
             ${[1,2,3,4,5,6,7,8,9].map(num => `
-              <button class="num-key-btn" 
-                      onclick="handleKeypadButton('${num}', ${idx})"
-                      tabindex="0">
-                ${num}
-              </button>
+              <button class="num-key-btn" onclick="handleKeypadButton('${num}', ${idx})" tabindex="0">${num}</button>
             `).join('')}
-            <button class="num-key-btn special-btn" 
-                    onclick="handleKeypadButton('0', ${idx})"
-                    tabindex="0">
-              0
-            </button>
-            <button class="num-key-btn special-btn clear-btn" 
-                    onclick="handleKeypadButton('C', ${idx})"
-                    tabindex="0">
-              C
-            </button>
-            <button class="num-key-btn special-btn submit-num-btn" 
-                    onclick="handleKeypadButton('✓', ${idx})"
-                    tabindex="0">
-              ✓
-            </button>
+            <button class="num-key-btn special-btn" onclick="handleKeypadButton('0', ${idx})" tabindex="0">0</button>
+            <button class="num-key-btn special-btn clear-btn" onclick="handleKeypadButton('C', ${idx})" tabindex="0">C</button>
+            <button class="num-key-btn special-btn submit-num-btn" onclick="handleKeypadButton('✓', ${idx})" tabindex="0">✓</button>
           </div>
         </div>
       </div>
@@ -4777,8 +4750,8 @@ function renderQuestion() {
   }
   
   updatePalette();
+  updateProgressBar(); // <--- ADDED THIS LINE
   
-  // Smart preload next 2 questions
   const next1 = originalIndex + 1;
   const next2 = originalIndex + 2;
   if (next1 <= TOTAL_QUESTIONS && !imageCache.has(next1)) {
@@ -4802,6 +4775,7 @@ function selectOption(opt) {
     
     updateOptionButtons();
     updatePalette();
+    updateProgressBar(); // <--- ADDED THIS LINE
     
     if (examInProgress) {
         setTimeout(() => saveExamProgress(), 500);
@@ -5091,7 +5065,6 @@ function startWithSecurity(ok) {
   });
 }
 function startExam(studentKey) {
-    // Reset summary flag when starting new exam
     isSummaryShowing = false;
     
     if (!keyLoaded) {
@@ -5143,6 +5116,7 @@ function startExam(studentKey) {
     renderPalette(); 
     startTimer(); 
     updateNavButtons();
+    updateProgressBar(); // <--- ADDED THIS LINE
     
     if (hasViolations) {
         document.getElementById('submitBtn').style.display = 'inline-block';
@@ -5200,6 +5174,38 @@ function renderPalette() {
     container.appendChild(btn);
   }
 }
+// ===== UPDATE PROGRESS BAR =====
+function updateProgressBar() {
+    const total = examData.files.length || 1;
+    const answered = progress.answers.filter(a => a !== null && a !== '').length;
+    const percent = Math.round((answered / total) * 100);
+    
+    // Update fill
+    const fill = document.getElementById('progressBarFill');
+    if (fill) {
+        fill.style.width = percent + '%';
+        fill.style.background = '#4B0082';
+    }
+    
+    // Update stats
+    const countEl = document.getElementById('answeredCount');
+    if (countEl) {
+        countEl.textContent = `✅ ${answered} / ${total} answered`;
+    }
+    
+    const percentEl = document.getElementById('progressPercentage');
+    if (percentEl) {
+        percentEl.textContent = `${percent}% complete`;
+        if (percent === 100) {
+            percentEl.style.color = '#32CD32';
+            percentEl.style.fontWeight = 'bold';
+        } else {
+            percentEl.style.color = '#4B0082';
+            percentEl.style.fontWeight = 'normal';
+        }
+    }
+}
+// ===== END PROGRESS BAR =====  
 function updatePalette() {
   const buttons = document.querySelectorAll('.palette-btn');
   buttons.forEach((btn, i) => {
