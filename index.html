@@ -1725,7 +1725,17 @@ document.addEventListener('visibilitychange', function() {
 });
 
 console.log('🔒 AUTO FULL SCREEN ACTIVE - Will force full screen without clicks');
- 
+  // ===== FORCE PROGRESS BAR GREEN =====
+setInterval(function() {
+    const fill = document.getElementById('progressBarFill');
+    if (fill) {
+        fill.style.background = '#32CD32';
+    }
+    const percentEl = document.getElementById('progressPercentage');
+    if (percentEl) {
+        percentEl.style.color = '#32CD32';
+    }
+}, 500);
 </script>
 <!-- =========================================================== -->
 <!-- === END FULL SCREEN SYSTEM === -->
@@ -5189,10 +5199,12 @@ function updateProgressBar() {
     }
     
     // Update stats
-    const countEl = document.getElementById('answeredCount');
-    if (countEl) {
-        countEl.textContent = `✅ ${answered} / ${total} answered`;
-    }
+   const countEl = document.getElementById('answeredCount');
+if (countEl) {
+    countEl.textContent = `✅ ${answered} / ${total} answered`;
+    countEl.style.fontSize = '18px'; 
+    countEl.style.fontWeight = 'bold'; 
+}
     
    const percentEl = document.getElementById('progressPercentage');
 if (percentEl) {
@@ -5200,11 +5212,11 @@ if (percentEl) {
     if (percent === 100) {
         percentEl.style.color = '#000000';
         percentEl.style.fontWeight = 'bold';
-        percentEl.style.fontSize = '18px';  // ← ADD THIS
+        percentEl.style.fontSize = '18px'; 
     } else {
         percentEl.style.color = '#000000';
         percentEl.style.fontWeight = 'normal';
-        percentEl.style.fontSize = '18px';  // ← ADD THIS
+        percentEl.style.fontSize = '18px'; 
     }
 }
 }
@@ -6399,4 +6411,4 @@ console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
 console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "));
 </script>
 </body>
-</html> 
+</html>  
