@@ -373,7 +373,7 @@ button:focus {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  margin: 0 0 20px 0;  
   padding: 10px;
   background: white;
   border-radius: 10px;
@@ -1504,7 +1504,7 @@ body.anti-sleep-active {
     flex-shrink: 0;
     background: #f8f9fa;
     border-radius: 12px;
-    padding: 10px 15px 10px 15px;
+    padding: 0 15px 10px 15px;  /* ← Changed top padding from 10px to 0 */
     border: 1px solid #e6e6fa;
     height: calc(100vh - 120px);
     overflow-y: scroll;
@@ -1960,7 +1960,7 @@ setInterval(function() {
     <!-- ===== END PROGRESS BAR ===== -->
     <div class="exam-layout">
         <div class="exam-main">
-            <div id="questionContainer" style="text-align:center;margin-top:10px;"></div>
+            <div id="questionContainer" style="text-align:center;margin-top:0px;"></div>
 
             <div class="navContainer">
                 <button class="navBtn" id="prevBtn">⬅ Previous</button>
