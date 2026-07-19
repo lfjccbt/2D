@@ -5560,7 +5560,7 @@ function showRapidNavWarning(count) {
     const navCounter = document.getElementById('navViolationCounter');
     if (navCounter) {
         navCounter.style.display = 'inline-block';
-        navCounter.textContent = `⚡ Fast Nav: ${navigationWarnings}/${MAX_NAV_WARNINGS}`;
+        navCounter.textContent = `⚠️ Searching a particular question: ${navigationWarnings}/${MAX_NAV_WARNINGS}`;
         if (navigationWarnings >= MAX_NAV_WARNINGS) {
             navCounter.style.color = 'red';
             navCounter.style.animation = 'blinkTimer 0.5s infinite';
@@ -5572,7 +5572,7 @@ function showRapidNavWarning(count) {
     
     // Show toast
     const remaining = MAX_NAV_WARNINGS - navigationWarnings;
-    let message = `⚠️ Fast navigation detected! (${navigationWarnings}/${MAX_NAV_WARNINGS})`;
+    let message = `⚠️ Searching a particular question detected! (${navigationWarnings}/${MAX_NAV_WARNINGS})`;
     if (remaining > 0) {
         message += ` ${remaining} warnings remaining`;
     }
