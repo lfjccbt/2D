@@ -4732,6 +4732,12 @@ function submitNumericalAnswer(questionIndex) {
     // LOCK immediately after submission
     secretUnlocked = false;
     
+    // ===== CLEAR REVIEW TIMER =====
+    if (reviewTimer) {
+        clearTimeout(reviewTimer);
+        reviewTimer = null;
+    }
+    
     updatePalette();
     updateProgressBar();
     saveExamProgress();
@@ -4901,7 +4907,7 @@ function renderQuestion() {
     `;
   }
   
-  // Build the container with blur
+   // Build the container with blur
   let containerHTML = `
     <div class="question-transition question-fade-in" style="position: relative;">
      <div style="${shouldBlur ? 'filter: blur(20px);' : ''}">
@@ -4946,6 +4952,45 @@ function renderQuestion() {
     `;
   }
   
+  // ===== SHOW STUDENT'S ANSWER IF ANSWERED =====
+  if (isAnswered) {
+      const displayAnswer = progress.answers[idx];
+      containerHTML += `
+        <div style="
+          margin: 10px auto;
+          padding: 8px 15px;
+          background: ${shouldBlur ? 'rgba(50, 205, 50, 0.08)' : 'rgba(50, 205, 50, 0.15)'};
+          border: 1px solid #32CD32;
+          border-radius: 6px;
+          max-width: 400px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 10px;
+        ">
+          <span style="font-weight: bold; color: #155724; font-size: 15px;">
+            ✅ <span style="font-size: 18px;">${displayAnswer}</span>
+          </span>
+          ${shouldBlur ? `
+            <button onclick="reviewQuestionQuick(${idx})" style="
+              padding: 4px 12px;
+              background: #1E90FF;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 13px;
+              font-weight: bold;
+            ">
+              👁️ Review
+            </button>
+          ` : `
+            <span style="font-size: 12px; color: #666;">(click options to change)</span>
+          `}
+        </div>
+      `;
+  }
+  
   containerHTML += `</div>`;
   container.innerHTML = containerHTML;
   
@@ -4978,6 +5023,26 @@ function renderQuestion() {
     loadImageSafe(next2);
   }
 }
+// ===== REVIEW QUESTION FOR 5 SECONDS =====
+let reviewTimer = null;
+
+function reviewQuestionQuick(questionIndex) {
+    if (reviewTimer) {
+        clearTimeout(reviewTimer);
+        reviewTimer = null;
+    }
+    
+    secretUnlocked = true;
+    renderQuestion();
+    showToast('👁️ Question visible for 5 seconds', 'info', 3000);
+    
+    reviewTimer = setTimeout(() => {
+        secretUnlocked = false;
+        renderQuestion();
+        showToast('🔒 Question re-locked', 'info', 2000);
+        reviewTimer = null;
+    }, 5000);
+}  
 
 function selectOption(opt) {
     const idx = progress.currentIndex;
@@ -4991,6 +5056,12 @@ function selectOption(opt) {
         
         // When answer is selected, LOCK it immediately
         secretUnlocked = false;
+        
+        // ===== CLEAR REVIEW TIMER =====
+        if (reviewTimer) {
+            clearTimeout(reviewTimer);
+            reviewTimer = null;
+        }
         
         // Re-render to show blur
         setTimeout(() => {
