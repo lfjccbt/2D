@@ -2007,6 +2007,7 @@ setInterval(function() {
         <div>
             <span id="timerEl">🕒 00:00</span>
             <span id="violationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚠️ Violations: 0/3</span>
+            <span id="navViolationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚡ Fast Nav: 0/5</span>
         </div>
     </div>
     <!-- ===== PROGRESS BAR ===== -->
@@ -2954,6 +2955,7 @@ class SystemTrayViolationDetector {
     this.lastViolationTime = currentTime;
     this.violationCount++;
     
+    // ===== UPDATE SYSTEM TRAY VIOLATION COUNTER =====
     const counter = document.getElementById('violationCounter');
     if (counter) {
         counter.style.display = 'inline-block';
@@ -2972,35 +2974,34 @@ class SystemTrayViolationDetector {
     this.showWarning(this.violationCount, violationType);
     
     if (this.violationCount >= this.maxViolations) {
-    console.log('🚨 3 system tray violations detected!');
-    localStorage.setItem('hasViolations', 'true');
-    
-    // ✅ SHOW RED FULL SCREEN WITH SUBMIT BUTTON
-    showViolationSubmitScreen(`
-        <div style="font-size: 48px; margin-bottom: 20px;">🚨</div>
-        <div style="font-size: 28px; font-weight: bold; margin-bottom: 20px;">EXAM VIOLATION DETECTED</div>
-        <div style="font-size: 18px; margin-bottom: 10px;">${violationType}</div>
-        <div style="font-size: 16px; margin-bottom: 30px; color: #ffcccc;">
-            <strong>3 system tray violations reached!</strong><br>
-            All answers will be cleared (0 marks).
-        </div>
-        <button id="violationSubmitBtn" style="
-            padding: 20px 60px;
-            font-size: 28px;
-            font-weight: bold;
-            background: #32CD32;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(50, 205, 50, 0.5);
-            animation: pulse 1s infinite;
-        ">✅ CLICK TO SUBMIT</button>
-        <div style="margin-top: 20px; font-size: 14px; color: #ffcccc;">
-            
-        </div>
-    `);
- }
+        console.log('🚨 3 system tray violations detected!');
+        localStorage.setItem('hasViolations', 'true');
+        
+        showViolationSubmitScreen(`
+            <div style="font-size: 48px; margin-bottom: 20px;">🚨</div>
+            <div style="font-size: 28px; font-weight: bold; margin-bottom: 20px;">EXAM VIOLATION DETECTED</div>
+            <div style="font-size: 18px; margin-bottom: 10px;">${violationType}</div>
+            <div style="font-size: 16px; margin-bottom: 30px; color: #ffcccc;">
+                <strong>3 system tray violations reached!</strong><br>
+                All answers will be cleared (0 marks).
+            </div>
+            <button id="violationSubmitBtn" style="
+                padding: 20px 60px;
+                font-size: 28px;
+                font-weight: bold;
+                background: #32CD32;
+                color: white;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 0 30px rgba(50, 205, 50, 0.5);
+                animation: pulse 1s infinite;
+            ">✅ CLICK TO SUBMIT</button>
+            <div style="margin-top: 20px; font-size: 14px; color: #ffcccc;">
+                
+            </div>
+        `);
+    }
 }
     
     showWarning(count, violationType) {
@@ -4777,7 +4778,7 @@ function renderQuestion() {
   
   if (questionType === 'fill-blank') {
     optionsHTML = `
-      <div class="fill-blank-container" style="${shouldBlur ? 'filter: blur(12px); pointer-events: none; opacity: 0.3;' : ''}">
+      <div class="fill-blank-container" style="${shouldBlur ? 'filter: blur(25px); pointer-events: none; opacity: 0.05;' : ''}">
         <div style="margin: 20px 0; font-weight: bold; color: #4B0082; font-size: 18px;">
           Enter answer:
         </div>
@@ -4801,7 +4802,7 @@ function renderQuestion() {
           </button>
         </div>
         
-        <div class="numerical-keypad" style="${shouldBlur ? 'filter: blur(12px); pointer-events: none; opacity: 0.3;' : ''}">
+        <div class="numerical-keypad" style="${shouldBlur ? 'filter: blur(25px); pointer-events: none; opacity: 0.05;' : ''}">
           <div class="keypad-grid">
             ${[1,2,3,4,5,6,7,8,9].map(num => `
               <button class="num-key-btn" onclick="handleKeypadButton('${num}', ${idx})" tabindex="0">${num}</button>
@@ -4815,7 +4816,7 @@ function renderQuestion() {
     `;
   } else {
     optionsHTML = `
-      <div class="options-container" style="${shouldBlur ? 'filter: blur(12px); pointer-events: none; opacity: 0.3;' : ''}">
+      <div class="options-container" style="${shouldBlur ? 'filter: blur(25px); pointer-events: none; opacity: 0.05;' : ''}">
         <button class="optBtn ${progress.answers[idx] === 'A' ? 'selected' : ''}" data-opt="A" tabindex="0" ${shouldBlur ? 'disabled' : ''}>A</button>
         <button class="optBtn ${progress.answers[idx] === 'B' ? 'selected' : ''}" data-opt="B" tabindex="0" ${shouldBlur ? 'disabled' : ''}>B</button>
         <button class="optBtn ${progress.answers[idx] === 'C' ? 'selected' : ''}" data-opt="C" tabindex="0" ${shouldBlur ? 'disabled' : ''}>C</button>
@@ -4827,7 +4828,7 @@ function renderQuestion() {
   // Build the container with blur
   let containerHTML = `
     <div class="question-transition question-fade-in" style="position: relative;">
-      <div style="${shouldBlur ? 'filter: blur(8px);' : ''}">
+     <div style="${shouldBlur ? 'filter: blur(20px);' : ''}">
         ${renderQuestionImage(originalIndex)}
       </div>
       ${optionsHTML}
@@ -5479,6 +5480,20 @@ function showRapidNavWarning(count) {
     
     navigationWarnings++;
     
+    // ===== UPDATE NAVIGATION VIOLATION COUNTER =====
+    const navCounter = document.getElementById('navViolationCounter');
+    if (navCounter) {
+        navCounter.style.display = 'inline-block';
+        navCounter.textContent = `⚡ Fast Nav: ${navigationWarnings}/${MAX_NAV_WARNINGS}`;
+        if (navigationWarnings >= MAX_NAV_WARNINGS) {
+            navCounter.style.color = 'red';
+            navCounter.style.animation = 'blinkTimer 0.5s infinite';
+        } else {
+            navCounter.style.color = 'orange';
+            navCounter.style.animation = 'none';
+        }
+    }
+    
     // Show toast
     const remaining = MAX_NAV_WARNINGS - navigationWarnings;
     let message = `⚠️ Fast navigation detected! (${navigationWarnings}/${MAX_NAV_WARNINGS})`;
@@ -5570,7 +5585,7 @@ function showRapidNavWarning(count) {
             localStorage.setItem('hasViolations', 'true');
         }, 1000);
     }
-} 
+}
 
 // ===== MODIFIED NAVIGATION HANDLERS =====
 document.getElementById('prevBtn').onclick = function() {
