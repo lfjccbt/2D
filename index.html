@@ -5027,6 +5027,8 @@ function renderQuestion() {
 // ===== REVIEW QUESTION FOR 5 SECONDS =====
 let reviewTimer = null;
 
+let reviewTimer = null;
+
 function reviewQuestionQuick(questionIndex) {
     const now = Date.now();
     
@@ -5058,9 +5060,9 @@ function reviewQuestionQuick(questionIndex) {
         }
         
         const remaining = MAX_REVIEWS - reviewCount;
-        showToast(`👁️ Question visible (${remaining} reviews remaining)`, 'info', 3000);
+        showToast(`👁️ Question visible for 5 seconds (${remaining} reviews remaining)`, 'info', 3000);
     } else {
-        showToast(`👁️ Question visible (already reviewed)`, 'info', 3000);
+        showToast(`👁️ Question visible for 5 seconds (already reviewed)`, 'info', 3000);
     }
     
     // ===== UPDATE HISTORY =====
@@ -5075,9 +5077,23 @@ function reviewQuestionQuick(questionIndex) {
         reviewHistory.shift();
     }
     
-    // ===== UNBLUR THE QUESTION (NO TIMERS) =====
+    // ===== CLEAR ANY EXISTING TIMER =====
+    if (reviewTimer) {
+        clearTimeout(reviewTimer);
+        reviewTimer = null;
+    }
+    
+    // ===== UNBLUR THE QUESTION =====
     secretUnlocked = true;
     renderQuestion();
+    
+    // ===== AUTO RE-LOCK AFTER 5 SECONDS =====
+    reviewTimer = setTimeout(() => {
+        secretUnlocked = false;
+        renderQuestion();
+        showToast('🔒 Question re-locked', 'info', 2000);
+        reviewTimer = null;
+    }, 5000);
 }
 
 function selectOption(opt) {
