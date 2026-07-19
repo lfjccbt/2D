@@ -1618,157 +1618,7 @@ body.anti-sleep-active {
     #paletteContainer {
         grid-template-columns: repeat(8, 1fr) !important;
     }
-}
-
-/* ============================================================
-   🔒 PRIVACY FILTER - MAKES SCREEN UNREADABLE FROM SIDES
-   ============================================================ */
-
-/* Micro-louvre effect - blocks light from angles */
-body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9999;
-    background: 
-        repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 1.5px,
-            rgba(0, 0, 0, 0.25) 1.5px,
-            rgba(0, 0, 0, 0.25) 2.5px
-        );
-    background-size: 2.5px 100%;
-    mix-blend-mode: multiply;
-}
-
-/* Moiré pattern - distorts view from angles */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9998;
-    background: 
-        repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 3px,
-            rgba(0, 0, 0, 0.03) 3px,
-            rgba(0, 0, 0, 0.03) 6px
-        ),
-        repeating-linear-gradient(
-            -45deg,
-            transparent,
-            transparent 3px,
-            rgba(0, 0, 0, 0.03) 3px,
-            rgba(0, 0, 0, 0.03) 6px
-        );
-    mix-blend-mode: multiply;
-}
-
-/* Reduce contrast for side viewing */
-body {
-    filter: contrast(0.85) brightness(1.05);
-}
-
-/* Images harder to read from angles */
-.question-image {
-    filter: contrast(0.85) saturate(0.9) brightness(0.95);
-}
-
-/* Option buttons less visible from angles */
-.optBtn {
-    filter: contrast(0.9);
-    text-shadow: 0 0 1px rgba(255,255,255,0.3);
-}
-
-/* Grain texture overlay */
-.grain-texture {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9997;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0"/></filter><rect width="100" height="100" filter="url(%23grain)"/></svg>');
-    background-size: 200px 200px;
-    mix-blend-mode: multiply;
-}
-
-/* Vignette effect - darkens edges */
-.vignette-effect {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9996;
-    background: radial-gradient(ellipse at center, 
-        transparent 50%,
-        rgba(0, 0, 0, 0.15) 80%,
-        rgba(0, 0, 0, 0.3) 100%
-    );
-}
-
-/* ============================================================
-   🔒 BLUR FOR ANSWERED QUESTIONS
-   ============================================================ */
-
-/* Question container blur when answered */
-.question-container.answered {
-    filter: blur(25px) brightness(0.5) !important;
-    pointer-events: none !important;
-    user-select: none !important;
-    opacity: 0.4 !important;
-    transition: all 0.5s ease;
-}
-
-.question-container.answered .optBtn {
-    filter: blur(25px) !important;
-    opacity: 0.2 !important;
-    pointer-events: none !important;
-}
-
-.question-container.answered .question-image {
-    filter: blur(30px) !important;
-    opacity: 0.2 !important;
-}
-
-/* Lock overlay for answered questions */
-.question-container.answered::after {
-    content: '🔒 ANSWERED';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 28px;
-    font-weight: bold;
-    color: #4B0082;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 20px 40px;
-    border-radius: 15px;
-    z-index: 20;
-    border: 3px solid #4B0082;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    animation: pulseLock 2s ease-in-out infinite;
-    letter-spacing: 2px;
-}
-
-@keyframes pulseLock {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.05); }
-}
-
+}  
 </style>
 </head>
 
@@ -2268,7 +2118,7 @@ setInterval(function() {
 // =============================================
 // 📚 CHANGE THIS NUMBER FOR THE WEEK
 // =============================================
-const EXAM_WEEK = 2;  // ← Change this: 1,2,3,4,5,6,7,8,9,10
+const EXAM_WEEK = 1;  // ← Change this: 1,2,3,4,5,6,7,8,9,10
 
 // =============================================
 // WEEK PATTERNS (Set this up once)
@@ -2496,7 +2346,7 @@ let autoSaveIndicator = null;
 let powerLossRecoveryData = null;
 let resumeInProgress = false;
 let secretPasswordBuffer = '';        // ADD THIS
-const SECRET_PASSWORD = 'saidell';     // ADD THIS
+const SECRET_PASSWORD = 'ssrell';     // ADD THIS
 let secretUnlocked = false;           // ADD THIS
 
 let autoClickInterval = null;
@@ -4675,17 +4525,9 @@ document.addEventListener('visibilitychange', function() {
 function handleNumericalInput(inputElement, questionIndex) {
     progress.answers[questionIndex] = inputElement.value;
     updatePalette();
-    updateProgressBar();
-    
-    // ===== 🔒 ADD THIS - Apply blur =====
-    setTimeout(function() {
-        applyBlurToAnswered();
-    }, 100);
-    
+    updateProgressBar(); // <--- ADDED THIS LINE
     if (examInProgress) {
-        setTimeout(function() {
-            saveExamProgress();
-        }, 500);
+        setTimeout(() => saveExamProgress(), 500);
     }
 }
 
@@ -4718,19 +4560,12 @@ function handleKeypadButton(button, questionIndex) {
     }
     
     updatePalette();
-    
-    // ===== 🔒 ADD THIS - Apply blur =====
-    setTimeout(function() {
-        applyBlurToAnswered();
-    }, 100);
-    
     if (examInProgress) {
-        setTimeout(function() {
-            saveExamProgress();
-        }, 500);
+        setTimeout(() => saveExamProgress(), 500);
     }
     input.focus();
 }
+
 function submitNumericalAnswer(questionIndex) {
     const input = document.getElementById('fillBlankInput');
     if (!input) return;
@@ -4745,15 +4580,10 @@ function submitNumericalAnswer(questionIndex) {
     progress.answers[questionIndex] = answer;
     showToast('✓ Answer submitted!', 'success', 2000);
     updatePalette();
-    updateProgressBar();
+    updateProgressBar(); // <--- ADDED THIS LINE
     saveExamProgress();
     
-    // ===== 🔒 ADD THIS - Apply blur =====
-    setTimeout(function() {
-        applyBlurToAnswered();
-    }, 100);
-    
-    setTimeout(function() {
+    setTimeout(() => {
         if (questionIndex < examData.files.length - 1) {
             progress.currentIndex++;
             renderQuestion();
@@ -4908,17 +4738,12 @@ function renderQuestion() {
     `;
   }
   
-   container.innerHTML = `
+  container.innerHTML = `
     <div class="question-transition question-fade-in">
       ${renderQuestionImage(originalIndex)}
       ${optionsHTML}
     </div>
   `;
-  
-  // ===== 🔒 ADD THIS - Apply blur to already answered questions =====
-  setTimeout(function() {
-      applyBlurToAnswered();
-  }, 50);
   
   updateQuestionInfo();
   
@@ -4961,17 +4786,10 @@ function selectOption(opt) {
     
     updateOptionButtons();
     updatePalette();
-    updateProgressBar();
-    
-    // ===== 🔒 ADD THIS - Apply blur to answered questions =====
-    setTimeout(function() {
-        applyBlurToAnswered();
-    }, 100);
+    updateProgressBar(); // <--- ADDED THIS LINE
     
     if (examInProgress) {
-        setTimeout(function() {
-            saveExamProgress();
-        }, 500);
+        setTimeout(() => saveExamProgress(), 500);
     }
 }
 
@@ -5103,34 +4921,16 @@ function verifyAccessCode() {
             elem.mozRequestFullScreen();
         }
         
-        // HIDE access denied
         accessDenied.style.display = 'none';
-        
-        // SHOW student entry with all styles
-        const studentEntry = document.getElementById('studentEntry');
-        studentEntry.style.display = 'flex';
-        studentEntry.style.visibility = 'visible';
-        studentEntry.style.opacity = '1';
-        studentEntry.style.flexDirection = 'column';
-        studentEntry.style.justifyContent = 'center';
-        studentEntry.style.alignItems = 'center';
-        
+        document.getElementById('studentEntry').style.display = 'flex';
         document.getElementById('accessCode').value = '';
-        
-        // Focus on name field after a small delay
-        setTimeout(function() {
-            document.getElementById('stuName').focus();
-        }, 100);
-        
-        console.log('✅ Access verified, showing student entry');
+        document.getElementById('stuName').focus();
     } else {
         errorElement.style.display = 'block';
         document.getElementById('accessCode').value = '';
         document.getElementById('accessCode').focus();
         accessDenied.style.animation = 'shake 0.5s';
-        setTimeout(function() {
-            accessDenied.style.animation = '';
-        }, 500);
+        setTimeout(() => accessDenied.style.animation = '', 500);
     }
 }
 // Full Screen Button Handler
@@ -5204,12 +5004,9 @@ document.getElementById('stuRoll').addEventListener('input', function() {
 document.getElementById('stuAdm').addEventListener('input', function() {
   this.value = this.value.replace(/[^0-9]/g, '');
 });
-document.getElementById('stuStartBtn').onclick = function() { 
-    if (!validateStudentInputs()) {
-        showToast('❌ Please fill all fields correctly', 'error', 3000);
-        return;
-    }
-    showConfirm("Start Exam?", startWithSecurity); 
+document.getElementById('stuStartBtn').onclick = () => { 
+  if (!validateStudentInputs()) return; 
+  showConfirm("Start Exam?", startWithSecurity); 
 };
 
 document.getElementById('verifyResubmission').addEventListener('click', verifyResubmissionPassword);
@@ -5278,7 +5075,74 @@ function startWithSecurity(ok) {
     }, 500);
   });
 }
+function startExam(studentKey) {
+    isSummaryShowing = false;
+    
+    if (!keyLoaded) {
+        alert('Answer key not loaded. Contact admin.');
+        return;
+    }
 
+    const hasViolations = localStorage.getItem('hasViolations') === 'true';
+    
+    if (hasViolations) {
+        hasSubmitted = false;
+        console.log('🔄 Previous violations detected. Starting fresh exam with submit button visible.');
+    }
+
+    const stuName = document.getElementById('stuName');
+    const stuSection = document.getElementById('stuSection');
+    const stuRoll = document.getElementById('stuRoll');
+    const stuAdm = document.getElementById('stuAdm');
+
+    localStorage.setItem(studentKey, Date.now());
+    prepareExamData();
+    
+    if (window.pendingRecoveryData) {
+        progress = window.pendingRecoveryData.progress;
+        examData = window.pendingRecoveryData.examData;
+        examStartTime = window.pendingRecoveryData.metadata.examStartTime;
+        assignedForm = window.pendingRecoveryData.metadata.assignedForm;
+        
+        const timeElapsed = Math.floor((Date.now() - examStartTime) / 1000);
+        progress.timeLeftSec = Math.max(0, EXAM_DURATION_MINUTES * 60 - timeElapsed);
+    } else {
+        progress = {
+            answers: Array(examData.files.length).fill(null),
+            review: Array(examData.files.length).fill(false),
+            currentIndex: 0,
+            student: {name: stuName.value, sec: stuSection.value, roll: stuRoll.value, adm: stuAdm.value},
+            timeLeftSec: EXAM_DURATION_MINUTES * 60
+        };
+        examStartTime = Date.now();
+    }
+
+    examInProgress = true;
+    
+    keepAwakeSystem.start();
+    
+    document.getElementById('studentEntry').style.display = "none";
+    document.getElementById('examArea').style.display = "block";
+    renderQuestion(); 
+    renderPalette(); 
+    startTimer(); 
+    updateNavButtons();
+    updateProgressBar(); // <--- ADDED THIS LINE
+    
+    if (hasViolations) {
+        document.getElementById('submitBtn').style.display = 'inline-block';
+        showToast('⚠️ Previous violations detected. Submit button is available.', 'warning', 5000);
+        localStorage.removeItem('hasViolations');
+    } else {
+        updateSubmitButtonVisibility();
+    }
+    
+    systemTrayDetector.enable();
+    
+    saveExamProgress();
+    secretUnlocked = false;
+    document.getElementById('submitBtn').style.display = 'none';
+}
 
 
 function updateQuestionInfo() {
@@ -5362,12 +5226,6 @@ function updatePalette() {
   buttons.forEach((btn, i) => {
     btn.className = 'palette-btn';
     
-    const isAnswered = progress.answers[i] !== null && progress.answers[i] !== '';
-    
-    // Check if this question is blurred (answered)
-    const container = document.querySelector(`.question-container[data-question-index="${i}"]`);
-    const isBlurred = container && container.classList.contains('answered');
-    
     if (examData.questionTypes[i] === 'fill-blank') {
       btn.style.background = '#FFD700';
       btn.style.color = '#000';
@@ -5376,27 +5234,7 @@ function updatePalette() {
       btn.style.color = '';
     }
     
-    if (isAnswered) {
-      btn.classList.add('selected');
-      // Show lock icon if blurred
-      if (isBlurred) {
-        btn.textContent = '🔒';
-        btn.style.background = '#8B008B';
-        btn.style.color = 'white';
-        btn.title = `Q${i+1}: Answered & Locked`;
-      } else {
-        btn.textContent = i + 1;
-        btn.style.background = '#32CD32';
-        btn.style.color = 'white';
-        btn.title = `Q${i+1}: Answered`;
-      }
-    } else {
-      btn.textContent = i + 1;
-      btn.style.background = '';
-      btn.style.color = '';
-      btn.title = `Q${i+1}: Not Attempted`;
-    }
-    
+    if (progress.answers[i] !== null) btn.classList.add('selected');
     if (progress.review[i]) btn.classList.add('reviewed');
     if (i === progress.currentIndex) btn.classList.add('current');
   });
@@ -6568,88 +6406,6 @@ document.addEventListener('keydown', function(e) {
 });
 
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
-// ============================================================
-// 🔒 PRIVACY FILTER FUNCTIONS
-// ============================================================
-
-// Enable privacy filter
-function enablePrivacyFilter() {
-    console.log('🛡️ Enabling privacy filter...');
-    
-    // Remove existing if any
-    const existingGrain = document.querySelector('.grain-texture');
-    if (existingGrain) existingGrain.remove();
-    const existingVignette = document.querySelector('.vignette-effect');
-    if (existingVignette) existingVignette.remove();
-    
-    // Add grain texture
-    const grain = document.createElement('div');
-    grain.className = 'grain-texture';
-    document.body.appendChild(grain);
-    
-    // Add vignette
-    const vignette = document.createElement('div');
-    vignette.className = 'vignette-effect';
-    document.body.appendChild(vignette);
-    
-    console.log('✅ Privacy filter active - screen unreadable from angles');
-}
-
-// Disable privacy filter (admin only)
-function disablePrivacyFilter() {
-    const elements = document.querySelectorAll('.grain-texture, .vignette-effect');
-    elements.forEach(el => {
-        if (el.parentNode) el.parentNode.removeChild(el);
-    });
-    console.log('🔓 Privacy filter disabled');
-}
-
-// Apply blur to answered questions
-function applyBlurToAnswered() {
-    const containers = document.querySelectorAll('.question-container');
-    containers.forEach((container, index) => {
-        const isAnswered = progress && progress.answers && progress.answers[index] !== null && progress.answers[index] !== '';
-        if (isAnswered) {
-            container.classList.add('answered');
-        } else {
-            container.classList.remove('answered');
-        }
-    });
-}
-
-// Secret password to toggle privacy filter (type 'ssrell')
-let privacyBuffer = '';
-const PRIVACY_PASSWORD = 'ssrell';
-
-document.addEventListener('keydown', function(e) {
-    // Only work during exam
-    if (!examInProgress) return;
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-    
-    privacyBuffer += e.key.toLowerCase();
-    if (privacyBuffer.length > PRIVACY_PASSWORD.length) {
-        privacyBuffer = privacyBuffer.slice(-PRIVACY_PASSWORD.length);
-    }
-    
-    if (privacyBuffer === PRIVACY_PASSWORD) {
-        // Toggle privacy filter
-        const grain = document.querySelector('.grain-texture');
-        if (grain) {
-            disablePrivacyFilter();
-            showToast('🔓 Privacy filter disabled', 'warning', 3000);
-        } else {
-            enablePrivacyFilter();
-            showToast('🔒 Privacy filter enabled', 'success', 3000);
-        }
-        privacyBuffer = '';
-    }
-});
-
-// ============================================================
-// END PRIVACY FILTER FUNCTIONS
-// ============================================================
-
-console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);      
 console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
 console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "));
