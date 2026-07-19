@@ -2412,9 +2412,9 @@ let secretUnlocked = false;
 // ===== NAVIGATION TRACKING VARIABLES =====
 let navigationHistory = [];
 let navigationWarnings = 0;
-const MAX_NAV_WARNINGS = 3;
-const RAPID_NAV_THRESHOLD = 3; // 3 clicks
-const RAPID_NAV_TIME = 3000; // in 3 seconds
+const MAX_NAV_WARNINGS = 5; // ← CHANGED: 5 for navigation only
+const RAPID_NAV_THRESHOLD = 5; // ← CHANGED: 5 clicks
+const RAPID_NAV_TIME = 5000; // ← CHANGED: 5 seconds
 let lastNavWarningTime = 0;
 let isNavWarningShowing = false;
 
@@ -5469,7 +5469,7 @@ function showRapidNavWarning(count) {
     
     // Show toast
     const remaining = MAX_NAV_WARNINGS - navigationWarnings;
-    let message = `⚠️ Rapid navigation detected! (${navigationWarnings}/${MAX_NAV_WARNINGS})`;
+    let message = `⚠️ Fast navigation detected! (${navigationWarnings}/${MAX_NAV_WARNINGS})`;
     if (remaining > 0) {
         message += ` ${remaining} warnings remaining`;
     }
@@ -5536,7 +5536,7 @@ function showRapidNavWarning(count) {
             showViolationSubmitScreen(`
                 <div style="font-size: 48px; margin-bottom: 20px;">🚨</div>
                 <div style="font-size: 28px; font-weight: bold; margin-bottom: 20px;">NAVIGATION VIOLATION</div>
-                <div style="font-size: 18px; margin-bottom: 10px;">${MAX_NAV_WARNINGS} rapid navigation warnings detected</div>
+                <div style="font-size: 18px; margin-bottom: 10px;">${MAX_NAV_WARNINGS} fast navigation warnings detected</div>
                 <div style="font-size: 16px; margin-bottom: 30px; color: #ffcccc;">
                     <strong>You navigated too quickly without answering questions.</strong><br>
                     All answers have been cleared (0 marks).
@@ -5559,6 +5559,7 @@ function showRapidNavWarning(count) {
         }, 1000);
     }
 }
+}  
 
 // ===== MODIFIED NAVIGATION HANDLERS =====
 document.getElementById('prevBtn').onclick = function() {
