@@ -2082,7 +2082,7 @@ setInterval(function() {
     <div id="stuQInfo"></div>
     <div>
         <span id="timerEl">🕒 00:00</span>
-        <span id="reviewCounter" style="margin-left: 20px; color: #1E90FF; font-weight: bold;">👁️ ANSWERS REVIEW: 0/5</span>
+        <span id="reviewCounter" style="margin-left: 20px; color: #1E90FF; font-weight: bold;">👁️ ANSWERED REVIEWS: 0/5</span>
         <span id="violationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚠️ Violations: 0/3</span>
         <span id="navViolationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚠️ Searching: 0/5</span>
     </div>
@@ -5047,7 +5047,7 @@ function reviewQuestionQuick(questionIndex) {
         // Update review counter
         const reviewCounter = document.getElementById('reviewCounter');
         if (reviewCounter) {
-            reviewCounter.textContent = `👁️ Reviews: ${reviewCount}/${MAX_REVIEWS}`;
+            reviewCounter.textContent = `👁️ ANSWERED Reviews: ${reviewCount}/${MAX_REVIEWS}`;
             if (reviewCount >= MAX_REVIEWS) {
                 reviewCounter.style.color = 'red';
             } else if (reviewCount >= MAX_REVIEWS - 2) {
