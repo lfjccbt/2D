@@ -4986,7 +4986,7 @@ function renderQuestion() {
             transition: all 0.2s;
             width: 100%;
           " onmouseover="this.style.background='rgba(30, 144, 255, 1)';" onmouseout="this.style.background='rgba(30, 144, 255, 0.9)';">
-            👁️ Review
+            👁️ MODIFY ANSWER
           </button>
         </div>
       `;
@@ -5047,7 +5047,7 @@ function reviewQuestionQuick(questionIndex) {
         // Update review counter
         const reviewCounter = document.getElementById('reviewCounter');
         if (reviewCounter) {
-            reviewCounter.textContent = `👁️ Answered Reviews: ${reviewCount}/${MAX_REVIEWS}`;
+            reviewCounter.textContent = `👁️ Modify Answers: ${reviewCount}/${MAX_REVIEWS}`;
             if (reviewCount >= MAX_REVIEWS) {
                 reviewCounter.style.color = 'red';
             } else if (reviewCount >= MAX_REVIEWS - 2) {
@@ -5439,7 +5439,7 @@ function startExam(studentKey) {
     }
       const reviewCounter = document.getElementById('reviewCounter');
     if (reviewCounter) {
-        reviewCounter.textContent = `👁️ Answered Reviews: 0/${MAX_REVIEWS}`;
+        reviewCounter.textContent = `👁️ Modify Answers: 0/${MAX_REVIEWS}`;
         reviewCounter.style.color = '#1E90FF';
     }
     console.log('🔄 Review tracker reset');
