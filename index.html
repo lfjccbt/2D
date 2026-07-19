@@ -5103,16 +5103,34 @@ function verifyAccessCode() {
             elem.mozRequestFullScreen();
         }
         
+        // HIDE access denied
         accessDenied.style.display = 'none';
-        document.getElementById('studentEntry').style.display = 'flex';
+        
+        // SHOW student entry with all styles
+        const studentEntry = document.getElementById('studentEntry');
+        studentEntry.style.display = 'flex';
+        studentEntry.style.visibility = 'visible';
+        studentEntry.style.opacity = '1';
+        studentEntry.style.flexDirection = 'column';
+        studentEntry.style.justifyContent = 'center';
+        studentEntry.style.alignItems = 'center';
+        
         document.getElementById('accessCode').value = '';
-        document.getElementById('stuName').focus();
+        
+        // Focus on name field after a small delay
+        setTimeout(function() {
+            document.getElementById('stuName').focus();
+        }, 100);
+        
+        console.log('✅ Access verified, showing student entry');
     } else {
         errorElement.style.display = 'block';
         document.getElementById('accessCode').value = '';
         document.getElementById('accessCode').focus();
         accessDenied.style.animation = 'shake 0.5s';
-        setTimeout(() => accessDenied.style.animation = '', 500);
+        setTimeout(function() {
+            accessDenied.style.animation = '';
+        }, 500);
     }
 }
 // Full Screen Button Handler
@@ -5186,9 +5204,12 @@ document.getElementById('stuRoll').addEventListener('input', function() {
 document.getElementById('stuAdm').addEventListener('input', function() {
   this.value = this.value.replace(/[^0-9]/g, '');
 });
-document.getElementById('stuStartBtn').onclick = () => { 
-  if (!validateStudentInputs()) return; 
-  showConfirm("Start Exam?", startWithSecurity); 
+document.getElementById('stuStartBtn').onclick = function() { 
+    if (!validateStudentInputs()) {
+        showToast('❌ Please fill all fields correctly', 'error', 3000);
+        return;
+    }
+    showConfirm("Start Exam?", startWithSecurity); 
 };
 
 document.getElementById('verifyResubmission').addEventListener('click', verifyResubmissionPassword);
@@ -5257,144 +5278,7 @@ function startWithSecurity(ok) {
     }, 500);
   });
 }
-function startExam(studentKey) {
-    isSummaryShowing = false;
-    
-    if (!keyLoaded) {
-        alert('Answer key not loaded. Contact admin.');
-        return;
-    }
 
-    const hasViolations = localStorage.getItem('hasViolations') === 'true';
-    
-    if (hasViolations) {
-        hasSubmitted = false;
-        console.log('🔄 Previous violations detected. Starting fresh exam with submit button visible.');
-    }
-
-    const stuName = document.getElementById('stuName');
-    const stuSection = document.getElementById('stuSection');
-    const stuRoll = document.getElementById('stuRoll');
-    const stuAdm = document.getElementById('stuAdm');
-
-    localStorage.setItem(studentKey, Date.now());
-    prepareExamData();
-    
-    if (window.pendingRecoveryData) {
-        progress = window.pendingRecoveryData.progress;
-        examData = window.pendingRecoveryData.examData;
-        examStartTime = window.pendingRecoveryData.metadata.examStartTime;
-        assignedForm = window.pendingRecoveryData.metadata.assignedForm;
-        
-        const timeElapsed = Math.floor((Date.now() - examStartTime) / 1000);
-        progress.timeLeftSec = Math.max(0, EXAM_DURATION_MINUTES * 60 - timeElapsed);
-    } else {
-        progress = {
-            answers: Array(examData.files.length).fill(null),
-            review: Array(examData.files.length).fill(false),
-            currentIndex: 0,
-            student: {name: stuName.value, sec: stuSection.value, roll: stuRoll.value, adm: stuAdm.value},
-            timeLeftSec: EXAM_DURATION_MINUTES * 60
-        };
-        examStartTime = Date.now();
-    }
-
-    examInProgress = true;
-    
-    // ===== 🔒 ADD THIS LINE - Enable privacy filter =====
-    enablePrivacyFilter();
-    
-    keepAwakeSystem.start();
-    
-    document.getElementById('studentEntry').style.display = "none";
-    document.getElementById('examArea').style.display = "block";
-    renderQuestion(); 
-    renderPalette(); 
-    startTimer(); 
-    updateNavButtons();
-    updateProgressBar();
-    
-    if (hasViolations) {
-        document.getElementById('submitBtn').style.display = 'inline-block';
-        showToast('⚠️ Previous violations detected. Submit button is available.', 'warning', 5000);
-        localStorage.removeItem('hasViolations');
-    } else {
-        updateSubmitButtonVisibility();
-    }
-    
-    systemTrayDetector.enable();
-    
-    saveExamProgress();
-    secretUnlocked = false;
-    document.getElementById('submitBtn').style.display = 'none';
-}
-    isSummaryShowing = false;
-    
-    if (!keyLoaded) {
-        alert('Answer key not loaded. Contact admin.');
-        return;
-    }
-
-    const hasViolations = localStorage.getItem('hasViolations') === 'true';
-    
-    if (hasViolations) {
-        hasSubmitted = false;
-        console.log('🔄 Previous violations detected. Starting fresh exam with submit button visible.');
-    }
-
-    const stuName = document.getElementById('stuName');
-    const stuSection = document.getElementById('stuSection');
-    const stuRoll = document.getElementById('stuRoll');
-    const stuAdm = document.getElementById('stuAdm');
-
-    localStorage.setItem(studentKey, Date.now());
-    prepareExamData();
-    
-    if (window.pendingRecoveryData) {
-        progress = window.pendingRecoveryData.progress;
-        examData = window.pendingRecoveryData.examData;
-        examStartTime = window.pendingRecoveryData.metadata.examStartTime;
-        assignedForm = window.pendingRecoveryData.metadata.assignedForm;
-        
-        const timeElapsed = Math.floor((Date.now() - examStartTime) / 1000);
-        progress.timeLeftSec = Math.max(0, EXAM_DURATION_MINUTES * 60 - timeElapsed);
-    } else {
-        progress = {
-            answers: Array(examData.files.length).fill(null),
-            review: Array(examData.files.length).fill(false),
-            currentIndex: 0,
-            student: {name: stuName.value, sec: stuSection.value, roll: stuRoll.value, adm: stuAdm.value},
-            timeLeftSec: EXAM_DURATION_MINUTES * 60
-        };
-        examStartTime = Date.now();
-    }
-
-    examInProgress = true;
-    
-    keepAwakeSystem.start();
-    
-    document.getElementById('studentEntry').style.display = "none";
-    document.getElementById('examArea').style.display = "block";
-    renderQuestion(); 
-    renderPalette(); 
-    startTimer(); 
-    updateNavButtons();
-    updateProgressBar(); // <--- ADDED THIS LINE
-    
-    if (hasViolations) {
-        document.getElementById('submitBtn').style.display = 'inline-block';
-        showToast('⚠️ Previous violations detected. Submit button is available.', 'warning', 5000);
-        localStorage.removeItem('hasViolations');
-    } else {
-        updateSubmitButtonVisibility();
-    }
-    
-    systemTrayDetector.enable();
-    
-    saveExamProgress();
-    secretUnlocked = false;
-    document.getElementById('submitBtn').style.display = 'none';
-}
 
 
 function updateQuestionInfo() {
