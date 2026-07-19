@@ -4952,41 +4952,33 @@ function renderQuestion() {
     `;
   }
   
-  // ===== SHOW STUDENT'S ANSWER IF ANSWERED =====
-  if (isAnswered) {
-      const displayAnswer = progress.answers[idx];
+   // ===== SHOW REVIEW BUTTON ONLY =====
+  if (isAnswered && shouldBlur) {
       containerHTML += `
         <div style="
           margin: 10px auto;
           padding: 8px 15px;
-          background: ${shouldBlur ? 'rgba(50, 205, 50, 0.08)' : 'rgba(50, 205, 50, 0.15)'};
-          border: 1px solid #32CD32;
+          background: rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(255, 255, 255, 0.2);
           border-radius: 6px;
-          max-width: 400px;
+          max-width: 200px;
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 10px;
         ">
-          <span style="font-weight: bold; color: #155724; font-size: 15px;">
-            ✅ <span style="font-size: 18px;">${displayAnswer}</span>
-          </span>
-          ${shouldBlur ? `
-            <button onclick="reviewQuestionQuick(${idx})" style="
-              padding: 4px 12px;
-              background: #1E90FF;
-              color: white;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-              font-size: 13px;
-              font-weight: bold;
-            ">
-              👁️ Review
-            </button>
-          ` : `
-            <span style="font-size: 12px; color: #666;">(click options to change)</span>
-          `}
+          <button onclick="reviewQuestionQuick(${idx})" style="
+            padding: 6px 18px;
+            background: rgba(30, 144, 255, 0.9);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+          " onmouseover="this.style.background='rgba(30, 144, 255, 1)';" onmouseout="this.style.background='rgba(30, 144, 255, 0.9)';">
+            👁️ Review
+          </button>
         </div>
       `;
   }
