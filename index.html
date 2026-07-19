@@ -5478,6 +5478,12 @@ function updatePalette() {
   buttons.forEach((btn, i) => {
     btn.className = 'palette-btn';
     
+    const isAnswered = progress.answers[i] !== null && progress.answers[i] !== '';
+    
+    // Check if this question is blurred (answered)
+    const container = document.querySelector(`.question-container[data-question-index="${i}"]`);
+    const isBlurred = container && container.classList.contains('answered');
+    
     if (examData.questionTypes[i] === 'fill-blank') {
       btn.style.background = '#FFD700';
       btn.style.color = '#000';
@@ -5486,7 +5492,27 @@ function updatePalette() {
       btn.style.color = '';
     }
     
-    if (progress.answers[i] !== null) btn.classList.add('selected');
+    if (isAnswered) {
+      btn.classList.add('selected');
+      // Show lock icon if blurred
+      if (isBlurred) {
+        btn.textContent = '🔒';
+        btn.style.background = '#8B008B';
+        btn.style.color = 'white';
+        btn.title = `Q${i+1}: Answered & Locked`;
+      } else {
+        btn.textContent = i + 1;
+        btn.style.background = '#32CD32';
+        btn.style.color = 'white';
+        btn.title = `Q${i+1}: Answered`;
+      }
+    } else {
+      btn.textContent = i + 1;
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.title = `Q${i+1}: Not Attempted`;
+    }
+    
     if (progress.review[i]) btn.classList.add('reviewed');
     if (i === progress.currentIndex) btn.classList.add('current');
   });
