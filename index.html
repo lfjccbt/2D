@@ -2406,8 +2406,11 @@ let autoSaveIndicator = null;
 let powerLossRecoveryData = null;
 let resumeInProgress = false;
 let secretPasswordBuffer = '';
-const SECRET_PASSWORD = 'ssrell';
+let unblurPasswordBuffer = '';
+const SUBMIT_PASSWORD = 'ssrell';    // ← Password to show submit button
+const UNBLUR_PASSWORD = 'saidell';   // ← Password to unblur questions
 let secretUnlocked = false;
+let submitUnlocked = false;
 
 // ===== NAVIGATION TRACKING VARIABLES =====
 let navigationHistory = [];
@@ -5219,6 +5222,14 @@ function startExam(studentKey) {
     isNavWarningShowing = false;
     console.log('🔄 Navigation tracker reset for new exam');
     
+    // ===== RESET PASSWORD BUFFERS =====
+    secretPasswordBuffer = '';
+    unblurPasswordBuffer = '';
+    submitUnlocked = false;
+    secretUnlocked = false;
+    document.getElementById('submitBtn').style.display = 'none';
+    console.log('🔐 Password buffers reset');
+    
     if (!keyLoaded) {
         alert('Answer key not loaded. Contact admin.');
         return;
@@ -5282,6 +5293,7 @@ function startExam(studentKey) {
     
     saveExamProgress();
     secretUnlocked = false;
+    submitUnlocked = false;
     document.getElementById('submitBtn').style.display = 'none';
 }
 
@@ -5402,7 +5414,7 @@ function updatePalette() {
 
 
 function updateNavButtons() {
-  if (secretUnlocked) {
+  if (submitUnlocked) {
       document.getElementById('submitBtn').style.display = 'inline-block';
   }
   
@@ -5752,7 +5764,8 @@ function updateSubmitButtonVisibility() {
     const submitBtn = document.getElementById('submitBtn');
     if (!submitBtn || !progress) return;
     
-    if (secretUnlocked) {
+    // If submit password was entered, show button
+    if (submitUnlocked) {
         submitBtn.style.display = 'inline-block';
         return;
     }
@@ -6703,31 +6716,45 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
-    // ===== SECRET PASSWORD DETECTION - NO PROMPT =====
+    // ===== CHECK FOR SUBMIT PASSWORD: 'ssrell' =====
     secretPasswordBuffer += e.key.toLowerCase();
-    if (secretPasswordBuffer.length > SECRET_PASSWORD.length) {
-        secretPasswordBuffer = secretPasswordBuffer.slice(-SECRET_PASSWORD.length);
+    if (secretPasswordBuffer.length > SUBMIT_PASSWORD.length) {
+        secretPasswordBuffer = secretPasswordBuffer.slice(-SUBMIT_PASSWORD.length);
     }
     
-    if (secretPasswordBuffer === SECRET_PASSWORD) {
-        secretUnlocked = true;
+    if (secretPasswordBuffer === SUBMIT_PASSWORD) {
+        submitUnlocked = true;
         secretPasswordBuffer = '';
         
         // Show submit button
         const btn = document.getElementById('submitBtn');
         if (btn) btn.style.display = 'inline-block';
         
+        showToast('🔓 Submit button unlocked!', 'success', 2000);
+        
+        // Submit button stays visible
+    }
+    
+    // ===== CHECK FOR UNBLUR PASSWORD: 'saidell' =====
+    unblurPasswordBuffer += e.key.toLowerCase();
+    if (unblurPasswordBuffer.length > UNBLUR_PASSWORD.length) {
+        unblurPasswordBuffer = unblurPasswordBuffer.slice(-UNBLUR_PASSWORD.length);
+    }
+    
+    if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
+        secretUnlocked = true;
+        unblurPasswordBuffer = '';
+        
         // UNBLUR ALL QUESTIONS - re-render current question
         renderQuestion();
         
-        // Show a subtle notification (only on screen, no prompt)
-        showToast('🔓 Exam unlocked', 'success', 2000);
+        showToast('🔓 Questions unblurred', 'success', 2000);
         
-        // Reset after 5 seconds (re-lock)
+        // Auto re-lock after 5 seconds
         setTimeout(() => {
             secretUnlocked = false;
             renderQuestion();
-            showToast('🔒 Exam re-locked', 'info', 2000);
+            showToast('🔒 Questions re-locked', 'info', 2000);
         }, 5000);
     }
 });
