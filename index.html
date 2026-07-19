@@ -5433,33 +5433,19 @@ function startExam(studentKey) {
     isNavWarningShowing = false;
     console.log('🔄 Navigation tracker reset for new exam');
     
-    // ===== RESET PASSWORD BUFFERS =====
+       // ===== RESET PASSWORD BUFFERS =====
     secretPasswordBuffer = '';
     unblurPasswordBuffer = '';
     submitUnlocked = false;
     secretUnlocked = false;
     document.getElementById('submitBtn').style.display = 'none';
     console.log('🔐 Password buffers reset');
-        // ===== RESET REVIEW TRACKER =====
+    
+    // ===== RESET REVIEW TRACKER =====
     reviewCount = 0;
     lastReviewTime = 0;
     reviewHistory = [];
     reviewedQuestions = new Set();
-    if (reviewTimer) {
-        clearTimeout(reviewTimer);
-        reviewTimer = null;
-    }
-    const reviewCounter = document.getElementById('reviewCounter');
-    if (reviewCounter) {
-        reviewCounter.style.display = 'none';
-        reviewCounter.textContent = `👁️ Reviews: 0/${MAX_REVIEWS}`;
-        reviewCounter.style.color = '#1E90FF';
-    }
-    console.log('🔄 Review tracker reset');
-        // ===== RESET REVIEW TRACKER =====
-    reviewCount = 0;
-    lastReviewTime = 0;
-    reviewHistory = [];
     if (reviewTimer) {
         clearTimeout(reviewTimer);
         reviewTimer = null;
