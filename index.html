@@ -1618,6 +1618,66 @@ body.anti-sleep-active {
     #paletteContainer {
         grid-template-columns: repeat(8, 1fr) !important;
     }
+} 
+/* ===== BLUR EFFECTS FOR ANSWERED QUESTIONS ===== */
+.question-transition {
+    transition: filter 0.5s ease, opacity 0.5s ease;
+}
+
+.blur-overlay {
+    animation: fadeInOverlay 0.3s ease;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Lock icon pulse */
+.blur-overlay div div {
+    animation: lockPulse 2s ease-in-out infinite;
+}
+
+@keyframes lockPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Glow effect for locked state */
+.blur-overlay div {
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.05);
+}
+
+/* Smooth transition when unblurring */
+.question-fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0.7; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ===== RAPID NAVIGATION WARNING ===== */
+@keyframes slideDown {
+    from { top: -100px; opacity: 0; }
+    to { top: 100px; opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { top: 100px; opacity: 1; }
+    to { top: -100px; opacity: 0; }
+}
+
+#rapidNavWarning {
+    animation: slideDown 0.5s ease;
+}
+
+/* Navigation button disabled state */
+.navBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
 }  
 </style>
 </head>
@@ -2345,9 +2405,18 @@ let connectionStatusElement = null;
 let autoSaveIndicator = null;
 let powerLossRecoveryData = null;
 let resumeInProgress = false;
-let secretPasswordBuffer = '';        // ADD THIS
-const SECRET_PASSWORD = 'ssrell';     // ADD THIS
-let secretUnlocked = false;           // ADD THIS
+let secretPasswordBuffer = '';
+const SECRET_PASSWORD = 'ssrell';
+let secretUnlocked = false;
+
+// ===== NAVIGATION TRACKING VARIABLES =====
+let navigationHistory = [];
+let navigationWarnings = 0;
+const MAX_NAV_WARNINGS = 3;
+const RAPID_NAV_THRESHOLD = 3; // 3 clicks
+const RAPID_NAV_TIME = 3000; // in 3 seconds
+let lastNavWarningTime = 0;
+let isNavWarningShowing = false;
 
 let autoClickInterval = null;
 let keepAwakeSystem = null;
@@ -4579,9 +4648,18 @@ function submitNumericalAnswer(questionIndex) {
     
     progress.answers[questionIndex] = answer;
     showToast('✓ Answer submitted!', 'success', 2000);
+    
+    // LOCK immediately after submission
+    secretUnlocked = false;
+    
     updatePalette();
-    updateProgressBar(); // <--- ADDED THIS LINE
+    updateProgressBar();
     saveExamProgress();
+    
+    // Re-render to show blur
+    setTimeout(() => {
+        renderQuestion();
+    }, 100);
     
     setTimeout(() => {
         if (questionIndex < examData.files.length - 1) {
@@ -4591,7 +4669,6 @@ function submitNumericalAnswer(questionIndex) {
         }
     }, 1500);
 }
-
 function getFormFields(formId) {
     return FORM_FIELDS;
 }
@@ -4687,13 +4764,17 @@ function renderQuestion() {
   const imagePath = getBestImagePath(originalIndex);
   const questionType = examData.questionTypes[idx];
   
-  console.log(`🖼️ Loading: ${imagePath} (Question ${originalIndex}/${TOTAL_QUESTIONS}) - ${examData.subjectNames[idx]} - ${questionType}`);
+  // Check if answered and should be blurred
+  const isAnswered = progress.answers[idx] !== null && progress.answers[idx] !== '';
+  const shouldBlur = isAnswered && !secretUnlocked;
+  
+  console.log(`🖼️ Loading: ${imagePath} (Question ${originalIndex}/${TOTAL_QUESTIONS}) - ${examData.subjectNames[idx]} - ${questionType} ${shouldBlur ? '(BLURRED)' : ''}`);
   
   let optionsHTML = '';
   
   if (questionType === 'fill-blank') {
     optionsHTML = `
-      <div class="fill-blank-container">
+      <div class="fill-blank-container" style="${shouldBlur ? 'filter: blur(12px); pointer-events: none; opacity: 0.3;' : ''}">
         <div style="margin: 20px 0; font-weight: bold; color: #4B0082; font-size: 18px;">
           Enter answer:
         </div>
@@ -4706,16 +4787,18 @@ function renderQuestion() {
                  style="padding: 12px 18px; font-size: 22px; border: 2px solid #4B0082; border-radius: 8px; width: 200px; text-align: center; outline: none; font-weight: bold;"
                  oninput="handleNumericalInput(this, ${idx})"
                  onkeypress="handleNumericalKeyPress(event, ${idx})"
-                 tabindex="0">
+                 tabindex="0"
+                 ${shouldBlur ? 'disabled' : ''}>
           <button class="submit-fill-blank-btn" 
                   onclick="submitNumericalAnswer(${idx})"
                   tabindex="0"
-                  style="padding: 12px 24px; background: linear-gradient(145deg, #32CD32, #228B22); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">
+                  style="padding: 12px 24px; background: linear-gradient(145deg, #32CD32, #228B22); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;"
+                  ${shouldBlur ? 'disabled' : ''}>
             Submit
           </button>
         </div>
         
-        <div class="numerical-keypad">
+        <div class="numerical-keypad" style="${shouldBlur ? 'filter: blur(12px); pointer-events: none; opacity: 0.3;' : ''}">
           <div class="keypad-grid">
             ${[1,2,3,4,5,6,7,8,9].map(num => `
               <button class="num-key-btn" onclick="handleKeypadButton('${num}', ${idx})" tabindex="0">${num}</button>
@@ -4729,31 +4812,74 @@ function renderQuestion() {
     `;
   } else {
     optionsHTML = `
-      <div class="options-container">
-        <button class="optBtn ${progress.answers[idx] === 'A' ? 'selected' : ''}" data-opt="A" tabindex="0">A</button>
-        <button class="optBtn ${progress.answers[idx] === 'B' ? 'selected' : ''}" data-opt="B" tabindex="0">B</button>
-        <button class="optBtn ${progress.answers[idx] === 'C' ? 'selected' : ''}" data-opt="C" tabindex="0">C</button>
-        <button class="optBtn ${progress.answers[idx] === 'D' ? 'selected' : ''}" data-opt="D" tabindex="0">D</button>
+      <div class="options-container" style="${shouldBlur ? 'filter: blur(12px); pointer-events: none; opacity: 0.3;' : ''}">
+        <button class="optBtn ${progress.answers[idx] === 'A' ? 'selected' : ''}" data-opt="A" tabindex="0" ${shouldBlur ? 'disabled' : ''}>A</button>
+        <button class="optBtn ${progress.answers[idx] === 'B' ? 'selected' : ''}" data-opt="B" tabindex="0" ${shouldBlur ? 'disabled' : ''}>B</button>
+        <button class="optBtn ${progress.answers[idx] === 'C' ? 'selected' : ''}" data-opt="C" tabindex="0" ${shouldBlur ? 'disabled' : ''}>C</button>
+        <button class="optBtn ${progress.answers[idx] === 'D' ? 'selected' : ''}" data-opt="D" tabindex="0" ${shouldBlur ? 'disabled' : ''}>D</button>
       </div>
     `;
   }
   
-  container.innerHTML = `
-    <div class="question-transition question-fade-in">
-      ${renderQuestionImage(originalIndex)}
+  // Build the container with blur
+  let containerHTML = `
+    <div class="question-transition question-fade-in" style="position: relative;">
+      <div style="${shouldBlur ? 'filter: blur(8px);' : ''}">
+        ${renderQuestionImage(originalIndex)}
+      </div>
       ${optionsHTML}
-    </div>
   `;
+  
+  // Add blur overlay if answered and locked
+  if (shouldBlur) {
+    containerHTML += `
+      <div id="blurOverlay-${idx}" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        cursor: default;
+        pointer-events: none;
+      ">
+        <div style="
+          background: rgba(0, 0, 0, 0.85);
+          padding: 30px 50px;
+          border-radius: 16px;
+          text-align: center;
+          border: 2px solid #FFD700;
+          box-shadow: 0 0 60px rgba(255, 215, 0, 0.1);
+          pointer-events: none;
+        ">
+          <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
+          <div style="color: white; font-weight: bold; font-size: 22px;">Question Answered</div>
+          <div style="color: #666; font-size: 14px; margin-top: 8px;">Content locked</div>
+        </div>
+      </div>
+    `;
+  }
+  
+  containerHTML += `</div>`;
+  container.innerHTML = containerHTML;
   
   updateQuestionInfo();
   
-  if (questionType !== 'fill-blank') {
+  if (questionType !== 'fill-blank' && !shouldBlur) {
     document.querySelectorAll('.optBtn').forEach(btn => {
-      btn.onclick = function() { 
-        selectOption(this.getAttribute('data-opt')); 
-      };
+      if (!btn.disabled) {
+        btn.onclick = function() { 
+          selectOption(this.getAttribute('data-opt')); 
+        };
+      }
     });
-  } else {
+  } else if (questionType === 'fill-blank' && !shouldBlur) {
     setTimeout(() => {
       const input = document.getElementById('fillBlankInput');
       if (input) input.focus();
@@ -4761,7 +4887,7 @@ function renderQuestion() {
   }
   
   updatePalette();
-  updateProgressBar(); // <--- ADDED THIS LINE
+  updateProgressBar();
   
   const next1 = originalIndex + 1;
   const next2 = originalIndex + 2;
@@ -4782,11 +4908,19 @@ function selectOption(opt) {
     } else {
         progress.answers[idx] = opt;
         console.log(`Selected option ${opt} for question ${idx + 1}`);
+        
+        // When answer is selected, LOCK it immediately
+        secretUnlocked = false;
+        
+        // Re-render to show blur
+        setTimeout(() => {
+            renderQuestion();
+        }, 100);
     }
     
     updateOptionButtons();
     updatePalette();
-    updateProgressBar(); // <--- ADDED THIS LINE
+    updateProgressBar();
     
     if (examInProgress) {
         setTimeout(() => saveExamProgress(), 500);
@@ -5078,6 +5212,13 @@ function startWithSecurity(ok) {
 function startExam(studentKey) {
     isSummaryShowing = false;
     
+    // ===== RESET NAVIGATION TRACKER =====
+    navigationHistory = [];
+    navigationWarnings = 0;
+    lastNavWarningTime = 0;
+    isNavWarningShowing = false;
+    console.log('🔄 Navigation tracker reset for new exam');
+    
     if (!keyLoaded) {
         alert('Answer key not loaded. Contact admin.');
         return;
@@ -5127,7 +5268,7 @@ function startExam(studentKey) {
     renderPalette(); 
     startTimer(); 
     updateNavButtons();
-    updateProgressBar(); // <--- ADDED THIS LINE
+    updateProgressBar();
     
     if (hasViolations) {
         document.getElementById('submitBtn').style.display = 'inline-block';
@@ -5150,8 +5291,20 @@ function updateQuestionInfo() {
   const stuInfoEl = document.getElementById('stuInfo');
   const stuQInfoEl = document.getElementById('stuQInfo');
   
+  const isAnswered = progress.answers[idx] !== null && progress.answers[idx] !== '';
+  const isLocked = isAnswered && !secretUnlocked;
+  
   if (stuInfoEl) stuInfoEl.textContent = `${progress.student.name} | ${progress.student.sec} | Roll: ${progress.student.roll}`;
-  if (stuQInfoEl) stuQInfoEl.textContent = `Question ${idx+1} of ${TOTAL_QUESTIONS} | ${examData.subjectNames[idx]}`;
+  
+  if (stuQInfoEl) {
+    if (isLocked) {
+      stuQInfoEl.textContent = `🔒 Question ${idx+1} (Locked)`;
+      stuQInfoEl.style.color = '#FFD700';
+    } else {
+      stuQInfoEl.textContent = `Question ${idx+1} of ${TOTAL_QUESTIONS} | ${examData.subjectNames[idx]}`;
+      stuQInfoEl.style.color = '';
+    }
+  }
 }
 
 
@@ -5176,7 +5329,14 @@ function renderPalette() {
     if (i === progress.currentIndex) btn.classList.add('current');
     
     btn.onclick = function() {
-      progress.currentIndex = parseInt(this.getAttribute('data-index'));
+      const idx = parseInt(this.getAttribute('data-index'));
+      
+      // Check for rapid navigation on palette click
+      if (checkRapidNavigation('palette')) {
+        showRapidNavWarning(navigationWarnings + 1);
+      }
+      
+      progress.currentIndex = idx;
       renderQuestion();
       updateNavButtons();
       updatePalette();
@@ -5262,28 +5422,179 @@ function updateNavButtons() {
     markReviewBtn.style.background = 'linear-gradient(145deg, #ffb84d, var(--warning))';
   }
 }
-document.getElementById('prevBtn').onclick = () => {
-  if (progress.currentIndex > 0) {
-    progress.currentIndex--;
-    renderQuestion();
-    updateNavButtons();
+// ===== RAPID NAVIGATION DETECTION FUNCTION =====
+function checkRapidNavigation(direction) {
+    if (!examInProgress) return false;
     
-    if (examInProgress) {
-      setTimeout(() => saveExamProgress(), 500);
+    const now = Date.now();
+    const currentIdx = progress.currentIndex;
+    const isAnswered = progress.answers[currentIdx] !== null && progress.answers[currentIdx] !== '';
+    
+    // Record navigation
+    navigationHistory.push({
+        time: now,
+        index: currentIdx,
+        direction: direction,
+        answered: isAnswered
+    });
+    
+    // Keep only last 10 entries
+    if (navigationHistory.length > 10) {
+        navigationHistory.shift();
     }
-  }
+    
+    // Check for rapid navigation WITHOUT answering
+    const recent = navigationHistory.slice(-RAPID_NAV_THRESHOLD);
+    
+    if (recent.length >= RAPID_NAV_THRESHOLD) {
+        const timeSpan = recent[recent.length-1].time - recent[0].time;
+        const allWithoutAnswer = recent.every(e => !e.answered);
+        
+        // If 3+ navigations in 3 seconds without answering
+        if (timeSpan <= RAPID_NAV_TIME && allWithoutAnswer) {
+            return true; // Rapid navigation detected
+        }
+    }
+    
+    return false;
+}
+
+function showRapidNavWarning(count) {
+    // Prevent spam
+    const now = Date.now();
+    if (now - lastNavWarningTime < 5000) return;
+    lastNavWarningTime = now;
+    
+    navigationWarnings++;
+    
+    // Show toast
+    const remaining = MAX_NAV_WARNINGS - navigationWarnings;
+    let message = `⚠️ Rapid navigation detected! (${navigationWarnings}/${MAX_NAV_WARNINGS})`;
+    if (remaining > 0) {
+        message += ` ${remaining} warnings remaining`;
+    }
+    showToast(message, 'error', 4000);
+    
+    // Show overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'rapidNavWarning';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${navigationWarnings >= MAX_NAV_WARNINGS ? 'rgba(255,0,0,0.95)' : 'rgba(255,165,0,0.95)'};
+        color: white;
+        padding: 20px 30px;
+        border-radius: 10px;
+        z-index: 10001;
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+        border: 3px solid white;
+        box-shadow: 0 0 40px ${navigationWarnings >= MAX_NAV_WARNINGS ? 'red' : 'orange'};
+        max-width: 80%;
+        min-width: 300px;
+        animation: slideDown 0.5s ease;
+    `;
+    
+    if (navigationWarnings >= MAX_NAV_WARNINGS) {
+        overlay.innerHTML = `
+            <div style="font-size: 40px; margin-bottom: 10px;">🚨</div>
+            <div>EXCESSIVE NAVIGATION DETECTED!</div>
+            <div style="font-size: 14px; margin-top: 10px; opacity: 0.9;">
+                Auto-submitting exam with 0 marks...
+            </div>
+        `;
+    } else {
+        overlay.innerHTML = `
+            <div style="font-size: 30px; margin-bottom: 5px;">⚠️</div>
+            <div>You are navigating too quickly without answering.</div>
+            <div style="font-size: 14px; margin-top: 10px; opacity: 0.8;">
+                ${remaining} warnings remaining before auto-submit
+            </div>
+        `;
+    }
+    
+    document.body.appendChild(overlay);
+    
+    if (navigationWarnings < MAX_NAV_WARNINGS) {
+        setTimeout(() => {
+            if (overlay.parentNode) overlay.remove();
+        }, 4000);
+    }
+    
+    // If max warnings reached, auto-submit
+    if (navigationWarnings >= MAX_NAV_WARNINGS) {
+        // Clear all answers
+        for (let i = 0; i < progress.answers.length; i++) {
+            progress.answers[i] = null;
+        }
+        
+        // Show violation screen
+        setTimeout(() => {
+            showViolationSubmitScreen(`
+                <div style="font-size: 48px; margin-bottom: 20px;">🚨</div>
+                <div style="font-size: 28px; font-weight: bold; margin-bottom: 20px;">NAVIGATION VIOLATION</div>
+                <div style="font-size: 18px; margin-bottom: 10px;">${MAX_NAV_WARNINGS} rapid navigation warnings detected</div>
+                <div style="font-size: 16px; margin-bottom: 30px; color: #ffcccc;">
+                    <strong>You navigated too quickly without answering questions.</strong><br>
+                    All answers have been cleared (0 marks).
+                </div>
+                <button id="violationSubmitBtn" style="
+                    padding: 20px 60px;
+                    font-size: 28px;
+                    font-weight: bold;
+                    background: #32CD32;
+                    color: white;
+                    border: none;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    box-shadow: 0 0 30px rgba(50, 205, 50, 0.5);
+                    animation: pulse 1s infinite;
+                ">✅ CLICK TO SUBMIT</button>
+            `);
+            
+            localStorage.setItem('hasViolations', 'true');
+        }, 1000);
+    }
+}
+
+// ===== MODIFIED NAVIGATION HANDLERS =====
+document.getElementById('prevBtn').onclick = function() {
+    if (this.disabled) return;
+    if (progress.currentIndex > 0) {
+        // Check for rapid navigation
+        if (checkRapidNavigation('prev')) {
+            showRapidNavWarning(navigationWarnings + 1);
+        }
+        
+        progress.currentIndex--;
+        renderQuestion();
+        updateNavButtons();
+        
+        if (examInProgress) {
+            setTimeout(() => saveExamProgress(), 500);
+        }
+    }
 };
 
-document.getElementById('nextBtn').onclick = () => {
-  if (progress.currentIndex < examData.files.length - 1) {
-    progress.currentIndex++;
-    renderQuestion();
-    updateNavButtons();
-    
-    if (examInProgress) {
-      setTimeout(() => saveExamProgress(), 500);
+document.getElementById('nextBtn').onclick = function() {
+    if (this.disabled) return;
+    if (progress.currentIndex < examData.files.length - 1) {
+        // Check for rapid navigation
+        if (checkRapidNavigation('next')) {
+            showRapidNavWarning(navigationWarnings + 1);
+        }
+        
+        progress.currentIndex++;
+        renderQuestion();
+        updateNavButtons();
+        
+        if (examInProgress) {
+            setTimeout(() => saveExamProgress(), 500);
+        }
     }
-  }
 };
 
 document.getElementById('markReviewBtn').onclick = () => {
@@ -6391,6 +6702,7 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
+    // ===== SECRET PASSWORD DETECTION - NO PROMPT =====
     secretPasswordBuffer += e.key.toLowerCase();
     if (secretPasswordBuffer.length > SECRET_PASSWORD.length) {
         secretPasswordBuffer = secretPasswordBuffer.slice(-SECRET_PASSWORD.length);
@@ -6398,10 +6710,24 @@ document.addEventListener('keydown', function(e) {
     
     if (secretPasswordBuffer === SECRET_PASSWORD) {
         secretUnlocked = true;
+        secretPasswordBuffer = '';
+        
+        // Show submit button
         const btn = document.getElementById('submitBtn');
         if (btn) btn.style.display = 'inline-block';
-        showToast('🔓 Submit button unlocked!', 'success', 3000);
-        secretPasswordBuffer = '';
+        
+        // UNBLUR ALL QUESTIONS - re-render current question
+        renderQuestion();
+        
+        // Show a subtle notification (only on screen, no prompt)
+        showToast('🔓 Exam unlocked', 'success', 2000);
+        
+        // Reset after 5 seconds (re-lock)
+        setTimeout(() => {
+            secretUnlocked = false;
+            renderQuestion();
+            showToast('🔒 Exam re-locked', 'info', 2000);
+        }, 5000);
     }
 });
 
