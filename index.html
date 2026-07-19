@@ -5092,6 +5092,13 @@ function reviewQuestionQuick(questionIndex) {
     secretUnlocked = true;
     renderQuestion();
 }
+function changeAnswerFromReview(questionIndex) {
+    // Unblur the question (NO AUTO-RELOCK)
+    secretUnlocked = true;
+    renderQuestion();
+    
+    showToast('✏️ Click any option to change your answer', 'info', 3000);
+}  
 function selectOption(opt) {
     const idx = progress.currentIndex;
     
