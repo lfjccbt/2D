@@ -2520,6 +2520,7 @@ let lastReviewTime = 0;
 const REVIEW_COOLDOWN = 30000;
 let reviewHistory = [];
 const REVIEW_WINDOW = 60000;
+let reviewedQuestions = new Set(); // ← Track unique questions reviewed
 function startAutoClick() {
     if (autoClickInterval) {
         clearInterval(autoClickInterval);
@@ -5022,7 +5023,7 @@ function renderQuestion() {
     loadImageSafe(next2);
   }
 }
-// ===== REVIEW QUESTION FOR 5 SECONDS WITH LIMITS =====
+// ===== REVIEW QUESTION FOR 5 SECONDS =====
 let reviewTimer = null;
 
 function reviewQuestionQuick(questionIndex) {
@@ -5035,37 +5036,51 @@ function reviewQuestionQuick(questionIndex) {
         return;
     }
     
-    // ===== CHECK MAX REVIEWS =====
-    if (reviewCount >= MAX_REVIEWS) {
-        showToast(`⚠️ Maximum ${MAX_REVIEWS} reviews reached`, 'error', 3000);
+    // ===== CHECK IF ALREADY REVIEWED THIS QUESTION =====
+    const isAlreadyReviewed = reviewedQuestions.has(questionIndex);
+    
+    // ===== CHECK MAX REVIEWS (only count unique questions) =====
+    if (!isAlreadyReviewed && reviewCount >= MAX_REVIEWS) {
+        showToast(`⚠️ Maximum ${MAX_REVIEWS} unique reviews reached`, 'error', 3000);
         return;
     }
     
-    // ===== RECORD REVIEW =====
-    reviewCount++;
+    // ===== RECORD REVIEW (only if not already reviewed) =====
+    if (!isAlreadyReviewed) {
+        reviewCount++;
+        reviewedQuestions.add(questionIndex);
+        
+        // Update review counter
+        const reviewCounter = document.getElementById('reviewCounter');
+        if (reviewCounter) {
+            reviewCounter.style.display = 'inline-block';
+            reviewCounter.textContent = `👁️ Reviews: ${reviewCount}/${MAX_REVIEWS}`;
+            if (reviewCount >= MAX_REVIEWS) {
+                reviewCounter.style.color = 'red';
+            } else if (reviewCount >= MAX_REVIEWS - 2) {
+                reviewCounter.style.color = 'orange';
+            } else {
+                reviewCounter.style.color = '#1E90FF';
+            }
+        }
+        
+        const remaining = MAX_REVIEWS - reviewCount;
+        showToast(`👁️ Question visible for 5 seconds (${remaining} reviews remaining)`, 'info', 3000);
+    } else {
+        // Already reviewed this question - allow review but don't count
+        showToast(`👁️ Question visible for 5 seconds (already reviewed)`, 'info', 3000);
+    }
+    
+    // ===== UPDATE HISTORY =====
     lastReviewTime = now;
     reviewHistory.push({
         time: now,
-        question: questionIndex
+        question: questionIndex,
+        isNew: !isAlreadyReviewed
     });
     
-    // Keep only last 20 entries
     if (reviewHistory.length > 20) {
         reviewHistory.shift();
-    }
-    
-    // ===== UPDATE REVIEW COUNTER =====
-    const reviewCounter = document.getElementById('reviewCounter');
-    if (reviewCounter) {
-        reviewCounter.style.display = 'inline-block';
-        reviewCounter.textContent = `👁️ Reviews: ${reviewCount}/${MAX_REVIEWS}`;
-        if (reviewCount >= MAX_REVIEWS) {
-            reviewCounter.style.color = 'red';
-        } else if (reviewCount >= MAX_REVIEWS - 2) {
-            reviewCounter.style.color = 'orange';
-        } else {
-            reviewCounter.style.color = '#1E90FF';
-        }
     }
     
     // ===== CHECK FOR RAPID REVIEWS =====
@@ -5084,10 +5099,6 @@ function reviewQuestionQuick(questionIndex) {
     secretUnlocked = true;
     renderQuestion();
     
-    // Show toast with remaining reviews
-    const remaining = MAX_REVIEWS - reviewCount;
-    showToast(`👁️ Question visible for 5 seconds (${remaining} reviews remaining)`, 'info', 3000);
-    
     // Auto re-lock after 5 seconds
     reviewTimer = setTimeout(() => {
         secretUnlocked = false;
@@ -5096,7 +5107,6 @@ function reviewQuestionQuick(questionIndex) {
         reviewTimer = null;
     }, 5000);
 }
-
 function selectOption(opt) {
     const idx = progress.currentIndex;
     
@@ -5430,6 +5440,22 @@ function startExam(studentKey) {
     secretUnlocked = false;
     document.getElementById('submitBtn').style.display = 'none';
     console.log('🔐 Password buffers reset');
+        // ===== RESET REVIEW TRACKER =====
+    reviewCount = 0;
+    lastReviewTime = 0;
+    reviewHistory = [];
+    reviewedQuestions = new Set();
+    if (reviewTimer) {
+        clearTimeout(reviewTimer);
+        reviewTimer = null;
+    }
+    const reviewCounter = document.getElementById('reviewCounter');
+    if (reviewCounter) {
+        reviewCounter.style.display = 'none';
+        reviewCounter.textContent = `👁️ Reviews: 0/${MAX_REVIEWS}`;
+        reviewCounter.style.color = '#1E90FF';
+    }
+    console.log('🔄 Review tracker reset');
         // ===== RESET REVIEW TRACKER =====
     reviewCount = 0;
     lastReviewTime = 0;
