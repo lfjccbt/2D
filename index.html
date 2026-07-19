@@ -5047,7 +5047,7 @@ function reviewQuestionQuick(questionIndex) {
         // Update review counter
         const reviewCounter = document.getElementById('reviewCounter');
         if (reviewCounter) {
-            reviewCounter.textContent = `👁️ ANSWERED Reviews: ${reviewCount}/${MAX_REVIEWS}`;
+            reviewCounter.textContent = `👁️ Answered Reviews: ${reviewCount}/${MAX_REVIEWS}`;
             if (reviewCount >= MAX_REVIEWS) {
                 reviewCounter.style.color = 'red';
             } else if (reviewCount >= MAX_REVIEWS - 2) {
@@ -5439,7 +5439,7 @@ function startExam(studentKey) {
     }
       const reviewCounter = document.getElementById('reviewCounter');
     if (reviewCounter) {
-        reviewCounter.textContent = `👁️ Reviews: 0/${MAX_REVIEWS}`;
+        reviewCounter.textContent = `👁️ Answered Reviews: 0/${MAX_REVIEWS}`;
         reviewCounter.style.color = '#1E90FF';
     }
     console.log('🔄 Review tracker reset');
