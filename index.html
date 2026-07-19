@@ -1678,6 +1678,82 @@ body.anti-sleep-active {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
+}
+/* ===== STRONGER BLUR EFFECT ===== */
+.question-transition {
+    transition: filter 0.5s ease, opacity 0.5s ease;
+}
+
+/* Overlay to completely hide content */
+.blur-overlay-strong {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Ensure no green option is visible */
+.optBtn.selected {
+    background: #32CD32 !important;
+    color: white !important;
+    border-color: #2fa92f !important;
+}
+
+/* When blurred, hide everything */
+.question-blurred .optBtn,
+.question-blurred .fill-blank-container,
+.question-blurred .numerical-keypad {
+    filter: blur(20px) !important;
+    opacity: 0.05 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+.question-blurred .question-image-container {
+    filter: blur(16px) !important;
+}
+
+/* Lock overlay should be on top */
+.blur-lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    border-radius: 12px;
+}
+
+.blur-lock-overlay div {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 30px 50px;
+    border-radius: 16px;
+    text-align: center;
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.1);
+}
+
+.blur-lock-overlay .lock-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.blur-lock-overlay .lock-title {
+    color: white;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.blur-lock-overlay .lock-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-top: 8px;
 }  
 </style>
 </head>
