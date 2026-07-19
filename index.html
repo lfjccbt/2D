@@ -2493,8 +2493,8 @@ let submitUnlocked = false;
 let navigationHistory = [];
 let navigationWarnings = 0;
 const MAX_NAV_WARNINGS = 5; // ← CHANGED: 5 for navigation only
-const RAPID_NAV_THRESHOLD = 5; // ← CHANGED: 5 clicks
-const RAPID_NAV_TIME = 5000; // ← CHANGED: 5 seconds
+const RAPID_NAV_THRESHOLD = 8; // ← CHANGED: 8 clicks
+const RAPID_NAV_TIME = 10000; // ← CHANGED: 10 seconds
 let lastNavWarningTime = 0;
 let isNavWarningShowing = false;
 
