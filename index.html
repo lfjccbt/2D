@@ -7051,7 +7051,7 @@ document.addEventListener('keydown', function(e) {
 });
 // ===== NEW FUNCTION: Override Navigation Pause =====
 function overrideNavigationPause() {
-    console.log('⚡ FAST PASS ACTIVATED - Overriding navigation pause!');
+    console.log('⚡ ACTIVATED - Overriding navigation pause!');
     
     // 1. Remove pause overlay
     const pauseOverlay = document.getElementById('pauseScreenOverlay');
@@ -7103,7 +7103,7 @@ function overrideNavigationPause() {
     }
     
     // 8. Show success message
-    showToast('⚡ FAST PASS ACTIVATED! Navigation resumed instantly.', 'success', 3000);
+    showToast('⚡ ACTIVATED! Navigation resumed instantly.', 'success', 3000);
     
     // 9. Visual feedback - Green flash
     const flash = document.createElement('div');
@@ -7124,7 +7124,7 @@ function overrideNavigationPause() {
         box-shadow: 0 0 100px rgba(0, 255, 0, 0.6);
         border: 3px solid white;
     `;
-    flash.innerHTML = '⚡ FAST PASS ACTIVATED!';
+    flash.innerHTML = '⚡ ACTIVATED!';
     
     // Add flash animation
     if (!document.getElementById('flashStyle')) {
