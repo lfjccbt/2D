@@ -5046,7 +5046,8 @@ function reviewQuestionQuick(questionIndex) {
     
     // ===== CHECK MAX REVIEWS (only count unique questions) =====
     if (!isAlreadyReviewed && reviewCount >= MAX_REVIEWS) {
-        showToast(`⚠️ Maximum ${MAX_REVIEWS} unique reviews reached`, 'error', 3000);
+        // ===== SHOW CENTER SCREEN WARNING =====
+        showCenterScreenMessage('⚠️ MAXIMUM 10 REVIEWS REACHED!', 'red');
         return;
     }
     
@@ -5103,8 +5104,96 @@ function reviewQuestionQuick(questionIndex) {
         showToast('🔒 Question re-locked', 'info', 2000);
         reviewTimer = null;
     }, 5000);
-}
-
+}// ===== SHOW CENTER SCREEN MESSAGE =====
+function showCenterScreenMessage(message, color = 'red') {
+    // Remove existing center message
+    const existing = document.getElementById('centerMessageOverlay');
+    if (existing) existing.remove();
+    
+    // Create center message overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'centerMessageOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 999999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: white;
+        font-family: 'SF Pro Display', Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+        animation: fadeInOverlay 0.3s ease;
+    `;
+    
+    const isRed = color === 'red';
+    
+    overlay.innerHTML = `
+        <div style="
+            max-width: 500px;
+            width: 90%;
+            padding: 50px 40px;
+            background: ${isRed ? 'rgba(180, 0, 0, 0.95)' : 'rgba(0, 0, 0, 0.95)'};
+            border-radius: 20px;
+            border: ${isRed ? '4px solid #FF0000' : '4px solid #FFD700'};
+            box-shadow: ${isRed ? '0 0 60px rgba(255, 0, 0, 0.3)' : '0 0 60px rgba(255, 215, 0, 0.2)'};
+            animation: modalPopIn 0.3s ease;
+        ">
+            <div style="font-size: 60px; margin-bottom: 15px;">🚫</div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px; color: #FFD700;">
+                ${message}
+            </div>
+            <div style="font-size: 18px; color: #ffcccc; margin-bottom: 10px;">
+                You have used all 10 reviews.
+            </div>
+            <div style="font-size: 16px; color: #aaa; margin-bottom: 25px;">
+                Each question can only be reviewed once.
+            </div>
+            <button id="closeCenterMessageBtn" style="
+                padding: 15px 50px;
+                font-size: 20px;
+                font-weight: bold;
+                background: linear-gradient(145deg, #32CD32, #228B22);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 0 30px rgba(50, 205, 50, 0.3);
+                transition: all 0.3s ease;
+            ">OK</button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Add click handler for OK button
+    document.getElementById('closeCenterMessageBtn').onclick = function() {
+        overlay.remove();
+    };
+    
+    // Click outside to close
+    overlay.onclick = function(e) {
+        if (e.target === overlay) {
+            overlay.remove();
+        }
+    };
+    
+    // Auto close after 5 seconds
+    setTimeout(() => {
+        if (document.getElementById('centerMessageOverlay')) {
+            overlay.remove();
+        }
+    }, 5000);
+} 
+  
 function selectOption(opt) {
     const idx = progress.currentIndex;
     
