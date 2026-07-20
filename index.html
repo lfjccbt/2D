@@ -6993,6 +6993,21 @@ document.getElementById('adminPassInput').addEventListener('keypress', function(
 
 document.addEventListener('keydown', function(e) {
   if (document.getElementById('examArea').style.display === 'block') {
+    
+    // ===== CHECK IF PAUSED - BLOCK ALL NAVIGATION KEYS =====
+    const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
+                     document.getElementById('pauseScreenOverlay').style.display !== 'none';
+    
+    if (isPaused) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
+          e.key === ' ' || e.key === 'Space' || e.key === 'PageUp' || e.key === 'PageDown') {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+      return;  // Block ALL keys during pause
+    }
+    
     const idx = progress.currentIndex;
     const questionType = examData.questionTypes[idx];
     
@@ -7006,12 +7021,21 @@ document.addEventListener('keydown', function(e) {
       }
     }
     
-    if (e.key === 'ArrowLeft') document.getElementById('prevBtn').click();
-    if (e.key === 'ArrowRight') document.getElementById('nextBtn').click();
-    if (e.key === ' ') document.getElementById('markReviewBtn').click();
+    // Only allow arrow keys if NOT paused
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      document.getElementById('prevBtn').click();
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      document.getElementById('nextBtn').click();
+    }
+    if (e.key === ' ') {
+      e.preventDefault();
+      document.getElementById('markReviewBtn').click();
+    }
   }
 });
-
 
 window.addEventListener('load', function() {
   console.log(`🎯 LFJC Online Exam System - ${TOTAL_QUESTIONS} Questions`);
