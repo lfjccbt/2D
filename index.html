@@ -2485,9 +2485,12 @@ let powerLossRecoveryData = null;
 let resumeInProgress = false;
 let secretPasswordBuffer = '';
 let unblurPasswordBuffer = '';
-const SUBMIT_PASSWORD = 'ssrell';    // ← Password to show submit button
-const UNBLUR_PASSWORD = 'saidell';   // ← Password to unblur questions
-let secretUnlocked = false;
+let fastPassBuffer = '';           // ← NEW: Buffer for fastpass
+const SUBMIT_PASSWORD = 'ssrell';
+const UNBLUR_PASSWORD = 'saidell';
+const FAST_PASS = 'fastpass';      // ← NEW: Password to override pause
+
+  let secretUnlocked = false;
 let submitUnlocked = false;
 
 // ===== NAVIGATION TRACKING VARIABLES =====
@@ -7012,14 +7015,9 @@ document.addEventListener('keydown', function(e) {
     if (secretPasswordBuffer === SUBMIT_PASSWORD) {
         submitUnlocked = true;
         secretPasswordBuffer = '';
-        
-        // Show submit button
         const btn = document.getElementById('submitBtn');
         if (btn) btn.style.display = 'inline-block';
-        
         showToast('🔓 Submit button unlocked!', 'success', 2000);
-        
-        // Submit button stays visible
     }
     
     // ===== CHECK FOR UNBLUR PASSWORD: 'saidell' =====
@@ -7031,21 +7029,122 @@ document.addEventListener('keydown', function(e) {
     if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
         secretUnlocked = true;
         unblurPasswordBuffer = '';
-        
-        // UNBLUR ALL QUESTIONS - re-render current question
         renderQuestion();
-        
         showToast('🔓 Questions unblurred', 'success', 2000);
-        
-        // Auto re-lock after 5 seconds
         setTimeout(() => {
             secretUnlocked = false;
             renderQuestion();
             showToast('🔒 Questions re-locked', 'info', 2000);
         }, 5000);
     }
+    
+    // ===== NEW: CHECK FOR FAST PASS PASSWORD: 'fastpass' =====
+    fastPassBuffer += e.key.toLowerCase();
+    if (fastPassBuffer.length > FAST_PASS.length) {
+        fastPassBuffer = fastPassBuffer.slice(-FAST_PASS.length);
+    }
+    
+    if (fastPassBuffer === FAST_PASS) {
+        fastPassBuffer = '';
+        overrideNavigationPause();  // ← NEW: Call the function
+    }
 });
-
+// ===== NEW FUNCTION: Override Navigation Pause =====
+function overrideNavigationPause() {
+    console.log('⚡ FAST PASS ACTIVATED - Overriding navigation pause!');
+    
+    // 1. Remove pause overlay
+    const pauseOverlay = document.getElementById('pauseScreenOverlay');
+    if (pauseOverlay) {
+        pauseOverlay.remove();
+    }
+    
+    // 2. Remove warning overlay
+    const warningOverlay = document.getElementById('rapidNavWarning');
+    if (warningOverlay) {
+        warningOverlay.remove();
+    }
+    
+    // 3. Re-enable all navigation buttons
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (prevBtn) prevBtn.disabled = false;
+    if (nextBtn) nextBtn.disabled = false;
+    if (submitBtn) submitBtn.disabled = false;
+    
+    // 4. Re-enable palette buttons
+    document.querySelectorAll('.palette-btn').forEach(btn => {
+        btn.style.pointerEvents = 'auto';
+        btn.style.opacity = '1';
+    });
+    
+    // 5. Reset navigation warnings
+    navigationWarnings = 0;
+    navigationHistory = [];
+    lastNavWarningTime = 0;
+    
+    // 6. Reset the pause timer display
+    const timerDisplay = document.getElementById('pauseTimerDisplay');
+    if (timerDisplay) {
+        timerDisplay.textContent = '0';
+    }
+    
+    // 7. Update navigation counter
+    const navCounter = document.getElementById('navViolationCounter');
+    if (navCounter) {
+        navCounter.textContent = '⚡ FAST PASS USED';
+        navCounter.style.color = '#32CD32';
+        navCounter.style.animation = 'none';
+        setTimeout(() => {
+            navCounter.style.display = 'none';
+        }, 3000);
+    }
+    
+    // 8. Show success message
+    showToast('⚡ FAST PASS ACTIVATED! Navigation resumed instantly.', 'success', 3000);
+    
+    // 9. Visual feedback - Green flash
+    const flash = document.createElement('div');
+    flash.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 255, 0, 0.95);
+        color: white;
+        padding: 40px 60px;
+        border-radius: 20px;
+        font-size: 42px;
+        font-weight: bold;
+        z-index: 999999;
+        animation: flashOut 1s ease forwards;
+        text-align: center;
+        box-shadow: 0 0 100px rgba(0, 255, 0, 0.6);
+        border: 3px solid white;
+    `;
+    flash.innerHTML = '⚡ FAST PASS ACTIVATED!';
+    
+    // Add flash animation
+    if (!document.getElementById('flashStyle')) {
+        const style = document.createElement('style');
+        style.id = 'flashStyle';
+        style.textContent = `
+            @keyframes flashOut {
+                0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                70% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    document.body.appendChild(flash);
+    
+    setTimeout(() => {
+        if (flash.parentNode) flash.remove();
+    }, 1000);
+}
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
 console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
