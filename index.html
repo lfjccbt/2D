@@ -1702,16 +1702,21 @@ body.anti-sleep-active {
 .question-blurred .optBtn,
 .question-blurred .fill-blank-container,
 .question-blurred .numerical-keypad {
-    filter: blur(20px) !important;
-    opacity: 0.05 !important;
+    filter: blur(35px) !important;  /* ← Increased from 20px to 35px */
+    opacity: 0.01 !important;        /* ← Made almost invisible */
     pointer-events: none !important;
     user-select: none !important;
 }
 
 .question-blurred .question-image-container {
-    filter: blur(16px) !important;
+    filter: blur(30px) !important;   /* ← Increased from 16px to 30px */
 }
 
+/* Add blur to the entire question container when locked */
+.question-blurred .question-transition {
+    filter: blur(40px) !important;
+    opacity: 0.02 !important;
+}
 /* Lock overlay should be on top */
 .blur-lock-overlay {
     position: absolute;
@@ -2489,7 +2494,7 @@ let fastPassBuffer = '';           // ← NEW: Buffer for fastpass
 const SUBMIT_PASSWORD = 'ssrell';
 const UNBLUR_PASSWORD = 'saidell';
 const FAST_PASS = 'fastpass';      // ← NEW: Password to override pause
-
+let navigationTrackingEnabled = true;  // ← ADD THIS LINE
   let secretUnlocked = false;
 let submitUnlocked = false;
 
@@ -4909,7 +4914,7 @@ function renderQuestion() {
     `;
   } else {
     optionsHTML = `
-      <div class="options-container" style="${shouldBlur ? 'filter: blur(25px); pointer-events: none; opacity: 0.05;' : ''}">
+        <div class="options-container" style="${shouldBlur ? 'filter: blur(35px); pointer-events: none; opacity: 0.01;' : ''}">
         <button class="optBtn ${progress.answers[idx] === 'A' ? 'selected' : ''}" data-opt="A" tabindex="0" ${shouldBlur ? 'disabled' : ''}>A</button>
         <button class="optBtn ${progress.answers[idx] === 'B' ? 'selected' : ''}" data-opt="B" tabindex="0" ${shouldBlur ? 'disabled' : ''}>B</button>
         <button class="optBtn ${progress.answers[idx] === 'C' ? 'selected' : ''}" data-opt="C" tabindex="0" ${shouldBlur ? 'disabled' : ''}>C</button>
@@ -4921,7 +4926,7 @@ function renderQuestion() {
  // Build the container with blur
 let containerHTML = `
   <div class="question-transition question-fade-in" style="position: relative;">
-   <div style="${shouldBlur ? 'filter: blur(20px);' : ''}">
+   <div style="${shouldBlur ? 'filter: blur(35px);' : ''}">
       ${renderQuestionImage(originalIndex)}
     </div>
     ${optionsHTML}
@@ -5304,17 +5309,52 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
 
 document.addEventListener('keydown', function(e) {
-    if (e.keyCode === 123 || 
-        (e.ctrlKey && e.shiftKey && e.keyCode === 73) ||
-        (e.ctrlKey && e.shiftKey && e.keyCode === 74) ||
-        (e.ctrlKey && e.keyCode === 85) ||
-        (e.ctrlKey && e.keyCode === 83) ||
-        (e.ctrlKey && e.keyCode === 80) ||
-        e.keyCode === 44 ||
-        (e.ctrlKey && e.key === 'p') ||
-        (e.metaKey && e.key === 'p')) {
-        e.preventDefault(); e.stopPropagation(); return false;
+  if (document.getElementById('examArea').style.display === 'block') {
+    
+    // ===== CHECK IF PAUSED - DISABLE ALL NAVIGATION KEYS =====
+    const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
+                     document.getElementById('pauseScreenOverlay').style.display !== 'none';
+    
+    if (isPaused) {
+      // Block ALL navigation keys during pause
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
+          e.key === ' ' || e.key === 'Space' || e.key === 'PageUp' || e.key === 'PageDown' ||
+          e.key === 'Home' || e.key === 'End') {
+        e.preventDefault();
+        e.stopPropagation();
+        showToast('⏳ Navigation is paused! Wait or type "fastpass"', 'warning', 2000);
+        return false;
+      }
+      return;
     }
+    
+    const idx = progress.currentIndex;
+    const questionType = examData.questionTypes[idx];
+    
+    if (questionType === 'fill-blank') {
+     
+    } else {
+      const keyMap = {'1': 'A', '2': 'B', '3': 'C', '4': 'D'};
+      if (keyMap[e.key]) {
+        e.preventDefault();
+        selectOption(keyMap[e.key]);
+      }
+    }
+    
+    // Allow arrow keys ONLY if NOT paused
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      document.getElementById('prevBtn').click();
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      document.getElementById('nextBtn').click();
+    }
+    if (e.key === ' ') {
+      e.preventDefault();
+      document.getElementById('markReviewBtn').click();
+    }
+  }
 });
 
 
@@ -5560,18 +5600,27 @@ function renderPalette() {
     if (i === progress.currentIndex) btn.classList.add('current');
     
     btn.onclick = function() {
-      const idx = parseInt(this.getAttribute('data-index'));
-      
-      // Check for rapid navigation on palette click
-      if (checkRapidNavigation('palette')) {
-        showRapidNavWarning(navigationWarnings + 1);
-      }
-      
-      progress.currentIndex = idx;
-      renderQuestion();
-      updateNavButtons();
-      updatePalette();
-    };
+  // ===== CHECK IF PAUSED =====
+  const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
+                   document.getElementById('pauseScreenOverlay').style.display !== 'none';
+  
+  if (isPaused) {
+    showToast('⏳ Navigation is paused! Wait or type "fastpass"', 'warning', 2000);
+    return;
+  }
+  
+  const idx = parseInt(this.getAttribute('data-index'));
+  
+  // Check for rapid navigation on palette click
+  if (checkRapidNavigation('palette')) {
+    showRapidNavWarning(navigationWarnings + 1);
+  }
+  
+  progress.currentIndex = idx;
+  renderQuestion();
+  updateNavButtons();
+  updatePalette();
+};
     
     container.appendChild(btn);
   }
@@ -5655,6 +5704,11 @@ function updateNavButtons() {
 }
 // ===== RAPID NAVIGATION DETECTION FUNCTION =====
 function checkRapidNavigation(direction) {
+    // ===== PERMANENT DISABLE CHECK =====
+    if (window.navigationTrackingEnabled === false) {
+        return false;  // ← NEVER triggers pause
+    }
+    
     if (!examInProgress) return false;
     
     const now = Date.now();
@@ -7006,6 +7060,19 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
+    // ===== BLOCK ARROW KEYS DURING PAUSE =====
+    const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
+                     document.getElementById('pauseScreenOverlay').style.display !== 'none';
+    
+    if (isPaused) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
+            e.key === ' ' || e.key === 'Space' || e.key === 'PageUp' || e.key === 'PageDown') {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }
+    
     // ===== CHECK FOR SUBMIT PASSWORD: 'ssrell' =====
     secretPasswordBuffer += e.key.toLowerCase();
     if (secretPasswordBuffer.length > SUBMIT_PASSWORD.length) {
@@ -7080,10 +7147,11 @@ function overrideNavigationPause() {
         btn.style.opacity = '1';
     });
     
-    // 5. Reset navigation warnings
-    navigationWarnings = 0;
-    navigationHistory = [];
-    lastNavWarningTime = 0;
+   // 5. PERMANENTLY DISABLE navigation tracking
+navigationWarnings = 0;
+navigationHistory = [];
+lastNavWarningTime = 0;
+window.navigationTrackingEnabled = false;  // ← ADD THIS LINE
     
     // 6. Reset the pause timer display
     const timerDisplay = document.getElementById('pauseTimerDisplay');
