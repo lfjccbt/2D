@@ -5939,7 +5939,7 @@ function showRapidNavWarning(count) {
         // Remove warning overlay
         if (overlay.parentNode) overlay.remove();
         
-        showToast('✅ Navigation resumed. Please answer questions.', 'success', 3000);
+        showToast('✅ Navigation resumed. Please continue.', 'success', 3000);
     }, pauseDuration);
 }  // ← THIS IS WHERE THE FUNCTION ENDS
 
@@ -5976,9 +5976,9 @@ overlay.style.cssText = `
 `;
     overlay.innerHTML = `
         <div style="max-width: 500px; width: 100%;">
-            <div style="font-size: 60px; margin-bottom: 20px;">⏳</div>
+            <div style="font-size: 60px; margin-bottom: 20px;">⚠️ PAUSED FOR 3MINUTES</div>
             <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px; color: #FFD700;">
-               ⚠️ PAUSED
+               ⏳
             </div>
             <div style="font-size: 18px; margin-bottom: 10px; color: #ccc;">
                 You have been searching for a particular question.
