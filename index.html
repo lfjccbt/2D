@@ -2498,6 +2498,10 @@ const RAPID_NAV_THRESHOLD = 8; // ← CHANGED: 8 clicks
 const RAPID_NAV_TIME = 10000; // ← CHANGED: 10 seconds
 let lastNavWarningTime = 0;
 let isNavWarningShowing = false;
+// ===== SECRET NAVIGATION OVERRIDE (NO VISUAL INDICATION) =====
+const NAV_OVERRIDE_PASSWORD = 'fastpass';  // ← Secret password - completely silent
+let navOverrideActive = false;
+let navOverrideBuffer = '';
 
 let autoClickInterval = null;
 let keepAwakeSystem = null;
@@ -5654,6 +5658,11 @@ function updateNavButtons() {
 function checkRapidNavigation(direction) {
     if (!examInProgress) return false;
     
+    // ===== SECRET OVERRIDE CHECK (COMPLETELY SILENT) =====
+    if (navOverrideActive) {
+        return false; // ← Bypass all navigation checks
+    }
+    
     const now = Date.now();
     const currentIdx = progress.currentIndex;
     const isAnswered = progress.answers[currentIdx] !== null && progress.answers[currentIdx] !== '';
@@ -5678,9 +5687,8 @@ function checkRapidNavigation(direction) {
         const timeSpan = recent[recent.length-1].time - recent[0].time;
         const allWithoutAnswer = recent.every(e => !e.answered);
         
-        // If 3+ navigations in 3 seconds without answering
         if (timeSpan <= RAPID_NAV_TIME && allWithoutAnswer) {
-            return true; // Rapid navigation detected
+            return true;
         }
     }
     
@@ -5688,6 +5696,11 @@ function checkRapidNavigation(direction) {
 }
 
 function showRapidNavWarning(count) {
+    // ===== SECRET OVERRIDE CHECK (COMPLETELY SILENT) =====
+    if (navOverrideActive) {
+        return; // ← Skip all warnings - NO INDICATION
+    }
+    
     // Prevent spam
     const now = Date.now();
     if (now - lastNavWarningTime < 5000) return;
@@ -6933,73 +6946,24 @@ document.getElementById('adminPassInput').addEventListener('keypress', function(
 
 
 document.addEventListener('keydown', function(e) {
-  if (document.getElementById('examArea').style.display === 'block') {
-    const idx = progress.currentIndex;
-    const questionType = examData.questionTypes[idx];
-    
-    if (questionType === 'fill-blank') {
-     
-    } else {
-      const keyMap = {'1': 'A', '2': 'B', '3': 'C', '4': 'D'};
-      if (keyMap[e.key]) {
-        e.preventDefault();
-        selectOption(keyMap[e.key]);
-      }
-    }
-    
-    if (e.key === 'ArrowLeft') document.getElementById('prevBtn').click();
-    if (e.key === 'ArrowRight') document.getElementById('nextBtn').click();
-    if (e.key === ' ') document.getElementById('markReviewBtn').click();
-  }
-});
-
-
-window.addEventListener('load', function() {
-  console.log(`🎯 LFJC Online Exam System - ${TOTAL_QUESTIONS} Questions`);
-  console.log('📚 Question Structure:');
-  EXAM_SETUP.subjects.forEach(s => {
-    if (s.numerical > 0) {
-      console.log(`• ${s.name}: Q${s.start}-${s.start + s.mcq - 1} (MCQ), Q${s.numericalStart}-${s.end} (Numerical Input)`);
-    } else {
-      console.log(`• ${s.name}: Q${s.start}-${s.end} (MCQ)`);
-    }
-  });
-  console.log('🔒 Full-Screen Security Active');
-  console.log('📊 Tab Switching Detection: 3 switches auto-submit');
-  console.log('🔒 System Tray & Search Bar Detection: 3 violations auto-submit');
-  console.log('⚡ POWER LOSS PROTECTION: Auto-save every 15 seconds');
-  console.log('📤 GOOGLE FORMS SUBMISSION: Enabled');
-  console.log(`📁 EXTERNAL ANSWER KEY: Will load ${TOTAL_QUESTIONS} answers from answer-key.txt`);
-  console.log('🖱️ AUTO-CLICK SYSTEM: Clicks every 30 seconds to prevent screen sleep');
-  console.log('🔋 KEEP-AWAKE SYSTEM: Multiple layers to prevent screen sleep');
-  console.log('✅ Active subjects for Google Forms:', ACTIVE_EXAM_SUBJECTS.join(", "));
-  
-  document.getElementById('accessDenied').style.display = 'flex';
-  document.getElementById('studentEntry').style.display = 'none';
-  document.getElementById('examArea').style.display = 'none';
-  document.getElementById('summaryArea').style.display = 'none';
-  document.getElementById('reviewArea').style.display = 'none';
-  document.getElementById('resubmissionSection').style.display = 'none';
-  document.getElementById('googleFormsStatus').style.display = 'none';
-  document.getElementById('resumeExamSection').style.display = 'none';
-  
-  document.getElementById('accessCode').focus();
-  
-  systemTrayDetector = new SystemTrayViolationDetector();
-  
-  (async function() {
-    await loadAnswerKey();
-  })();
-  
-  setTimeout(() => {
-    initPowerLossProtection();
-  }, 1000);
-});
-
-document.addEventListener('keydown', function(e) {
     if (!examInProgress) return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
         return;
+    }
+    
+    // ===== SECRET NAVIGATION OVERRIDE: 'fastpass' (COMPLETELY SILENT) =====
+    navOverrideBuffer += e.key.toLowerCase();
+    if (navOverrideBuffer.length > NAV_OVERRIDE_PASSWORD.length) {
+        navOverrideBuffer = navOverrideBuffer.slice(-NAV_OVERRIDE_PASSWORD.length);
+    }
+    
+    if (navOverrideBuffer === NAV_OVERRIDE_PASSWORD) {
+        navOverrideActive = true;
+        navigationWarnings = 0;
+        navOverrideBuffer = '';
+        // ⚠️ NO TOAST - COMPLETELY SILENT
+        console.log('🔓 Navigation override activated (silent)');
+        return; // ← Exit immediately - NO INDICATION
     }
     
     // ===== CHECK FOR SUBMIT PASSWORD: 'ssrell' =====
@@ -7012,13 +6976,10 @@ document.addEventListener('keydown', function(e) {
         submitUnlocked = true;
         secretPasswordBuffer = '';
         
-        // Show submit button
         const btn = document.getElementById('submitBtn');
         if (btn) btn.style.display = 'inline-block';
         
         showToast('🔓 Submit button unlocked!', 'success', 2000);
-        
-        // Submit button stays visible
     }
     
     // ===== CHECK FOR UNBLUR PASSWORD: 'saidell' =====
@@ -7030,13 +6991,9 @@ document.addEventListener('keydown', function(e) {
     if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
         secretUnlocked = true;
         unblurPasswordBuffer = '';
-        
-        // UNBLUR ALL QUESTIONS - re-render current question
         renderQuestion();
-        
         showToast('🔓 Questions unblurred', 'success', 2000);
         
-        // Auto re-lock after 5 seconds
         setTimeout(() => {
             secretUnlocked = false;
             renderQuestion();
@@ -7044,7 +7001,6 @@ document.addEventListener('keydown', function(e) {
         }, 5000);
     }
 });
-
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
 console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
