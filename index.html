@@ -3528,7 +3528,8 @@ async function loadAnswerKey() {
         validateStudentInputs();
         return true;
         
-    } catch (error) {
+    } 
+    catch (error) {
         console.error("❌ ERROR LOADING ANSWER KEY:", error);
         
         showError(`
