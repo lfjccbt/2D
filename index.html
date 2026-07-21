@@ -2032,7 +2032,19 @@ setInterval(function() {
     <div id="accessError" class="access-error">❌ Invalid access code. Please try again.</div>
 </div>
 <header>2D-LFJC ONLINE EXAMINATION</header>
-
+<!-- ===== PROCTORING BAR ===== -->
+<div id="proctoringBar" style="
+    background: #1a0000;
+    color: #ff4444;
+    padding: 6px 15px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+    border-bottom: 2px solid red;
+    display: none;
+">
+    🔴 LIVE PROCTORING | 👁️ Admin Watching | ⚠️ Violations: <span id="vCount">0</span>/3
+</div>
 <div id="studentEntry" style="display:none;">
   <div class="warning-banner" id="examWarning" style="display:none;">
     <p>⚠️ WARNING: Exam in progress. Do not refresh or close this window!</p>
@@ -4150,7 +4162,7 @@ function startExamWithRecovery(progressData) {
     examStartTime = progressData.metadata.examStartTime;
     assignedForm = progressData.metadata.assignedForm;
     examInProgress = true;
-    
+    showProctoring();
     const timeElapsed = Math.floor((Date.now() - examStartTime) / 1000);
     progress.timeLeftSec = Math.max(0, EXAM_DURATION_MINUTES * 60 - timeElapsed);
     
@@ -4312,7 +4324,8 @@ function showToast(message, type = 'info', duration = 3000) {
 
 
 function showTabSwitchWarning(count) {
-    const counter = document.getElementById('violationCounter');
+   updateVCount(count);
+  const counter = document.getElementById('violationCounter');
     if (counter) {
         counter.style.display = 'inline-block';
         counter.textContent = `⚠️ Tab Violations: ${count}/3`;
@@ -5601,7 +5614,7 @@ function startExam(studentKey) {
     }
 
     examInProgress = true;
-    
+    showProctoring();
     keepAwakeSystem.start();
     
     document.getElementById('studentEntry').style.display = "none";
@@ -7314,6 +7327,15 @@ console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS
 console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
 console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "));
+// ===== SHOW PROCTORING BAR =====
+function showProctoring() {
+    document.getElementById('proctoringBar').style.display = 'block';
+}
+
+// ===== UPDATE VIOLATION COUNT =====
+function updateVCount(count) {
+    document.getElementById('vCount').textContent = count;
+}
 </script>
 </body>
 </html>  
