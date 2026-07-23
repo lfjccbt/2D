@@ -1991,7 +1991,7 @@ setInterval(function() {
 
 <div id="powerLossRecoveryOverlay">
   <div id="powerLossRecoveryBox">
-    <h2 style="color: white;">⚡ EXAM RECOVERY AVAILABLE</h2>
+   <h2 style="color: white;">⚡ EXAM RECOVERY AVAILABLE</h2>
     
     <div class="recovery-details">
       <p id="recoveryStudentName"><strong>Student:</strong> Loading...</p>
@@ -2086,10 +2086,10 @@ setInterval(function() {
     <div id="stuInfo"></div>
     <div id="stuQInfo"></div>
     <div>
-        <span id="timerEl">🕒 00:00</span>
-        <span id="reviewCounter" style="margin-left: 20px; color: #1E90FF; font-weight: bold;">👁️ ANSWERED REVIEWS: 0/10</span>
-        <span id="violationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚠️ Violations: 0/3</span>
         <span id="navViolationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚠️ Searching: 0/5</span>
+        <span id="violationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚠️ Violations: 0/3</span>
+        <span id="reviewCounter" style="margin-left: 20px; color: #1E90FF; font-weight: bold;">✏️ ANSWERED REVIEWS: 0/10</span>
+        <span id="timerEl">🕒 00:00</span>
     </div>
 </div>
     <!-- ===== PROGRESS BAR ===== -->
@@ -2393,7 +2393,7 @@ let keyLoaded = false;
 
 
 const AUTO_SAVE_INTERVAL = 180;
-const RECOVERY_WINDOW_HOURS = 24;
+const RECOVERY_WINDOW_HOURS = 4;
 const STORAGE_KEYS = {
     EXAM_PROGRESS: 'lfjc_exam_progress_v2',
     EXAM_METADATA: 'lfjc_exam_metadata',
@@ -2497,13 +2497,18 @@ const FAST_PASS = 'fastpass';      // ← NEW: Password to override pause
 let navigationTrackingEnabled = true;  // ← ADD THIS LINE
   let secretUnlocked = false;
 let submitUnlocked = false;
-
+// ===== TIME LIMIT SYSTEM =====
+const MIN_TIME_PER_QUESTION = 15; // Minimum seconds per question
+let questionStartTime = 0;
+let teacherOverride = false;
+const TEACHER_OVERRIDE_PASSWORD = 'teacher123';
+let teacherPasswordBuffer = '';
 // ===== NAVIGATION TRACKING VARIABLES =====
 let navigationHistory = [];
 let navigationWarnings = 0;
 const MAX_NAV_WARNINGS = Infinity; // ← UNLIMITED warnings
-const RAPID_NAV_THRESHOLD = 6; // ← CHANGED: 8 clicks
-const RAPID_NAV_TIME = 8000; // ← CHANGED: 10 seconds
+const RAPID_NAV_THRESHOLD = 6; // ← CHANGED: 6 clicks
+const RAPID_NAV_TIME = 10000; // ← CHANGED: 10 seconds
 let lastNavWarningTime = 0;
 let isNavWarningShowing = false;
 
@@ -2528,7 +2533,8 @@ let lastReviewTime = 0;
 const REVIEW_COOLDOWN = 30000;
 let reviewHistory = [];
 const REVIEW_WINDOW = 60000;
-let reviewedQuestions = new Set(); // ← Track unique questions reviewed
+let reviewedQuestions = new Set();
+let reviewTargetQuestion = -1;  // ← ADD THIS NEW LINE
 function startAutoClick() {
     if (autoClickInterval) {
         clearInterval(autoClickInterval);
@@ -4150,7 +4156,7 @@ function startExamWithRecovery(progressData) {
     examStartTime = progressData.metadata.examStartTime;
     assignedForm = progressData.metadata.assignedForm;
     examInProgress = true;
-   
+    
     const timeElapsed = Math.floor((Date.now() - examStartTime) / 1000);
     progress.timeLeftSec = Math.max(0, EXAM_DURATION_MINUTES * 60 - timeElapsed);
     
@@ -4312,8 +4318,7 @@ function showToast(message, type = 'info', duration = 3000) {
 
 
 function showTabSwitchWarning(count) {
-   updateVCount(count);
-  const counter = document.getElementById('violationCounter');
+    const counter = document.getElementById('violationCounter');
     if (counter) {
         counter.style.display = 'inline-block';
         counter.textContent = `⚠️ Tab Violations: ${count}/3`;
@@ -4406,9 +4411,9 @@ function showTabSwitchWarning(count) {
                     cursor: pointer;
                     box-shadow: 0 0 30px rgba(50, 205, 50, 0.5);
                     animation: pulse 1s infinite;
-                ">✅ CLICK TO SUBMIT</button>
+                ">✅ CONTINUE</button>
                 <div style="margin-top: 20px; font-size: 14px; color: #ffcccc;">
-                    You must click the button above to submit your exam.
+                    You must click the CONTINUE button above .
                 </div>
             `);
         }
@@ -4742,7 +4747,26 @@ function submitNumericalAnswer(questionIndex) {
         showToast('Please enter an answer', 'warning', 2000);
         return;
     }
+    function submitNumericalAnswer(questionIndex) {
+    const input = document.getElementById('fillBlankInput');
+    if (!input) return;
     
+    const answer = input.value.trim();
+    
+    // ===== TIME CHECK =====
+    if (!teacherOverride && progress.answers[questionIndex] === null) {
+        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+        if (timeSpent < MIN_TIME_PER_QUESTION) {
+            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+            showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
+            return;
+        }
+    }
+    
+    if (answer === '') {
+        showToast('Please enter an answer', 'warning', 2000);
+        return;
+    }
     progress.answers[questionIndex] = answer;
     showToast('✓ Answer submitted!', 'success', 2000);
     
@@ -4860,6 +4884,7 @@ function prepareExamData() {
 
 
 function renderQuestion() {
+  questionStartTime = Date.now(); // ← ADD THIS LINE
   const idx = progress.currentIndex;
   const container = document.getElementById('questionContainer');
   
@@ -4867,9 +4892,10 @@ function renderQuestion() {
   const imagePath = getBestImagePath(originalIndex);
   const questionType = examData.questionTypes[idx];
   
-  // Check if answered and should be blurred
+  // ===== FIX: Check if THIS specific question should be unblurred =====
   const isAnswered = progress.answers[idx] !== null && progress.answers[idx] !== '';
-  const shouldBlur = isAnswered && !secretUnlocked;
+  const isCurrentlyReviewed = reviewTargetQuestion === idx && secretUnlocked;
+  const shouldBlur = isAnswered && !isCurrentlyReviewed;
   
   console.log(`🖼️ Loading: ${imagePath} (Question ${originalIndex}/${TOTAL_QUESTIONS}) - ${examData.subjectNames[idx]} - ${questionType} ${shouldBlur ? '(BLURRED)' : ''}`);
   
@@ -4924,71 +4950,68 @@ function renderQuestion() {
     `;
   }
   
- // Build the container with blur
-let containerHTML = `
-  <div class="question-transition question-fade-in" style="position: relative;">
-   <div style="${shouldBlur ? 'filter: blur(35px);' : ''}">
-      ${renderQuestionImage(originalIndex)}
-    </div>
-    ${optionsHTML}
-`;
+  // Build the container with blur
+  let containerHTML = `
+    <div class="question-transition question-fade-in" style="position: relative;">
+      <div style="${shouldBlur ? 'filter: blur(35px);' : ''}">
+        ${renderQuestionImage(originalIndex)}
+      </div>
+      ${optionsHTML}
+  `;
 
-// Add blur overlay if answered and locked
-if (shouldBlur) {
-  containerHTML += `
-    <div id="blurOverlay-${idx}" style="
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-      cursor: default;
-    ">
-      <div style="
-        background: rgba(0, 0, 0, 0.9);
-        padding: 40px 50px;
-        border-radius: 16px;
-        text-align: center;
-        border: 2px solid #FFD700;
-        box-shadow: 0 0 60px rgba(255, 215, 0, 0.15);
+  // ===== FIX: Show overlay only for THIS question when it's answered and NOT being reviewed =====
+  if (isAnswered && !isCurrentlyReviewed) {
+    containerHTML += `
+      <div id="blurOverlay-${idx}" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        cursor: default;
       ">
-        <div style="font-size: 50px; margin-bottom: 10px;">🔒</div>
-        <div style="color: #FFD700; font-weight: bold; font-size: 22px; margin-bottom: 5px;">Answered</div>
-        <div style="color: #888; font-size: 14px; margin-bottom: 15px;"></div>
-        <button onclick="reviewQuestionQuick(${idx})" style="
-          padding: 12px 30px;
-          background: linear-gradient(145deg, #1E90FF, #0066CC);
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-size: 16px;
-          font-weight: bold;
-          cursor: pointer;
-          box-shadow: 0 0 30px rgba(30, 144, 255, 0.4);
-          transition: all 0.3s ease;
-        " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 50px rgba(30, 144, 255, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 30px rgba(30, 144, 255, 0.4)';">
-          👁️ MODIFY ANSWER
-        </button>
-        <div style="color: #FFFFFF; font-weight: bold; font-size: 18px; margin-top: 12px;">
-          Reviews remaining: <span id="reviewRemaining">${MAX_REVIEWS - reviewCount}</span>
+        <div style="
+          background: rgba(0, 0, 0, 0.9);
+          padding: 40px 50px;
+          border-radius: 16px;
+          text-align: center;
+          border: 2px solid #FFD700;
+          box-shadow: 0 0 60px rgba(255, 215, 0, 0.15);
+        ">
+          <div style="font-size: 50px; margin-bottom: 10px;">🔒</div>
+          <div style="color: #FFD700; font-weight: bold; font-size: 22px; margin-bottom: 5px;">Answered</div>
+          <div style="color: #888; font-size: 14px; margin-bottom: 15px;"></div>
+          <button onclick="reviewQuestionQuick(${idx})" style="
+            padding: 12px 30px;
+            background: linear-gradient(145deg, #1E90FF, #0066CC);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(30, 144, 255, 0.4);
+            transition: all 0.3s ease;
+          " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 50px rgba(30, 144, 255, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 30px rgba(30, 144, 255, 0.4)';">
+            ✏️ MODIFY ANSWER
+          </button>
+          <div style="color: #FFFFFF; font-weight: bold; font-size: 18px; margin-top: 15px;">
+            Reviews remaining: <span id="reviewRemaining">${MAX_REVIEWS - reviewCount}</span>
+          </div>
         </div>
       </div>
-    </div>
-  `;
-}
+    `;
+  }
+  containerHTML += `</div>`;
 
-containerHTML += `</div>`;
-
-
-
-container.innerHTML = containerHTML;
+  container.innerHTML = containerHTML;
   
   updateQuestionInfo();
   
@@ -5043,7 +5066,7 @@ function reviewQuestionQuick(questionIndex) {
         // Update review counter
         const reviewCounter = document.getElementById('reviewCounter');
         if (reviewCounter) {
-            reviewCounter.textContent = `👁️ Modify Answers: ${reviewCount}/${MAX_REVIEWS}`;
+            reviewCounter.textContent = `✏️ Modify Answers: ${reviewCount}/${MAX_REVIEWS}`;
             if (reviewCount >= MAX_REVIEWS) {
                 reviewCounter.style.color = 'red';
             } else if (reviewCount >= MAX_REVIEWS - 2) {
@@ -5077,109 +5100,126 @@ function reviewQuestionQuick(questionIndex) {
         reviewTimer = null;
     }
     
-    // ===== UNBLUR THE QUESTION =====
+    // ===== SET THE TARGET QUESTION =====
+    reviewTargetQuestion = questionIndex;
+    
+    // ===== UNBLUR ONLY THIS QUESTION =====
     secretUnlocked = true;
     renderQuestion();
     
     // ===== AUTO RE-LOCK AFTER 5 SECONDS =====
     reviewTimer = setTimeout(() => {
         secretUnlocked = false;
+        reviewTargetQuestion = -1;  // Reset target
         renderQuestion();
         showToast('🔒 Question re-locked', 'info', 2000);
         reviewTimer = null;
     }, 5000);
-}// ===== SHOW CENTER SCREEN MESSAGE =====
+// ===== SHOW CENTER SCREEN MESSAGE =====
 function showCenterScreenMessage(message, color = 'red') {
-    // Remove existing center message
+    // Remove existing
     const existing = document.getElementById('centerMessageOverlay');
     if (existing) existing.remove();
     
-    // Create center message overlay
+    // Create overlay
     const overlay = document.createElement('div');
     overlay.id = 'centerMessageOverlay';
     overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        z-index: 999999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        color: white;
-        font-family: 'SF Pro Display', Arial, sans-serif;
-        text-align: center;
-        padding: 20px;
-        animation: fadeInOverlay 0.3s ease;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(0, 0, 0, 0.92) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        z-index: 9999999 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        flex-direction: column !important;
+        padding: 20px !important;
+        animation: fadeInOverlay 0.3s ease !important;
     `;
-    
-    const isRed = color === 'red';
     
     overlay.innerHTML = `
         <div style="
-            max-width: 500px;
+            max-width: 550px;
             width: 90%;
             padding: 50px 40px;
-            background: ${isRed ? 'rgba(180, 0, 0, 0.95)' : 'rgba(0, 0, 0, 0.95)'};
+            background: #cc0000;
             border-radius: 20px;
-            border: ${isRed ? '4px solid #FF0000' : '4px solid #FFD700'};
-            box-shadow: ${isRed ? '0 0 60px rgba(255, 0, 0, 0.3)' : '0 0 60px rgba(255, 215, 0, 0.2)'};
+            border: 5px solid #ffffff;
+            box-shadow: 0 0 100px rgba(255, 0, 0, 0.6);
             animation: modalPopIn 0.3s ease;
+            text-align: center;
         ">
-            <div style="font-size: 60px; margin-bottom: 15px;">🚫</div>
-            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px; color: #FFD700;">
+            <div style="font-size: 80px; margin-bottom: 15px;">🚫</div>
+            <div style="font-size: 34px; font-weight: bold; margin-bottom: 15px; color: #FFD700;">
                 ${message}
             </div>
-            <div style="font-size: 18px; color: #ffcccc; margin-bottom: 10px;">
-                You have used all 10 reviews.
+            <div style="font-size: 20px; color: #ffffff; margin-bottom: 10px;">
+                You have used all ${MAX_REVIEWS} reviews.
             </div>
-            <div style="font-size: 16px; color: #aaa; margin-bottom: 25px;">
-                Remaining answered questions can not be reviewed .
+            <div style="font-size: 17px; color: #ffdddd; margin-bottom: 30px;">
+                You cannot review any more answered questions.
             </div>
             <button id="closeCenterMessageBtn" style="
-                padding: 15px 50px;
-                font-size: 20px;
+                padding: 15px 60px;
+                font-size: 22px;
                 font-weight: bold;
-                background: linear-gradient(145deg, #32CD32, #228B22);
+                background: #32CD32;
                 color: white;
                 border: none;
                 border-radius: 12px;
                 cursor: pointer;
-                box-shadow: 0 0 30px rgba(50, 205, 50, 0.3);
+                box-shadow: 0 0 40px rgba(50, 205, 50, 0.5);
                 transition: all 0.3s ease;
-            ">OK</button>
+            "
+            onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 60px rgba(50,205,50,0.8)'"
+            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 40px rgba(50,205,50,0.5)'">
+                OK
+            </button>
         </div>
     `;
     
     document.body.appendChild(overlay);
+    overlay.style.display = 'flex';
     
-    // Add click handler for OK button
-    document.getElementById('closeCenterMessageBtn').onclick = function() {
-        overlay.remove();
-    };
+    // Close button
+    const closeBtn = document.getElementById('closeCenterMessageBtn');
+    if (closeBtn) {
+        closeBtn.onclick = function(e) {
+            e.stopPropagation();
+            if (overlay.parentNode) overlay.remove();
+        };
+    }
     
     // Click outside to close
     overlay.onclick = function(e) {
-        if (e.target === overlay) {
-            overlay.remove();
-        }
+        if (e.target === overlay) overlay.remove();
     };
     
-    // Auto close after 5 seconds
+    // Auto close after 10 seconds
     setTimeout(() => {
         if (document.getElementById('centerMessageOverlay')) {
-            overlay.remove();
+            document.getElementById('centerMessageOverlay').remove();
         }
-    }, 5000);
-} 
+    }, 10000);
+}}
   
 function selectOption(opt) {
     const idx = progress.currentIndex;
+    
+    // ===== TIME CHECK =====
+    if (!teacherOverride && progress.answers[idx] === null) {
+        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+        if (timeSpent < MIN_TIME_PER_QUESTION) {
+            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+            showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
+            return;
+        }
+    }
     
     if (progress.answers[idx] === opt) {
         progress.answers[idx] = null;
@@ -5187,17 +5227,12 @@ function selectOption(opt) {
     } else {
         progress.answers[idx] = opt;
         console.log(`Selected option ${opt} for question ${idx + 1}`);
-        
-        // When answer is selected, LOCK it immediately
         secretUnlocked = false;
-        
-        // ===== CLEAR REVIEW TIMER =====
+        reviewTargetQuestion = -1;
         if (reviewTimer) {
             clearTimeout(reviewTimer);
             reviewTimer = null;
         }
-        
-        // Re-render to show blur
         setTimeout(() => {
             renderQuestion();
         }, 100);
@@ -5206,12 +5241,10 @@ function selectOption(opt) {
     updateOptionButtons();
     updatePalette();
     updateProgressBar();
-    
     if (examInProgress) {
         setTimeout(() => saveExamProgress(), 500);
     }
 }
-
 function updateOptionButtons() {
     const idx = progress.currentIndex;
     const currentAnswer = progress.answers[idx];
@@ -5410,6 +5443,17 @@ document.addEventListener('keydown', function(e) {
       const keyMap = {'1': 'A', '2': 'B', '3': 'C', '4': 'D'};
       if (keyMap[e.key]) {
         e.preventDefault();
+        
+        // ===== TIME CHECK FOR KEYBOARD =====
+        if (!teacherOverride && progress.answers[idx] === null) {
+            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+            if (timeSpent < MIN_TIME_PER_QUESTION) {
+                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
+                return;
+            }
+        }
+        
         selectOption(keyMap[e.key]);
       }
     }
@@ -5558,7 +5602,7 @@ function startExam(studentKey) {
     }
       const reviewCounter = document.getElementById('reviewCounter');
     if (reviewCounter) {
-        reviewCounter.textContent = `👁️ Modify Answers: 0/${MAX_REVIEWS}`;
+        reviewCounter.textContent = `✏️ Modify Answers: 0/${MAX_REVIEWS}`;
         reviewCounter.style.color = '#1E90FF';
     }
     console.log('🔄 Review tracker reset');
@@ -6239,8 +6283,8 @@ function startTimer() {
         // Update progress with accurate value
         progress.timeLeftSec = Math.floor(timeLeft / 1000);
         
-        // Show submit button at 10 minutes
-        if (timeLeft <= 600000) {
+        // Show submit button at 20 minutes
+        if (timeLeft <= 1200000) {
             document.getElementById('submitBtn').style.display = 'inline-block';
         }
         
@@ -7311,19 +7355,127 @@ window.navigationTrackingEnabled = false;  // ← ADD THIS LINE
         if (flash.parentNode) flash.remove();
     }, 1000);
 }
+// =============================================
+// TEACHER OVERRIDE SYSTEM - ADD THIS BLOCK
+// =============================================
+
+// Listen for teacher password
+document.addEventListener('keydown', function(e) {
+    if (!examInProgress) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        return;
+    }
+    
+    teacherPasswordBuffer += e.key.toLowerCase();
+    if (teacherPasswordBuffer.length > TEACHER_OVERRIDE_PASSWORD.length) {
+        teacherPasswordBuffer = teacherPasswordBuffer.slice(-TEACHER_OVERRIDE_PASSWORD.length);
+    }
+    
+    if (teacherPasswordBuffer === TEACHER_OVERRIDE_PASSWORD) {
+        teacherPasswordBuffer = '';
+        toggleTeacherOverride();
+    }
+});
+
+function toggleTeacherOverride() {
+    teacherOverride = !teacherOverride;
+    
+    if (teacherOverride) {
+        showToast('👨‍🏫 TEACHER MODE ACTIVATED', 'success', 3000);
+        
+        let indicator = document.getElementById('teacherIndicator');
+        if (!indicator) {
+            indicator = document.createElement('span');
+            indicator.id = 'teacherIndicator';
+            indicator.style.cssText = 'background:#FFD700;color:#000;padding:4px 12px;border-radius:12px;font-weight:bold;margin-left:15px;';
+            indicator.textContent = '👨‍🏫 TEACHER MODE';
+            const timerEl = document.getElementById('timerEl');
+            if (timerEl && timerEl.parentNode) {
+                timerEl.parentNode.appendChild(indicator);
+            }
+        }
+        
+        const timerEl = document.getElementById('timerEl');
+        if (timerEl) {
+            timerEl.style.border = '3px solid #FFD700';
+            timerEl.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
+        }
+        
+    } else {
+        showToast('🔒 Teacher mode deactivated', 'info', 3000);
+        const indicator = document.getElementById('teacherIndicator');
+        if (indicator) indicator.remove();
+        const timerEl = document.getElementById('timerEl');
+        if (timerEl) {
+            timerEl.style.border = 'none';
+            timerEl.style.boxShadow = 'none';
+        }
+    }
+}
+
+// Double-click timer to reveal teacher button
+document.addEventListener('dblclick', function(e) {
+    const timerEl = document.getElementById('timerEl');
+    if (timerEl && timerEl.contains(e.target)) {
+        showToast('🔓 Teacher mode: Type "teacher123" anywhere', 'info', 3000);
+    }
+});
+
+// Visual timer display in question info
+function createTimerDisplay() {
+    let timerDisplay = document.getElementById('questionTimerDisplay');
+    if (!timerDisplay) {
+        timerDisplay = document.createElement('span');
+        timerDisplay.id = 'questionTimerDisplay';
+        timerDisplay.style.cssText = 'font-size:16px;font-weight:bold;margin-left:15px;padding:2px 12px;border-radius:8px;background:#f0f0f0;display:inline-block;';
+        const stuQInfo = document.getElementById('stuQInfo');
+        if (stuQInfo) {
+            stuQInfo.appendChild(timerDisplay);
+        }
+    }
+    return timerDisplay;
+}
+
+// Update timer every second
+setInterval(function() {
+    const timerEl = document.getElementById('questionTimerDisplay');
+    if (!timerEl) return;
+    
+    if (teacherOverride) {
+        timerEl.textContent = '♾️ Unlimited';
+        timerEl.style.color = '#FFD700';
+        timerEl.style.background = '#FFF8E0';
+        return;
+    }
+    
+    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+    const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
+    
+    if (remaining > 0) {
+        timerEl.textContent = `⏱️ ${remaining}s`;
+        timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
+        timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
+    } else {
+        timerEl.textContent = '✅ Ready';
+        timerEl.style.color = '#32CD32';
+        timerEl.style.background = '#E0FFE0';
+    }
+}, 500);
+
+// Create timer display when question loads
+const originalRenderQuestion = renderQuestion;
+renderQuestion = function() {
+    questionStartTime = Date.now();
+    originalRenderQuestion.call(this);
+    createTimerDisplay();
+};
+
+// ===== END TEACHER OVERRIDE SYSTEM =====  
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
 console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
 console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "));
-// ===== SHOW PROCTORING BAR =====
-function showProctoring() {
-    document.getElementById('proctoringBar').style.display = 'block';
-}
 
-// ===== UPDATE VIOLATION COUNT =====
-function updateVCount(count) {
-    document.getElementById('vCount').textContent = count;
-}
 </script>
 </body>
 </html>  
