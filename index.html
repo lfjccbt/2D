@@ -7457,7 +7457,160 @@ renderQuestion = function() {
     originalRenderQuestion.call(this);
     createTimerDisplay();
 };
+// =============================================
+// NAVIGATION BLOCK SYSTEM - ADD THIS ENTIRE BLOCK
+// =============================================
 
+// Check if navigation is allowed
+function isNavigationAllowed() {
+    if (teacherOverride) return true;
+    
+    const idx = progress.currentIndex;
+    if (progress.answers[idx] !== null && progress.answers[idx] !== '') {
+        return true;
+    }
+    
+    const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+    if (timeSpent < MIN_TIME_PER_QUESTION) {
+        const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+        showToast(`⏳ Wait ${remaining}s before navigating!`, 'warning', 2000);
+        return false;
+    }
+    return true;
+}
+
+// Override prev button
+document.getElementById('prevBtn').onclick = function() {
+    if (this.disabled) return;
+    if (progress.currentIndex > 0) {
+        if (!isNavigationAllowed()) return;
+        if (checkRapidNavigation('prev')) {
+            showRapidNavWarning(navigationWarnings + 1);
+        }
+        progress.currentIndex--;
+        renderQuestion();
+        updateNavButtons();
+        if (examInProgress) {
+            setTimeout(() => saveExamProgress(), 500);
+        }
+    }
+};
+
+// Override next button
+document.getElementById('nextBtn').onclick = function() {
+    if (this.disabled) return;
+    if (progress.currentIndex < examData.files.length - 1) {
+        if (!isNavigationAllowed()) return;
+        if (checkRapidNavigation('next')) {
+            showRapidNavWarning(navigationWarnings + 1);
+        }
+        progress.currentIndex++;
+        renderQuestion();
+        updateNavButtons();
+        if (examInProgress) {
+            setTimeout(() => saveExamProgress(), 500);
+        }
+    }
+};
+
+// Override updateNavButtons to show timer
+const originalUpdateNav = updateNavButtons;
+updateNavButtons = function() {
+    originalUpdateNav.call(this);
+    
+    const idx = progress.currentIndex;
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    if (!teacherOverride && progress.answers[idx] === null) {
+        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+        if (timeSpent < MIN_TIME_PER_QUESTION) {
+            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+            if (prevBtn) {
+                prevBtn.disabled = true;
+                prevBtn.style.opacity = '0.5';
+            }
+            if (nextBtn) {
+                nextBtn.disabled = true;
+                nextBtn.style.opacity = '0.5';
+            }
+            document.getElementById('stuQInfo').textContent = 
+                `⏳ Wait ${remaining}s | Question ${idx+1} of ${TOTAL_QUESTIONS}`;
+        } else {
+            if (prevBtn) {
+                prevBtn.disabled = (idx === 0);
+                prevBtn.style.opacity = '1';
+            }
+            if (nextBtn) {
+                nextBtn.disabled = (idx === examData.files.length - 1);
+                nextBtn.style.opacity = '1';
+            }
+        }
+    } else {
+        if (prevBtn) {
+            prevBtn.disabled = (idx === 0);
+            prevBtn.style.opacity = '1';
+        }
+        if (nextBtn) {
+            nextBtn.disabled = (idx === examData.files.length - 1);
+            nextBtn.style.opacity = '1';
+        }
+    }
+};
+
+// Override renderPalette to block palette clicks
+const originalRenderPalette = renderPalette;
+renderPalette = function() {
+    originalRenderPalette.call(this);
+    
+    document.querySelectorAll('.palette-btn').forEach(btn => {
+        const originalClick = btn.onclick;
+        btn.onclick = function(e) {
+            const idx = parseInt(this.getAttribute('data-index'));
+            
+            if (!teacherOverride && progress.answers[idx] === null && idx === progress.currentIndex) {
+                const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+                if (timeSpent < MIN_TIME_PER_QUESTION) {
+                    const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                    showToast(`⏳ Wait ${remaining}s before navigating!`, 'warning', 2000);
+                    return;
+                }
+            }
+            
+            // Call original click handler
+            if (originalClick) originalClick.call(this, e);
+        };
+    });
+};
+
+// Override renderQuestion to reset timer
+const originalRender = renderQuestion;
+renderQuestion = function() {
+    questionStartTime = Date.now();
+    originalRender.call(this);
+    updateNavButtons();
+};
+
+// Update nav buttons every second
+setInterval(function() {
+    if (examInProgress) {
+        updateNavButtons();
+    }
+}, 500);
+
+// Block keyboard arrows
+document.addEventListener('keydown', function(e) {
+    if (document.getElementById('examArea').style.display === 'block') {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            if (!isNavigationAllowed()) {
+                e.preventDefault();
+                return;
+            }
+        }
+    }
+});
+
+// ===== END NAVIGATION BLOCK SYSTEM =====
 // ===== END TEACHER OVERRIDE SYSTEM =====  
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
 console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
