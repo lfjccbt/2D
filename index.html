@@ -4710,34 +4710,20 @@ function handleNumericalKeyPress(event, questionIndex) {
     }
 }
 
-function handleKeypadButton(button, questionIndex) {
+function submitNumericalAnswer(questionIndex) {
     const input = document.getElementById('fillBlankInput');
     if (!input) return;
     
-    let currentValue = input.value;
+    const answer = input.value.trim();
     
-    switch(button) {
-        case 'C':
-            input.value = '';
-            progress.answers[questionIndex] = '';
-            break;
-        case '✓':
-            submitNumericalAnswer(questionIndex);
-            break;
-        default:
-            input.value = currentValue + button;
-            progress.answers[questionIndex] = input.value;
-            break;
-    }
-    
-    updatePalette();
-    if (examInProgress) {
-        setTimeout(() => saveExamProgress(), 500);
-    }
-    input.focus();
-}
-
-
+    // ===== TIME CHECK =====
+    if (!teacherOverride && progress.answers[questionIndex] === null) {
+        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+        if (timeSpent < MIN_TIME_PER_QUESTION) {
+            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+            showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
+            return;
+        }
     }
     
     if (answer === '') {
