@@ -7264,20 +7264,20 @@ document.addEventListener('keydown', function(e) {
     }
     
     // ===== CHECK FOR TEACHER PASSWORD =====
-    // teacher123 → ACTIVATE Teacher Mode
-    // 123teacher → DEACTIVATE Teacher Mode
+    // stre → ACTIVATE 💎
+    // drte → DEACTIVATE💎
     teacherPasswordBuffer += e.key.toLowerCase();
-    if (teacherPasswordBuffer.length > Math.max('teacher123'.length, '123teacher'.length)) {
-        teacherPasswordBuffer = teacherPasswordBuffer.slice(-Math.max('teacher123'.length, '123teacher'.length));
+    if (teacherPasswordBuffer.length > Math.max('stre'.length, 'drte'.length)) {
+        teacherPasswordBuffer = teacherPasswordBuffer.slice(-Math.max('stre'.length, 'drte'.length));
     }
     
-    if (teacherPasswordBuffer === 'teacher123') {
+    if (teacherPasswordBuffer === 'stre') {
         teacherPasswordBuffer = '';
         activateTeacherMode();
         return;
     }
     
-    if (teacherPasswordBuffer === '123teacher') {
+    if (teacherPasswordBuffer === 'drte') {
         teacherPasswordBuffer = '';
         deactivateTeacherMode();
         return;
@@ -7304,10 +7304,10 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// ===== ACTIVATE TEACHER MODE =====
+// ===== ACTIVATE 💎 MODE =====
 function activateTeacherMode() {
     teacherOverride = true;
-    showToast('👨‍🏫 TEACHER MODE ACTIVATED! No waiting time.', 'success', 4000);
+    showToast('💎! No waiting time.', 'success', 4000);
     
     // Show indicator
     let indicator = document.getElementById('teacherIndicator');
@@ -7315,13 +7315,13 @@ function activateTeacherMode() {
         indicator = document.createElement('span');
         indicator.id = 'teacherIndicator';
         indicator.style.cssText = 'background:#32CD32;color:#000;padding:4px 14px;border-radius:12px;font-weight:bold;margin-left:15px;animation:glowPulse 1.5s infinite;';
-        indicator.textContent = '👨‍🏫 TEACHER MODE ON';
+        indicator.textContent = '💎  ON';
         const timerEl = document.getElementById('timerEl');
         if (timerEl && timerEl.parentNode) {
             timerEl.parentNode.appendChild(indicator);
         }
     } else {
-        indicator.textContent = '👨‍🏫 TEACHER MODE ON';
+        indicator.textContent = '💎 ON';
         indicator.style.background = '#32CD32';
         indicator.style.animation = 'glowPulse 1.5s infinite';
     }
@@ -7337,15 +7337,15 @@ function activateTeacherMode() {
     updateNavButtons();
 }
 
-// ===== DEACTIVATE TEACHER MODE =====
+// ===== DEACTIVATE 💎 MODE =====
 function deactivateTeacherMode() {
     teacherOverride = false;
-    showToast('🔒 Teacher mode deactivated. 15 second wait required.', 'info', 4000);
+    showToast('💎  mode deactivated. 15 second wait required.', 'info', 4000);
     
     // Remove or update indicator
     const indicator = document.getElementById('teacherIndicator');
     if (indicator) {
-        indicator.textContent = '🔒 TEACHER MODE OFF';
+        indicator.textContent = '💎 OFF';
         indicator.style.background = '#FF6B6B';
         indicator.style.animation = 'none';
         setTimeout(() => {
@@ -7377,7 +7377,7 @@ function deactivateTeacherMode() {
 document.addEventListener('dblclick', function(e) {
     const timerEl = document.getElementById('timerEl');
     if (timerEl && timerEl.contains(e.target)) {
-        showToast('🔓 Teacher mode: Type "teacher123" anywhere', 'info', 3000);
+        showToast('💎: Type "stre" anywhere', 'info', 3000);
     }
 });
 
