@@ -7344,9 +7344,9 @@ setInterval(function() {
     
     // ===== RESET AT 1 SECOND AND MARK AS WAITED =====
     if (remaining === 1) {
-        questionStartTime = Date.now();  // Reset timer
-        questionWaited[idx] = true;      // ← ADD THIS - Mark as waited!
-    }
+    questionStartTime = Date.now();  // Reset timer
+    // Do NOT mark as waited
+}
     // ===== END ADDED BLOCK =====
     
 } else {
