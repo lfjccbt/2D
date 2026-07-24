@@ -4747,11 +4747,16 @@ function submitNumericalAnswer(questionIndex) {
     
     // ===== TIME CHECK =====
     if (!teacherOverride && progress.answers[questionIndex] === null) {
-        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-        if (timeSpent < MIN_TIME_PER_QUESTION) {
-            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-            showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
-            return;
+        // If already waited, skip timer
+        if (!questionWaited[questionIndex]) {
+            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+            if (timeSpent < MIN_TIME_PER_QUESTION) {
+                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
+                return;
+            }
+            // Mark as waited
+            questionWaited[questionIndex] = true;
         }
     }
     
@@ -5207,11 +5212,16 @@ function selectOption(opt) {
     
     // ===== TIME CHECK =====
     if (!teacherOverride && progress.answers[idx] === null) {
-        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-        if (timeSpent < MIN_TIME_PER_QUESTION) {
-            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-            showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
-            return;
+        // If already waited, skip timer
+        if (!questionWaited[idx]) {
+            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+            if (timeSpent < MIN_TIME_PER_QUESTION) {
+                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
+                return;
+            }
+            // Mark as waited once timer is complete
+            questionWaited[idx] = true;
         }
     }
     
