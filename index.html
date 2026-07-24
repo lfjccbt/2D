@@ -4874,8 +4874,12 @@ function prepareExamData() {
 
 
 function renderQuestion() {
-  questionStartTime = Date.now(); // ← ADD THIS LINE
   const idx = progress.currentIndex;
+  
+  // Only start timer if this question hasn't been waited on yet
+  if (!questionWaited[idx]) {
+    questionStartTime = Date.now();
+  }
   const container = document.getElementById('questionContainer');
   
   const originalIndex = examData.originalOrder[idx] + 1;
