@@ -7372,41 +7372,7 @@ function deactivateTeacherMode() {
     updateNavButtons();
 }
 
-function toggleTeacherOverride() {
-    teacherOverride = !teacherOverride;
-    
-    if (teacherOverride) {
-        showToast('👨‍🏫 TEACHER MODE ACTIVATED', 'success', 3000);
-        
-        let indicator = document.getElementById('teacherIndicator');
-        if (!indicator) {
-            indicator = document.createElement('span');
-            indicator.id = 'teacherIndicator';
-            indicator.style.cssText = 'background:#FFD700;color:#000;padding:4px 12px;border-radius:12px;font-weight:bold;margin-left:15px;';
-            indicator.textContent = '👨‍🏫 TEACHER MODE';
-            const timerEl = document.getElementById('timerEl');
-            if (timerEl && timerEl.parentNode) {
-                timerEl.parentNode.appendChild(indicator);
-            }
-        }
-        
-        const timerEl = document.getElementById('timerEl');
-        if (timerEl) {
-            timerEl.style.border = '3px solid #FFD700';
-            timerEl.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
-        }
-        
-    } else {
-        showToast('🔒 Teacher mode deactivated', 'info', 3000);
-        const indicator = document.getElementById('teacherIndicator');
-        if (indicator) indicator.remove();
-        const timerEl = document.getElementById('timerEl');
-        if (timerEl) {
-            timerEl.style.border = 'none';
-            timerEl.style.boxShadow = 'none';
-        }
-    }
-}
+
 // Double-click timer to reveal teacher button
 document.addEventListener('dblclick', function(e) {
     const timerEl = document.getElementById('timerEl');
@@ -7608,23 +7574,35 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
-    // ===== CHECK FOR UNBLUR PASSWORD: 'ub' =====
-    unblurPasswordBuffer += e.key.toLowerCase();
-    if (unblurPasswordBuffer.length > UNBLUR_PASSWORD.length) {
-        unblurPasswordBuffer = unblurPasswordBuffer.slice(-UNBLUR_PASSWORD.length);
+   // ===== CHECK FOR UNBLUR PASSWORD: 'ub' =====
+unblurPasswordBuffer += e.key.toLowerCase();
+if (unblurPasswordBuffer.length > UNBLUR_PASSWORD.length) {
+    unblurPasswordBuffer = unblurPasswordBuffer.slice(-UNBLUR_PASSWORD.length);
+}
+if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
+    secretUnlocked = true;
+    unblurPasswordBuffer = '';
+    // ✅ SET reviewTargetQuestion to current question
+    reviewTargetQuestion = progress.currentIndex;
+    renderQuestion();
+    showToast('🔓 Question unblurred for 5 seconds!', 'success', 2000);
+    
+    // Clear any existing timer
+    if (reviewTimer) {
+        clearTimeout(reviewTimer);
+        reviewTimer = null;
     }
-    if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
-        secretUnlocked = true;
-        unblurPasswordBuffer = '';
+    
+    // Auto re-lock after 5 seconds
+    reviewTimer = setTimeout(() => {
+        secretUnlocked = false;
+        reviewTargetQuestion = -1;
         renderQuestion();
-        showToast('🔓 Questions unblurred', 'success', 2000);
-        setTimeout(() => {
-            secretUnlocked = false;
-            renderQuestion();
-            showToast('🔒 Questions re-locked', 'info', 2000);
-        }, 5000);
-        return;
-    }
+        showToast('🔒 Question re-locked', 'info', 2000);
+        reviewTimer = null;
+    }, 5000);
+    return;
+}
     
     // ===== CHECK FOR FAST PASS: 'fastpass' =====
     fastPassBuffer += e.key.toLowerCase();
