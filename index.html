@@ -7374,6 +7374,14 @@ document.addEventListener('keydown', function(e) {
         timerPasswordBuffer = timerPasswordBuffer.slice(-Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length));
     }
     
+    // ===== CHECK FOR teacher123 OR 123teacher =====
+    if (timerPasswordBuffer === 'teacher123' || timerPasswordBuffer === '123teacher') {
+        timerPasswordBuffer = '';
+        toggleTeacherOverride();
+        return;
+    }
+    // ===== END CHECK =====
+    
     if (timerPasswordBuffer === DEACTIVATE_TIMER_PASSWORD) {
         timerPasswordBuffer = '';
         teacherOverride = true;
@@ -7388,6 +7396,7 @@ document.addEventListener('keydown', function(e) {
         return;
     }
 });
+  
 function toggleTeacherOverride() {
     teacherOverride = !teacherOverride;
     
