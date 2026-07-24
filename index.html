@@ -7336,7 +7336,7 @@ setInterval(function() {
     
     // ===== USE questionStartTimes[idx] INSTEAD OF questionStartTime =====
     const startTime = questionStartTimes[idx] || Date.now();
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const elapsed = Math.floor((Date.now() - (questionStartTimes[idx] || Date.now())) / 1000);
     const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
     
     if (remaining > 0) {
