@@ -7249,8 +7249,12 @@ window.navigationTrackingEnabled = false;  // ← ADD THIS LINE
     }, 1000);
 }
 // =============================================
-// TEACHER OVERRIDE SYSTEM - ADD THIS BLOCK
+// TEACHER OVERRIDE SYSTEM - FIXED
 // =============================================
+
+// Separate buffers for different password types
+let teacherPasswordBuffer = '';
+let timerPasswordBuffer2 = '';  // Renamed to avoid conflict
 
 // Listen for timer control passwords
 document.addEventListener('keydown', function(e) {
@@ -7259,33 +7263,39 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
-    timerPasswordBuffer += e.key.toLowerCase();
-    if (timerPasswordBuffer.length > Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length)) {
-        timerPasswordBuffer = timerPasswordBuffer.slice(-Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length));
+    // ===== CHECK FOR TEACHER PASSWORD: 'teacher123' or '123teacher' =====
+    teacherPasswordBuffer += e.key.toLowerCase();
+    if (teacherPasswordBuffer.length > Math.max('teacher123'.length, '123teacher'.length)) {
+        teacherPasswordBuffer = teacherPasswordBuffer.slice(-Math.max('teacher123'.length, '123teacher'.length));
     }
     
-    // ===== ADD THIS BLOCK =====
-    if (timerPasswordBuffer === 'teacher123' || timerPasswordBuffer === '123teacher') {
-        timerPasswordBuffer = '';
+    if (teacherPasswordBuffer === 'teacher123' || teacherPasswordBuffer === '123teacher') {
+        teacherPasswordBuffer = '';
         toggleTeacherOverride();
         return;
     }
-    // ===== END ADDED BLOCK =====
     
-    if (timerPasswordBuffer === DEACTIVATE_TIMER_PASSWORD) {
-        timerPasswordBuffer = '';
+    // ===== CHECK FOR TIMER CONTROL PASSWORDS =====
+    timerPasswordBuffer2 += e.key.toLowerCase();
+    if (timerPasswordBuffer2.length > Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length)) {
+        timerPasswordBuffer2 = timerPasswordBuffer2.slice(-Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length));
+    }
+    
+    if (timerPasswordBuffer2 === DEACTIVATE_TIMER_PASSWORD) {
+        timerPasswordBuffer2 = '';
         teacherOverride = true;
         showToast('⏱️ TIMER OFF - No waiting time!', 'success', 3000);
         return;
     }
     
-    if (timerPasswordBuffer === ACTIVATE_TIMER_PASSWORD) {
-        timerPasswordBuffer = '';
+    if (timerPasswordBuffer2 === ACTIVATE_TIMER_PASSWORD) {
+        timerPasswordBuffer2 = '';
         teacherOverride = false;
         showToast('⏱️ TIMER ON - 15 second wait required!', 'info', 3000);
         return;
     }
 });
+
 function toggleTeacherOverride() {
     teacherOverride = !teacherOverride;
     
@@ -7321,7 +7331,6 @@ function toggleTeacherOverride() {
         }
     }
 }
-
 // Double-click timer to reveal teacher button
 document.addEventListener('dblclick', function(e) {
     const timerEl = document.getElementById('timerEl');
@@ -7528,34 +7537,7 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
-    // ===== TIMER PASSWORDS =====
-    timerPasswordBuffer += e.key.toLowerCase();
-    if (timerPasswordBuffer.length > Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length)) {
-        timerPasswordBuffer = timerPasswordBuffer.slice(-Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length));
-    }
-    
-    // teacher123 or 123teacher
-    if (timerPasswordBuffer === 'teacher123' || timerPasswordBuffer === '123teacher') {
-        timerPasswordBuffer = '';
-        toggleTeacherOverride();
-        return;
-    }
-    
-    // timeroff123
-    if (timerPasswordBuffer === DEACTIVATE_TIMER_PASSWORD) {
-        timerPasswordBuffer = '';
-        teacherOverride = true;
-        showToast('⏱️ TIMER OFF - No waiting time!', 'success', 3000);
-        return;
-    }
-    
-    // timeron123
-    if (timerPasswordBuffer === ACTIVATE_TIMER_PASSWORD) {
-        timerPasswordBuffer = '';
-        teacherOverride = false;
-        showToast('⏱️ TIMER ON - 15 second wait required!', 'info', 3000);
-        return;
-    }
+   
 });
 // ===== END NAVIGATION BLOCK SYSTEM =====
 // ===== END TEACHER OVERRIDE SYSTEM =====  
