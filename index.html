@@ -2500,7 +2500,6 @@ let submitUnlocked = false;
 // ===== TIME LIMIT SYSTEM =====
 const MIN_TIME_PER_QUESTION = 15;
 let questionStartTime = 0;
-let questionStartTimes = {};   
 let teacherOverride = false;
 const ACTIVATE_TIMER_PASSWORD = 'timeron123';
 const DEACTIVATE_TIMER_PASSWORD = 'timeroff123';
@@ -4756,11 +4755,10 @@ function submitNumericalAnswer(questionIndex) {
                 showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
                 return;
             }
-            // Mark as waited
+            // ✅ Only mark as waited when time is complete
             questionWaited[questionIndex] = true;
         }
     }
-    
     if (answer === '') {
         showToast('Please enter an answer', 'warning', 2000);
         return;
@@ -4881,11 +4879,13 @@ function prepareExamData() {
 
 function renderQuestion() {
   const idx = progress.currentIndex;
-  // Only start timer if this question hasn't been waited on yet
-  if (!questionWaited[idx] && !questionStartTimes[idx]) {
-    questionStartTimes[idx] = Date.now();
+  // ✅ Only start timer if this question hasn't been waited on yet
+  // If already waited, keep the existing start time (no reset)
+  if (!questionWaited[idx]) {
+    questionStartTime = Date.now();
   }
   const container = document.getElementById('questionContainer');
+  // ... rest of the function (DO NOT CHANGE ANYTHING BELOW THIS)
   
   const originalIndex = examData.originalOrder[idx] + 1;
   const imagePath = getBestImagePath(originalIndex);
@@ -5220,6 +5220,7 @@ function selectOption(opt) {
                 showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
                 return;
             }
+            // ✅ Only mark as waited when time is complete
             questionWaited[idx] = true;
         }
     }
@@ -5596,7 +5597,6 @@ function startExam(studentKey) {
     };
     examStartTime = Date.now();
     questionWaited = new Array(examData.files.length).fill(false); // ← ADD THIS ONE LINE
-    questionStartTimes = {};  // ← ADD THIS LINE
     }
 
     examInProgress = true;
@@ -5673,7 +5673,7 @@ function renderPalette() {
     if (progress.review[i]) btn.classList.add('reviewed');
     if (i === progress.currentIndex) btn.classList.add('current');
     
-  btn.onclick = function() {
+ btn.onclick = function() {
   // ===== CHECK IF PAUSED =====
   const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
                    document.getElementById('pauseScreenOverlay').style.display !== 'none';
@@ -5685,13 +5685,18 @@ function renderPalette() {
   
   const idx = parseInt(this.getAttribute('data-index'));
   
-  // ===== ADD THIS TIME CHECK =====
-  if (!teacherOverride) {
-    const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-    if (timeSpent < MIN_TIME_PER_QUESTION && progress.answers[idx] === null) {
-      const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-      showToast(`⏳ Wait ${remaining}s before navigating!`, 'warning', 2000);
-      return;
+  // ===== TIME CHECK =====
+  // Only check if the target question hasn't been answered yet
+  if (!teacherOverride && progress.answers[idx] === null) {
+    // Only check the current question's timer if navigating to a different question
+    if (idx !== progress.currentIndex && !questionWaited[progress.currentIndex]) {
+      const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+      if (timeSpent < MIN_TIME_PER_QUESTION) {
+        const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+        showToast(`⏳ Please wait ${remaining}s on current question before navigating!`, 'warning', 2000);
+        return;
+      }
+      questionWaited[progress.currentIndex] = true;
     }
   }
   // ===== END TIME CHECK =====
@@ -6017,6 +6022,19 @@ function hidePauseScreen() {
 document.getElementById('prevBtn').onclick = function() {
     if (this.disabled) return;
     if (progress.currentIndex > 0) {
+        // ===== TIME CHECK FOR NAVIGATION =====
+        const currentIdx = progress.currentIndex;
+        if (!teacherOverride && progress.answers[currentIdx] === null && !questionWaited[currentIdx]) {
+            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+            if (timeSpent < MIN_TIME_PER_QUESTION) {
+                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                showToast(`⏳ Please wait ${remaining}s before navigating!`, 'warning', 2000);
+                return;
+            }
+            questionWaited[currentIdx] = true;
+        }
+        // ===== END TIME CHECK =====
+        
         // Check for rapid navigation
         if (checkRapidNavigation('prev')) {
             showRapidNavWarning(navigationWarnings + 1);
@@ -6035,6 +6053,19 @@ document.getElementById('prevBtn').onclick = function() {
 document.getElementById('nextBtn').onclick = function() {
     if (this.disabled) return;
     if (progress.currentIndex < examData.files.length - 1) {
+        // ===== TIME CHECK FOR NAVIGATION =====
+        const currentIdx = progress.currentIndex;
+        if (!teacherOverride && progress.answers[currentIdx] === null && !questionWaited[currentIdx]) {
+            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+            if (timeSpent < MIN_TIME_PER_QUESTION) {
+                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                showToast(`⏳ Please wait ${remaining}s before navigating!`, 'warning', 2000);
+                return;
+            }
+            questionWaited[currentIdx] = true;
+        }
+        // ===== END TIME CHECK =====
+        
         // Check for rapid navigation
         if (checkRapidNavigation('next')) {
             showRapidNavWarning(navigationWarnings + 1);
@@ -7314,6 +7345,7 @@ function createTimerDisplay() {
     return timerDisplay;
 }
 
+// Update timer every second - FIXED: Counts down once per question
 setInterval(function() {
     const timerEl = document.getElementById('questionTimerDisplay');
     if (!timerEl) return;
@@ -7327,6 +7359,7 @@ setInterval(function() {
     
     const idx = progress.currentIndex;
     
+    // If already waited on this question, show Ready immediately
     if (questionWaited[idx]) {
         timerEl.textContent = '✅ Ready';
         timerEl.style.color = '#32CD32';
@@ -7334,16 +7367,16 @@ setInterval(function() {
         return;
     }
     
-    // ===== USE questionStartTimes[idx] INSTEAD OF questionStartTime =====
-    const startTime = questionStartTimes[idx] || Date.now();
-    const elapsed = Math.floor((Date.now() - (questionStartTimes[idx] || Date.now())) / 1000);
+    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
     const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
     
     if (remaining > 0) {
         timerEl.textContent = `⏱️ ${remaining}s`;
         timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
         timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
+        // ✅ REMOVED: The reset at 1 second that was causing the bug
     } else {
+        // 🔒 Permanently mark this question as waited
         timerEl.textContent = '✅ Ready';
         timerEl.style.color = '#32CD32';
         timerEl.style.background = '#E0FFE0';
