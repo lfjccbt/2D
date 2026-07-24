@@ -7344,114 +7344,59 @@ window.navigationTrackingEnabled = false;  // ← ADD THIS LINE
     }, 1000);
 }
 // =============================================
-// TEACHER OVERRIDE SYSTEM - ACTIVATE/DEACTIVATE
+// TEACHER OVERRIDE SYSTEM - ADD THIS BLOCK
 // =============================================
 
-// By default: NO time limit (teacherOverride = true)
-let teacherOverride = true;  // ← NO time limit by default
-
-// Password buffers
-let activateBuffer = '';
-let deactivateBuffer = '';
-const ACTIVATE_PASSWORD = 'teacher123';    // ← Activates time limit
-const DEACTIVATE_PASSWORD = '123teacher';  // ← Deactivates time limit
-
-// Listen for passwords
+// Listen for teacher password
 document.addEventListener('keydown', function(e) {
     if (!examInProgress) return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
         return;
     }
     
-    // Check for ACTIVATE password: teacher123
-    activateBuffer += e.key.toLowerCase();
-    if (activateBuffer.length > ACTIVATE_PASSWORD.length) {
-        activateBuffer = activateBuffer.slice(-ACTIVATE_PASSWORD.length);
+    teacherPasswordBuffer += e.key.toLowerCase();
+    if (teacherPasswordBuffer.length > TEACHER_OVERRIDE_PASSWORD.length) {
+        teacherPasswordBuffer = teacherPasswordBuffer.slice(-TEACHER_OVERRIDE_PASSWORD.length);
     }
     
-    if (activateBuffer === ACTIVATE_PASSWORD) {
-        activateBuffer = '';
-        activateTimeLimit();
-        return;
-    }
-    
-    // Check for DEACTIVATE password: 123teacher
-    deactivateBuffer += e.key.toLowerCase();
-    if (deactivateBuffer.length > DEACTIVATE_PASSWORD.length) {
-        deactivateBuffer = deactivateBuffer.slice(-DEACTIVATE_PASSWORD.length);
-    }
-    
-    if (deactivateBuffer === DEACTIVATE_PASSWORD) {
-        deactivateBuffer = '';
-        deactivateTimeLimit();
-        return;
+    if (teacherPasswordBuffer === TEACHER_OVERRIDE_PASSWORD) {
+        teacherPasswordBuffer = '';
+        toggleTeacherOverride();
     }
 });
 
-function activateTimeLimit() {
-    teacherOverride = false;  // Time limit ACTIVE
-    showToast('⏱️ TIME LIMIT ACTIVATED! (15 seconds per question)', 'warning', 3000);
-    
-    // Remove teacher mode indicator
-    const indicator = document.getElementById('teacherIndicator');
-    if (indicator) indicator.remove();
-    
-    const timerEl = document.getElementById('timerEl');
-    if (timerEl) {
-        timerEl.style.border = 'none';
-        timerEl.style.boxShadow = 'none';
-    }
-    
-    // Update timer display
-    updateTimerDisplay();
-}
-
-function deactivateTimeLimit() {
-    teacherOverride = true;  // Time limit OFF
-    showToast('♾️ TIME LIMIT DEACTIVATED! (Unlimited time)', 'success', 3000);
-    
-    // Show teacher mode indicator
-    let indicator = document.getElementById('teacherIndicator');
-    if (!indicator) {
-        indicator = document.createElement('span');
-        indicator.id = 'teacherIndicator';
-        indicator.style.cssText = 'background:#FFD700;color:#000;padding:4px 12px;border-radius:12px;font-weight:bold;margin-left:15px;';
-        indicator.textContent = '♾️ UNLIMITED';
-        const timerEl = document.getElementById('timerEl');
-        if (timerEl && timerEl.parentNode) {
-            timerEl.parentNode.appendChild(indicator);
-        }
-    }
-    
-    const timerEl = document.getElementById('timerEl');
-    if (timerEl) {
-        timerEl.style.border = '3px solid #FFD700';
-        timerEl.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
-    }
-    
-    // Update timer display
-    updateTimerDisplay();
-}
-
-function updateTimerDisplay() {
-    const timerEl = document.getElementById('questionTimerDisplay');
-    if (!timerEl) return;
+function toggleTeacherOverride() {
+    teacherOverride = !teacherOverride;
     
     if (teacherOverride) {
-        timerEl.textContent = '♾️ Unlimited';
-        timerEl.style.color = '#FFD700';
-        timerEl.style.background = '#FFF8E0';
+        showToast('👨‍🏫 TEACHER MODE ACTIVATED', 'success', 3000);
+        
+        let indicator = document.getElementById('teacherIndicator');
+        if (!indicator) {
+            indicator = document.createElement('span');
+            indicator.id = 'teacherIndicator';
+            indicator.style.cssText = 'background:#FFD700;color:#000;padding:4px 12px;border-radius:12px;font-weight:bold;margin-left:15px;';
+            indicator.textContent = '👨‍🏫 TEACHER MODE';
+            const timerEl = document.getElementById('timerEl');
+            if (timerEl && timerEl.parentNode) {
+                timerEl.parentNode.appendChild(indicator);
+            }
+        }
+        
+        const timerEl = document.getElementById('timerEl');
+        if (timerEl) {
+            timerEl.style.border = '3px solid #FFD700';
+            timerEl.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
+        }
+        
     } else {
-        const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
-        const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
-        if (remaining > 0) {
-            timerEl.textContent = `⏱️ ${remaining}s`;
-            timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
-            timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
-        } else {
-            timerEl.textContent = '✅ Ready';
-            timerEl.style.color = '#32CD32';
-            timerEl.style.background = '#E0FFE0';
+        showToast('🔒 Teacher mode deactivated', 'info', 3000);
+        const indicator = document.getElementById('teacherIndicator');
+        if (indicator) indicator.remove();
+        const timerEl = document.getElementById('timerEl');
+        if (timerEl) {
+            timerEl.style.border = 'none';
+            timerEl.style.boxShadow = 'none';
         }
     }
 }
@@ -7674,4 +7619,4 @@ console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "
 
 </script>
 </body>
-</html>   
+</html>   correct?
