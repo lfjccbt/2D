@@ -2500,6 +2500,7 @@ let submitUnlocked = false;
 // ===== TIME LIMIT SYSTEM =====
 const MIN_TIME_PER_QUESTION = 15;
 let questionStartTime = 0;
+let questionStartTimes = {};   
 let teacherOverride = false;
 const ACTIVATE_TIMER_PASSWORD = 'timeron123';
 const DEACTIVATE_TIMER_PASSWORD = 'timeroff123';
@@ -4881,8 +4882,8 @@ function prepareExamData() {
 function renderQuestion() {
   const idx = progress.currentIndex;
   // Only start timer if this question hasn't been waited on yet
-  if (!questionWaited[idx]) {
-    questionStartTime = Date.now();
+  if (!questionWaited[idx] && !questionStartTimes[idx]) {
+    questionStartTimes[idx] = Date.now();
   }
   const container = document.getElementById('questionContainer');
   
@@ -5595,6 +5596,7 @@ function startExam(studentKey) {
     };
     examStartTime = Date.now();
     questionWaited = new Array(examData.files.length).fill(false); // ← ADD THIS ONE LINE
+    questionStartTimes = {};  // ← ADD THIS LINE
     }
 
     examInProgress = true;
@@ -7332,20 +7334,15 @@ setInterval(function() {
         return;
     }
     
-    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+    // ===== USE questionStartTimes[idx] INSTEAD OF questionStartTime =====
+    const startTime = questionStartTimes[idx] || Date.now();
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
     const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
     
     if (remaining > 0) {
         timerEl.textContent = `⏱️ ${remaining}s`;
         timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
         timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
-        
-        // ===== ADD THIS BLOCK =====
-        if (remaining === 1) {
-            questionWaited[idx] = true;  // Mark as waited, timer stops at 1s
-        }
-        // ===== END ADD =====
-        
     } else {
         timerEl.textContent = '✅ Ready';
         timerEl.style.color = '#32CD32';
