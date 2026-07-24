@@ -5719,7 +5719,7 @@ function renderPalette() {
     if (progress.review[i]) btn.classList.add('reviewed');
     if (i === progress.currentIndex) btn.classList.add('current');
     
-   btn.onclick = function() {
+  btn.onclick = function() {
   // ===== CHECK IF PAUSED =====
   const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
                    document.getElementById('pauseScreenOverlay').style.display !== 'none';
@@ -5731,10 +5731,10 @@ function renderPalette() {
   
   const idx = parseInt(this.getAttribute('data-index'));
   
-  // ===== ADD THIS TIME CHECK FOR PALETTE =====
-  if (!teacherOverride && progress.answers[idx] === null && idx === progress.currentIndex) {
+  // ===== ADD THIS TIME CHECK =====
+  if (!teacherOverride) {
     const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-    if (timeSpent < MIN_TIME_PER_QUESTION) {
+    if (timeSpent < MIN_TIME_PER_QUESTION && progress.answers[idx] === null) {
       const remaining = MIN_TIME_PER_QUESTION - timeSpent;
       showToast(`⏳ Wait ${remaining}s before navigating!`, 'warning', 2000);
       return;
@@ -7573,13 +7573,7 @@ renderPalette = function() {
     });
 };
 
-// Override renderQuestion to reset timer - REMOVED
-// const originalRender = renderQuestion;
-// renderQuestion = function() {
-//     questionStartTime = Date.now();
-//     originalRender.call(this);
-//     updateNavButtons();
-// };
+
 
 // Update nav buttons every second
 setInterval(function() {
