@@ -7312,7 +7312,6 @@ function createTimerDisplay() {
     return timerDisplay;
 }
 
-// Update timer every second
 setInterval(function() {
     const timerEl = document.getElementById('questionTimerDisplay');
     if (!timerEl) return;
@@ -7326,7 +7325,6 @@ setInterval(function() {
     
     const idx = progress.currentIndex;
     
-    // If already waited, show Ready immediately
     if (questionWaited[idx]) {
         timerEl.textContent = '✅ Ready';
         timerEl.style.color = '#32CD32';
@@ -7337,24 +7335,23 @@ setInterval(function() {
     const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
     const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
     
-   if (remaining > 0) {
-    timerEl.textContent = `⏱️ ${remaining}s`;
-    timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
-    timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
-    
-    // ===== RESET AT 1 SECOND AND MARK AS WAITED =====
-    if (remaining === 1) {
-    questionStartTime = Date.now();  // Reset timer
-    // Do NOT mark as waited
-}
-    // ===== END ADDED BLOCK =====
-    
-} else {
-    timerEl.textContent = '✅ Ready';
-    timerEl.style.color = '#32CD32';
-    timerEl.style.background = '#E0FFE0';
-    questionWaited[idx] = true;
-}
+    if (remaining > 0) {
+        timerEl.textContent = `⏱️ ${remaining}s`;
+        timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
+        timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
+        
+        // ===== ADD THIS BLOCK =====
+        if (remaining === 1) {
+            questionWaited[idx] = true;  // Mark as waited, timer stops at 1s
+        }
+        // ===== END ADD =====
+        
+    } else {
+        timerEl.textContent = '✅ Ready';
+        timerEl.style.color = '#32CD32';
+        timerEl.style.background = '#E0FFE0';
+        questionWaited[idx] = true;
+    }
 }, 500);
 // Override updateNavButtons to show timer
 const originalUpdateNav = updateNavButtons;
