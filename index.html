@@ -7354,7 +7354,7 @@ function createTimerDisplay() {
     return timerDisplay;
 }
 
-// Update timer every second - FIXED: Counts down once per question
+// Update timer every second - Shows Question + Subject
 setInterval(function() {
     const timerEl = document.getElementById('questionTimerDisplay');
     if (!timerEl) return;
@@ -7367,10 +7367,11 @@ setInterval(function() {
     }
     
     const idx = progress.currentIndex;
+    const currentSubject = examData.subjectNames[idx] || 'Unknown';
     
     // If already waited on this question, show Ready immediately
     if (questionWaited[idx]) {
-        timerEl.textContent = '✅ Ready';
+        timerEl.textContent = `✅ Ready | Q${idx+1}/${TOTAL_QUESTIONS} | ${currentSubject}`;
         timerEl.style.color = '#32CD32';
         timerEl.style.background = '#E0FFE0';
         return;
@@ -7380,19 +7381,17 @@ setInterval(function() {
     const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
     
     if (remaining > 0) {
-        timerEl.textContent = `⏱️ ${remaining}s`;
+        timerEl.textContent = `⏱️ ${remaining}s | Q${idx+1}/${TOTAL_QUESTIONS} | ${currentSubject}`;
         timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
         timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
-        // ✅ REMOVED: The reset at 1 second that was causing the bug
     } else {
-        // 🔒 Permanently mark this question as waited
-        timerEl.textContent = '✅ Ready';
+        timerEl.textContent = `✅ Ready | Q${idx+1}/${TOTAL_QUESTIONS} | ${currentSubject}`;
         timerEl.style.color = '#32CD32';
         timerEl.style.background = '#E0FFE0';
         questionWaited[idx] = true;
     }
 }, 500);
-// Override updateNavButtons to show timer
+// Override updateNavButtons to show timer with Subject
 const originalUpdateNav = updateNavButtons;
 updateNavButtons = function() {
     originalUpdateNav.call(this);
@@ -7400,6 +7399,10 @@ updateNavButtons = function() {
     const idx = progress.currentIndex;
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const stuQInfo = document.getElementById('stuQInfo');
+    
+    // Get current subject name
+    const currentSubject = examData.subjectNames[idx] || 'Unknown';
     
     if (!teacherOverride && progress.answers[idx] === null) {
         const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
@@ -7413,8 +7416,11 @@ updateNavButtons = function() {
                 nextBtn.disabled = true;
                 nextBtn.style.opacity = '0.5';
             }
-            document.getElementById('stuQInfo').textContent = 
-                `⏳ Wait ${remaining}s | Question ${idx+1} of ${TOTAL_QUESTIONS}`;
+            // ✅ SHOW: Wait time + Question + Subject
+            if (stuQInfo) {
+                stuQInfo.textContent = `⏱️ Wait ${remaining}s | Question ${idx+1} of ${TOTAL_QUESTIONS} | ${currentSubject}`;
+                stuQInfo.style.color = '#FF6B6B';
+            }
         } else {
             if (prevBtn) {
                 prevBtn.disabled = (idx === 0);
@@ -7423,6 +7429,11 @@ updateNavButtons = function() {
             if (nextBtn) {
                 nextBtn.disabled = (idx === examData.files.length - 1);
                 nextBtn.style.opacity = '1';
+            }
+            // ✅ SHOW: Ready + Question + Subject
+            if (stuQInfo) {
+                stuQInfo.textContent = `✅ Ready | Question ${idx+1} of ${TOTAL_QUESTIONS} | ${currentSubject}`;
+                stuQInfo.style.color = '#32CD32';
             }
         }
     } else {
@@ -7433,6 +7444,19 @@ updateNavButtons = function() {
         if (nextBtn) {
             nextBtn.disabled = (idx === examData.files.length - 1);
             nextBtn.style.opacity = '1';
+        }
+        // ✅ SHOW: Normal display with Subject
+        if (stuQInfo) {
+            const isAnswered = progress.answers[idx] !== null && progress.answers[idx] !== '';
+            const isLocked = isAnswered && !secretUnlocked;
+            let displayText = `Question ${idx+1} of ${TOTAL_QUESTIONS} | ${currentSubject}`;
+            if (isLocked) {
+                displayText = `🔒 ${displayText}`;
+                stuQInfo.style.color = '#FFD700';
+            } else {
+                stuQInfo.style.color = '';
+            }
+            stuQInfo.textContent = displayText;
         }
     }
 };
