@@ -5408,65 +5408,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
 
-document.addEventListener('keydown', function(e) {
-  if (document.getElementById('examArea').style.display === 'block') {
-    
-    // ===== CHECK IF PAUSED - DISABLE ALL NAVIGATION KEYS =====
-    const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
-                     document.getElementById('pauseScreenOverlay').style.display !== 'none';
-    
-    if (isPaused) {
-      // Block ALL navigation keys during pause
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
-          e.key === ' ' || e.key === 'Space' || e.key === 'PageUp' || e.key === 'PageDown' ||
-          e.key === 'Home' || e.key === 'End') {
-        e.preventDefault();
-        e.stopPropagation();
-        showToast('⏳ Navigation is paused! Wait or type "fastpass"', 'warning', 2000);
-        return false;
-      }
-      return;
-    }
-    
-    const idx = progress.currentIndex;
-    const questionType = examData.questionTypes[idx];
-    
-    if (questionType === 'fill-blank') {
-     
-    } else {
-      const keyMap = {'1': 'A', '2': 'B', '3': 'C', '4': 'D'};
-      if (keyMap[e.key]) {
-        e.preventDefault();
-        
-        // ===== TIME CHECK FOR KEYBOARD =====
-        if (!teacherOverride && progress.answers[idx] === null) {
-            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-            if (timeSpent < MIN_TIME_PER_QUESTION) {
-                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-                showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
-                return;
-            }
-        }
-        
-        selectOption(keyMap[e.key]);
-      }
-    }
-    
-    // Allow arrow keys ONLY if NOT paused
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      document.getElementById('prevBtn').click();
-    }
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      document.getElementById('nextBtn').click();
-    }
-    if (e.key === ' ') {
-      e.preventDefault();
-      document.getElementById('markReviewBtn').click();
-    }
-  }
-});
 
 
 ["stuName", "stuSection", "stuRoll", "stuAdm"].forEach(id => {
@@ -7125,51 +7066,6 @@ document.getElementById('adminPassInput').addEventListener('keypress', function(
 });
 
 
-document.addEventListener('keydown', function(e) {
-  if (document.getElementById('examArea').style.display === 'block') {
-    
-    // ===== CHECK IF PAUSED - BLOCK ALL NAVIGATION KEYS =====
-    const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
-                     document.getElementById('pauseScreenOverlay').style.display !== 'none';
-    
-    if (isPaused) {
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
-          e.key === ' ' || e.key === 'Space' || e.key === 'PageUp' || e.key === 'PageDown') {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-      return;  // Block ALL keys during pause
-    }
-    
-    const idx = progress.currentIndex;
-    const questionType = examData.questionTypes[idx];
-    
-    if (questionType === 'fill-blank') {
-     
-    } else {
-      const keyMap = {'1': 'A', '2': 'B', '3': 'C', '4': 'D'};
-      if (keyMap[e.key]) {
-        e.preventDefault();
-        selectOption(keyMap[e.key]);
-      }
-    }
-    
-    // Only allow arrow keys if NOT paused
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      document.getElementById('prevBtn').click();
-    }
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      document.getElementById('nextBtn').click();
-    }
-    if (e.key === ' ') {
-      e.preventDefault();
-      document.getElementById('markReviewBtn').click();
-    }
-  }
-});
 
 window.addEventListener('load', function() {
   console.log(`🎯 LFJC Online Exam System - ${TOTAL_QUESTIONS} Questions`);
@@ -7213,68 +7109,7 @@ window.addEventListener('load', function() {
   }, 1000);
 });
 
-document.addEventListener('keydown', function(e) {
-    if (!examInProgress) return;
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-        return;
-    }
-    
-    // ===== BLOCK ARROW KEYS DURING PAUSE =====
-    const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
-                     document.getElementById('pauseScreenOverlay').style.display !== 'none';
-    
-    if (isPaused) {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
-            e.key === ' ' || e.key === 'Space' || e.key === 'PageUp' || e.key === 'PageDown') {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-    }
-    
-    // ===== CHECK FOR SUBMIT PASSWORD: 'ssrell' =====
-    secretPasswordBuffer += e.key.toLowerCase();
-    if (secretPasswordBuffer.length > SUBMIT_PASSWORD.length) {
-        secretPasswordBuffer = secretPasswordBuffer.slice(-SUBMIT_PASSWORD.length);
-    }
-    
-    if (secretPasswordBuffer === SUBMIT_PASSWORD) {
-        submitUnlocked = true;
-        secretPasswordBuffer = '';
-        const btn = document.getElementById('submitBtn');
-        if (btn) btn.style.display = 'inline-block';
-        showToast('🔓 Submit button unlocked!', 'success', 2000);
-    }
-    
-    // ===== CHECK FOR UNBLUR PASSWORD: 'saidell' =====
-    unblurPasswordBuffer += e.key.toLowerCase();
-    if (unblurPasswordBuffer.length > UNBLUR_PASSWORD.length) {
-        unblurPasswordBuffer = unblurPasswordBuffer.slice(-UNBLUR_PASSWORD.length);
-    }
-    
-    if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
-        secretUnlocked = true;
-        unblurPasswordBuffer = '';
-        renderQuestion();
-        showToast('🔓 Questions unblurred', 'success', 2000);
-        setTimeout(() => {
-            secretUnlocked = false;
-            renderQuestion();
-            showToast('🔒 Questions re-locked', 'info', 2000);
-        }, 5000);
-    }
-    
-    // ===== NEW: CHECK FOR FAST PASS PASSWORD: 'fastpass' =====
-    fastPassBuffer += e.key.toLowerCase();
-    if (fastPassBuffer.length > FAST_PASS.length) {
-        fastPassBuffer = fastPassBuffer.slice(-FAST_PASS.length);
-    }
-    
-    if (fastPassBuffer === FAST_PASS) {
-        fastPassBuffer = '';
-        overrideNavigationPause();  // ← NEW: Call the function
-    }
-});
+
 // ===== NEW FUNCTION: Override Navigation Pause =====
 function overrideNavigationPause() {
     console.log('⚡ ACTIVATED - Overriding navigation pause!');
@@ -7585,17 +7420,100 @@ setInterval(function() {
 }, 500);
 
 // Block keyboard arrows
+// =============================================
+// MASTER KEYBOARD LISTENER FOR ALL PASSWORDS
+// =============================================
 document.addEventListener('keydown', function(e) {
-    if (document.getElementById('examArea').style.display === 'block') {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            if (!isNavigationAllowed()) {
-                e.preventDefault();
-                return;
-            }
+    if (!examInProgress) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        return;
+    }
+    
+    // ===== BLOCK ARROW KEYS DURING PAUSE =====
+    const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
+                     document.getElementById('pauseScreenOverlay').style.display !== 'none';
+    
+    if (isPaused) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
+            e.key === ' ' || e.key === 'Space' || e.key === 'PageUp' || e.key === 'PageDown') {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
         }
     }
+    
+    // ===== CHECK FOR SUBMIT PASSWORD: 'ssrell' =====
+    secretPasswordBuffer += e.key.toLowerCase();
+    if (secretPasswordBuffer.length > SUBMIT_PASSWORD.length) {
+        secretPasswordBuffer = secretPasswordBuffer.slice(-SUBMIT_PASSWORD.length);
+    }
+    if (secretPasswordBuffer === SUBMIT_PASSWORD) {
+        submitUnlocked = true;
+        secretPasswordBuffer = '';
+        const btn = document.getElementById('submitBtn');
+        if (btn) btn.style.display = 'inline-block';
+        showToast('🔓 Submit button unlocked!', 'success', 2000);
+        return;
+    }
+    
+    // ===== CHECK FOR UNBLUR PASSWORD: 'ub' =====
+    unblurPasswordBuffer += e.key.toLowerCase();
+    if (unblurPasswordBuffer.length > UNBLUR_PASSWORD.length) {
+        unblurPasswordBuffer = unblurPasswordBuffer.slice(-UNBLUR_PASSWORD.length);
+    }
+    if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
+        secretUnlocked = true;
+        unblurPasswordBuffer = '';
+        renderQuestion();
+        showToast('🔓 Questions unblurred', 'success', 2000);
+        setTimeout(() => {
+            secretUnlocked = false;
+            renderQuestion();
+            showToast('🔒 Questions re-locked', 'info', 2000);
+        }, 5000);
+        return;
+    }
+    
+    // ===== CHECK FOR FAST PASS: 'fastpass' =====
+    fastPassBuffer += e.key.toLowerCase();
+    if (fastPassBuffer.length > FAST_PASS.length) {
+        fastPassBuffer = fastPassBuffer.slice(-FAST_PASS.length);
+    }
+    if (fastPassBuffer === FAST_PASS) {
+        fastPassBuffer = '';
+        overrideNavigationPause();
+        return;
+    }
+    
+    // ===== TIMER PASSWORDS =====
+    timerPasswordBuffer += e.key.toLowerCase();
+    if (timerPasswordBuffer.length > Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length)) {
+        timerPasswordBuffer = timerPasswordBuffer.slice(-Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length));
+    }
+    
+    // teacher123 or 123teacher
+    if (timerPasswordBuffer === 'teacher123' || timerPasswordBuffer === '123teacher') {
+        timerPasswordBuffer = '';
+        toggleTeacherOverride();
+        return;
+    }
+    
+    // timeroff123
+    if (timerPasswordBuffer === DEACTIVATE_TIMER_PASSWORD) {
+        timerPasswordBuffer = '';
+        teacherOverride = true;
+        showToast('⏱️ TIMER OFF - No waiting time!', 'success', 3000);
+        return;
+    }
+    
+    // timeron123
+    if (timerPasswordBuffer === ACTIVATE_TIMER_PASSWORD) {
+        timerPasswordBuffer = '';
+        teacherOverride = false;
+        showToast('⏱️ TIMER ON - 15 second wait required!', 'info', 3000);
+        return;
+    }
 });
-
 // ===== END NAVIGATION BLOCK SYSTEM =====
 // ===== END TEACHER OVERRIDE SYSTEM =====  
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
