@@ -7341,13 +7341,20 @@ setInterval(function() {
         timerEl.textContent = `⏱️ ${remaining}s`;
         timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
         timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
+        
+        // ===== ADD THIS BLOCK - RESET AT 1 SECOND =====
+        if (remaining === 1) {
+            questionStartTime = Date.now();  // Reset timer
+        }
+        // ===== END ADDED BLOCK =====
+        
     } else {
         timerEl.textContent = '✅ Ready';
         timerEl.style.color = '#32CD32';
         timerEl.style.background = '#E0FFE0';
         questionWaited[idx] = true;
     }
-}, 100);
+}, 500);
 // Override updateNavButtons to show timer
 const originalUpdateNav = updateNavButtons;
 updateNavButtons = function() {
