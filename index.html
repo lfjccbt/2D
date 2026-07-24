@@ -5677,6 +5677,7 @@ function startExam(studentKey) {
 }
 
 
+
 function updateQuestionInfo() {
   const idx = progress.currentIndex;
   const stuInfoEl = document.getElementById('stuInfo');
@@ -5688,13 +5689,15 @@ function updateQuestionInfo() {
   if (stuInfoEl) stuInfoEl.textContent = `${progress.student.name} | ${progress.student.sec} | Roll: ${progress.student.roll}`;
   
   if (stuQInfoEl) {
+    // ALWAYS show subject name
+    let subjectDisplay = `Question ${idx+1} of ${TOTAL_QUESTIONS} | ${examData.subjectNames[idx]}`;
     if (isLocked) {
-      stuQInfoEl.textContent = `🔒 Question ${idx+1} (Locked)`;
+      subjectDisplay = `🔒 ${subjectDisplay}`;
       stuQInfoEl.style.color = '#FFD700';
     } else {
-      stuQInfoEl.textContent = `Question ${idx+1} of ${TOTAL_QUESTIONS} | ${examData.subjectNames[idx]}`;
       stuQInfoEl.style.color = '';
     }
+    stuQInfoEl.textContent = subjectDisplay;
   }
 }
 
@@ -7472,35 +7475,12 @@ setInterval(function() {
     if (!timerEl) return;
     
     if (teacherOverride) {
-        timerEl.textContent = '⏱️ OFF';
-        timerEl.style.color = '#32CD32';
-        timerEl.style.background = '#E0FFE0';
+        timerEl.textContent = '♾️ Unlimited';  // ← CHANGE TO THIS
+        timerEl.style.color = '#FFD700';
+        timerEl.style.background = '#FFF8E0';
         return;
     }
-    
-    const idx = progress.currentIndex;
-    
-    // If already waited, show Ready immediately
-    if (questionWaited[idx]) {
-        timerEl.textContent = '✅ Ready';
-        timerEl.style.color = '#32CD32';
-        timerEl.style.background = '#E0FFE0';
-        return;
-    }
-    
-    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
-    const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
-    
-    if (remaining > 0) {
-        timerEl.textContent = `⏱️ ${remaining}s`;
-        timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
-        timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
-    } else {
-        timerEl.textContent = '✅ Ready';
-        timerEl.style.color = '#32CD32';
-        timerEl.style.background = '#E0FFE0';
-        questionWaited[idx] = true; // ← Mark as waited
-    }
+    // ...
 }, 500);
 
 // Override updateNavButtons to show timer
