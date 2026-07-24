@@ -2497,12 +2497,7 @@ const FAST_PASS = 'fastpass';      // ← NEW: Password to override pause
 let navigationTrackingEnabled = true;  // ← ADD THIS LINE
   let secretUnlocked = false;
 let submitUnlocked = false;
-// ===== TIME LIMIT SYSTEM =====
-const MIN_TIME_PER_QUESTION = 15; // Minimum seconds per question
-let questionStartTime = 0;
-let teacherOverride = false;
-const TEACHER_OVERRIDE_PASSWORD = 'teacher123';
-let teacherPasswordBuffer = '';
+
 // ===== NAVIGATION TRACKING VARIABLES =====
 let navigationHistory = [];
 let navigationWarnings = 0;
@@ -4710,21 +4705,38 @@ function handleNumericalKeyPress(event, questionIndex) {
     }
 }
 
+function handleKeypadButton(button, questionIndex) {
+    const input = document.getElementById('fillBlankInput');
+    if (!input) return;
+    
+    let currentValue = input.value;
+    
+    switch(button) {
+        case 'C':
+            input.value = '';
+            progress.answers[questionIndex] = '';
+            break;
+        case '✓':
+            submitNumericalAnswer(questionIndex);
+            break;
+        default:
+            input.value = currentValue + button;
+            progress.answers[questionIndex] = input.value;
+            break;
+    }
+    
+    updatePalette();
+    if (examInProgress) {
+        setTimeout(() => saveExamProgress(), 500);
+    }
+    input.focus();
+}
+
 function submitNumericalAnswer(questionIndex) {
     const input = document.getElementById('fillBlankInput');
     if (!input) return;
     
     const answer = input.value.trim();
-    
-    // ===== TIME CHECK =====
-    if (!teacherOverride && progress.answers[questionIndex] === null) {
-        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-        if (timeSpent < MIN_TIME_PER_QUESTION) {
-            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-            showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
-            return;
-        }
-    }
     
     if (answer === '') {
         showToast('Please enter an answer', 'warning', 2000);
@@ -4734,8 +4746,10 @@ function submitNumericalAnswer(questionIndex) {
     progress.answers[questionIndex] = answer;
     showToast('✓ Answer submitted!', 'success', 2000);
     
+    // LOCK immediately after submission
     secretUnlocked = false;
     
+    // ===== CLEAR REVIEW TIMER =====
     if (reviewTimer) {
         clearTimeout(reviewTimer);
         reviewTimer = null;
@@ -4745,6 +4759,7 @@ function submitNumericalAnswer(questionIndex) {
     updateProgressBar();
     saveExamProgress();
     
+    // Re-render to show blur
     setTimeout(() => {
         renderQuestion();
     }, 100);
@@ -4845,7 +4860,6 @@ function prepareExamData() {
 
 
 function renderQuestion() {
-  questionStartTime = Date.now(); // ← ADD THIS LINE
   const idx = progress.currentIndex;
   const container = document.getElementById('questionContainer');
   
@@ -5172,28 +5186,24 @@ function showCenterScreenMessage(message, color = 'red') {
 function selectOption(opt) {
     const idx = progress.currentIndex;
     
-    // ===== TIME CHECK =====
-    if (!teacherOverride && progress.answers[idx] === null) {
-        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-        if (timeSpent < MIN_TIME_PER_QUESTION) {
-            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-            showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
-            return;
-        }
-    }
-    
     if (progress.answers[idx] === opt) {
         progress.answers[idx] = null;
         console.log(`Deselected option ${opt} for question ${idx + 1}`);
     } else {
         progress.answers[idx] = opt;
         console.log(`Selected option ${opt} for question ${idx + 1}`);
+        
+        // When answer is selected, LOCK it immediately
         secretUnlocked = false;
-        reviewTargetQuestion = -1;
+        reviewTargetQuestion = -1;  // ← RESET TARGET
+        
+        // ===== CLEAR REVIEW TIMER =====
         if (reviewTimer) {
             clearTimeout(reviewTimer);
             reviewTimer = null;
         }
+        
+        // Re-render to show blur
         setTimeout(() => {
             renderQuestion();
         }, 100);
@@ -5202,6 +5212,7 @@ function selectOption(opt) {
     updateOptionButtons();
     updatePalette();
     updateProgressBar();
+    
     if (examInProgress) {
         setTimeout(() => saveExamProgress(), 500);
     }
@@ -5404,17 +5415,6 @@ document.addEventListener('keydown', function(e) {
       const keyMap = {'1': 'A', '2': 'B', '3': 'C', '4': 'D'};
       if (keyMap[e.key]) {
         e.preventDefault();
-        
-        // ===== TIME CHECK FOR KEYBOARD =====
-        if (!teacherOverride && progress.answers[idx] === null) {
-            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-            if (timeSpent < MIN_TIME_PER_QUESTION) {
-                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-                showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
-                return;
-            }
-        }
-        
         selectOption(keyMap[e.key]);
       }
     }
@@ -7316,334 +7316,10 @@ window.navigationTrackingEnabled = false;  // ← ADD THIS LINE
         if (flash.parentNode) flash.remove();
     }, 1000);
 }
-// =============================================
-// TEACHER OVERRIDE SYSTEM - ACTIVATE/DEACTIVATE
-// =============================================
-
-// By default: NO time limit (teacherOverride = true)
-let teacherOverride = true;  // ← NO time limit by default
-
-// Password buffers
-let activateBuffer = '';
-let deactivateBuffer = '';
-const ACTIVATE_PASSWORD = 'teacher123';    // ← Activates time limit
-const DEACTIVATE_PASSWORD = '123teacher';  // ← Deactivates time limit
-
-// Listen for passwords
-document.addEventListener('keydown', function(e) {
-    if (!examInProgress) return;
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-        return;
-    }
-    
-    // Check for ACTIVATE password: teacher123
-    activateBuffer += e.key.toLowerCase();
-    if (activateBuffer.length > ACTIVATE_PASSWORD.length) {
-        activateBuffer = activateBuffer.slice(-ACTIVATE_PASSWORD.length);
-    }
-    
-    if (activateBuffer === ACTIVATE_PASSWORD) {
-        activateBuffer = '';
-        activateTimeLimit();
-        return;
-    }
-    
-    // Check for DEACTIVATE password: 123teacher
-    deactivateBuffer += e.key.toLowerCase();
-    if (deactivateBuffer.length > DEACTIVATE_PASSWORD.length) {
-        deactivateBuffer = deactivateBuffer.slice(-DEACTIVATE_PASSWORD.length);
-    }
-    
-    if (deactivateBuffer === DEACTIVATE_PASSWORD) {
-        deactivateBuffer = '';
-        deactivateTimeLimit();
-        return;
-    }
-});
-
-function activateTimeLimit() {
-    teacherOverride = false;  // Time limit ACTIVE
-    showToast('⏱️ TIME LIMIT ACTIVATED! (15 seconds per question)', 'warning', 3000);
-    
-    // Remove teacher mode indicator
-    const indicator = document.getElementById('teacherIndicator');
-    if (indicator) indicator.remove();
-    
-    const timerEl = document.getElementById('timerEl');
-    if (timerEl) {
-        timerEl.style.border = 'none';
-        timerEl.style.boxShadow = 'none';
-    }
-    
-    // Update timer display
-    updateTimerDisplay();
-}
-
-function deactivateTimeLimit() {
-    teacherOverride = true;  // Time limit OFF
-    showToast('♾️ TIME LIMIT DEACTIVATED! (Unlimited time)', 'success', 3000);
-    
-    // Show teacher mode indicator
-    let indicator = document.getElementById('teacherIndicator');
-    if (!indicator) {
-        indicator = document.createElement('span');
-        indicator.id = 'teacherIndicator';
-        indicator.style.cssText = 'background:#FFD700;color:#000;padding:4px 12px;border-radius:12px;font-weight:bold;margin-left:15px;';
-        indicator.textContent = '♾️ UNLIMITED';
-        const timerEl = document.getElementById('timerEl');
-        if (timerEl && timerEl.parentNode) {
-            timerEl.parentNode.appendChild(indicator);
-        }
-    }
-    
-    const timerEl = document.getElementById('timerEl');
-    if (timerEl) {
-        timerEl.style.border = '3px solid #FFD700';
-        timerEl.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
-    }
-    
-    // Update timer display
-    updateTimerDisplay();
-}
-
-function updateTimerDisplay() {
-    const timerEl = document.getElementById('questionTimerDisplay');
-    if (!timerEl) return;
-    
-    if (teacherOverride) {
-        timerEl.textContent = '♾️ Unlimited';
-        timerEl.style.color = '#FFD700';
-        timerEl.style.background = '#FFF8E0';
-    } else {
-        const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
-        const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
-        if (remaining > 0) {
-            timerEl.textContent = `⏱️ ${remaining}s`;
-            timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
-            timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
-        } else {
-            timerEl.textContent = '✅ Ready';
-            timerEl.style.color = '#32CD32';
-            timerEl.style.background = '#E0FFE0';
-        }
-    }
-}
-// Double-click timer to reveal teacher button
-document.addEventListener('dblclick', function(e) {
-    const timerEl = document.getElementById('timerEl');
-    if (timerEl && timerEl.contains(e.target)) {
-        showToast('🔓 Teacher mode: Type "teacher123" anywhere', 'info', 3000);
-    }
-});
-
-// Visual timer display in question info
-function createTimerDisplay() {
-    let timerDisplay = document.getElementById('questionTimerDisplay');
-    if (!timerDisplay) {
-        timerDisplay = document.createElement('span');
-        timerDisplay.id = 'questionTimerDisplay';
-        timerDisplay.style.cssText = 'font-size:16px;font-weight:bold;margin-left:15px;padding:2px 12px;border-radius:8px;background:#f0f0f0;display:inline-block;';
-        const stuQInfo = document.getElementById('stuQInfo');
-        if (stuQInfo) {
-            stuQInfo.appendChild(timerDisplay);
-        }
-    }
-    return timerDisplay;
-}
-
-// Update timer every second
-setInterval(function() {
-    const timerEl = document.getElementById('questionTimerDisplay');
-    if (!timerEl) return;
-    
-    if (teacherOverride) {
-        timerEl.textContent = '♾️ Unlimited';
-        timerEl.style.color = '#FFD700';
-        timerEl.style.background = '#FFF8E0';
-        return;
-    }
-    
-    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
-    const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
-    
-    if (remaining > 0) {
-        timerEl.textContent = `⏱️ ${remaining}s`;
-        timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
-        timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
-    } else {
-        timerEl.textContent = '✅ Ready';
-        timerEl.style.color = '#32CD32';
-        timerEl.style.background = '#E0FFE0';
-    }
-}, 500);
-
-// Create timer display when question loads
-const originalRenderQuestion = renderQuestion;
-renderQuestion = function() {
-    questionStartTime = Date.now();
-    originalRenderQuestion.call(this);
-    createTimerDisplay();
-};
-// =============================================
-// NAVIGATION BLOCK SYSTEM - ADD THIS ENTIRE BLOCK
-// =============================================
-
-// Check if navigation is allowed
-function isNavigationAllowed() {
-    if (teacherOverride) return true;
-    
-    const idx = progress.currentIndex;
-    if (progress.answers[idx] !== null && progress.answers[idx] !== '') {
-        return true;
-    }
-    
-    const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-    if (timeSpent < MIN_TIME_PER_QUESTION) {
-        const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-        showToast(`⏳ Wait ${remaining}s before navigating!`, 'warning', 2000);
-        return false;
-    }
-    return true;
-}
-
-// Override prev button
-document.getElementById('prevBtn').onclick = function() {
-    if (this.disabled) return;
-    if (progress.currentIndex > 0) {
-        if (!isNavigationAllowed()) return;
-        if (checkRapidNavigation('prev')) {
-            showRapidNavWarning(navigationWarnings + 1);
-        }
-        progress.currentIndex--;
-        renderQuestion();
-        updateNavButtons();
-        if (examInProgress) {
-            setTimeout(() => saveExamProgress(), 500);
-        }
-    }
-};
-
-// Override next button
-document.getElementById('nextBtn').onclick = function() {
-    if (this.disabled) return;
-    if (progress.currentIndex < examData.files.length - 1) {
-        if (!isNavigationAllowed()) return;
-        if (checkRapidNavigation('next')) {
-            showRapidNavWarning(navigationWarnings + 1);
-        }
-        progress.currentIndex++;
-        renderQuestion();
-        updateNavButtons();
-        if (examInProgress) {
-            setTimeout(() => saveExamProgress(), 500);
-        }
-    }
-};
-
-// Override updateNavButtons to show timer
-const originalUpdateNav = updateNavButtons;
-updateNavButtons = function() {
-    originalUpdateNav.call(this);
-    
-    const idx = progress.currentIndex;
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    
-    if (!teacherOverride && progress.answers[idx] === null) {
-        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-        if (timeSpent < MIN_TIME_PER_QUESTION) {
-            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-            if (prevBtn) {
-                prevBtn.disabled = true;
-                prevBtn.style.opacity = '0.5';
-            }
-            if (nextBtn) {
-                nextBtn.disabled = true;
-                nextBtn.style.opacity = '0.5';
-            }
-            document.getElementById('stuQInfo').textContent = 
-                `⏳ Wait ${remaining}s | Question ${idx+1} of ${TOTAL_QUESTIONS}`;
-        } else {
-            if (prevBtn) {
-                prevBtn.disabled = (idx === 0);
-                prevBtn.style.opacity = '1';
-            }
-            if (nextBtn) {
-                nextBtn.disabled = (idx === examData.files.length - 1);
-                nextBtn.style.opacity = '1';
-            }
-        }
-    } else {
-        if (prevBtn) {
-            prevBtn.disabled = (idx === 0);
-            prevBtn.style.opacity = '1';
-        }
-        if (nextBtn) {
-            nextBtn.disabled = (idx === examData.files.length - 1);
-            nextBtn.style.opacity = '1';
-        }
-    }
-};
-
-// Override renderPalette to block palette clicks
-const originalRenderPalette = renderPalette;
-renderPalette = function() {
-    originalRenderPalette.call(this);
-    
-    document.querySelectorAll('.palette-btn').forEach(btn => {
-        const originalClick = btn.onclick;
-        btn.onclick = function(e) {
-            const idx = parseInt(this.getAttribute('data-index'));
-            
-            if (!teacherOverride && progress.answers[idx] === null && idx === progress.currentIndex) {
-                const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-                if (timeSpent < MIN_TIME_PER_QUESTION) {
-                    const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-                    showToast(`⏳ Wait ${remaining}s before navigating!`, 'warning', 2000);
-                    return;
-                }
-            }
-            
-            // Call original click handler
-            if (originalClick) originalClick.call(this, e);
-        };
-    });
-};
-
-// Override renderQuestion to reset timer
-const originalRender = renderQuestion;
-renderQuestion = function() {
-    questionStartTime = Date.now();
-    originalRender.call(this);
-    updateNavButtons();
-};
-
-// Update nav buttons every second
-setInterval(function() {
-    if (examInProgress) {
-        updateNavButtons();
-    }
-}, 500);
-
-// Block keyboard arrows
-document.addEventListener('keydown', function(e) {
-    if (document.getElementById('examArea').style.display === 'block') {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            if (!isNavigationAllowed()) {
-                e.preventDefault();
-                return;
-            }
-        }
-    }
-});
-
-// ===== END NAVIGATION BLOCK SYSTEM =====
-// ===== END TEACHER OVERRIDE SYSTEM =====  
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
 console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
 console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "));
-
 </script>
 </body>
 </html>  
