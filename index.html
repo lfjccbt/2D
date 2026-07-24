@@ -4880,7 +4880,15 @@ function prepareExamData() {
 
 function renderQuestion() {
   const idx = progress.currentIndex;
-  
+
+   // ===== ADD THIS ENTIRE BLOCK =====
+  if (questionWaited[idx]) {
+    // This question already had its timer - skip timer completely
+    // Just render and return
+    renderQuestionWithoutTimer();
+    return;
+  }
+  // ===== END ADDED BLOCK =====
   // Only start timer if this question hasn't been waited on yet
   if (!questionWaited[idx]) {
     questionStartTime = Date.now();
