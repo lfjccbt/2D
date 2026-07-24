@@ -7475,14 +7475,36 @@ setInterval(function() {
     if (!timerEl) return;
     
     if (teacherOverride) {
-        timerEl.textContent = '♾️ Unlimited';  // ← CHANGE TO THIS
+        timerEl.textContent = '♾️ Unlimited';
         timerEl.style.color = '#FFD700';
         timerEl.style.background = '#FFF8E0';
         return;
     }
-    // ...
+    
+    const idx = progress.currentIndex;
+    
+    // If already waited, show Ready immediately
+    if (questionWaited[idx]) {
+        timerEl.textContent = '✅ Ready';
+        timerEl.style.color = '#32CD32';
+        timerEl.style.background = '#E0FFE0';
+        return;
+    }
+    
+    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+    const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
+    
+    if (remaining > 0) {
+        timerEl.textContent = `⏱️ ${remaining}s`;
+        timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
+        timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
+    } else {
+        timerEl.textContent = '✅ Ready';
+        timerEl.style.color = '#32CD32';
+        timerEl.style.background = '#E0FFE0';
+        questionWaited[idx] = true;
+    }
 }, 500);
-
 // Override updateNavButtons to show timer
 const originalUpdateNav = updateNavButtons;
 updateNavButtons = function() {
