@@ -7249,7 +7249,7 @@ window.navigationTrackingEnabled = false;  // ← ADD THIS LINE
     }, 1000);
 }
 // =============================================
-// TEACHER OVERRIDE SYSTEM - FIXED
+// TEACHER OVERRIDE SYSTEM - ACTIVATE/DEACTIVATE
 // =============================================
 
 // Separate buffers for different password types
@@ -7263,15 +7263,23 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
-    // ===== CHECK FOR TEACHER PASSWORD: 'teacher123' or '123teacher' =====
+    // ===== CHECK FOR TEACHER PASSWORD =====
+    // teacher123 → ACTIVATE Teacher Mode
+    // 123teacher → DEACTIVATE Teacher Mode
     teacherPasswordBuffer += e.key.toLowerCase();
     if (teacherPasswordBuffer.length > Math.max('teacher123'.length, '123teacher'.length)) {
         teacherPasswordBuffer = teacherPasswordBuffer.slice(-Math.max('teacher123'.length, '123teacher'.length));
     }
     
-    if (teacherPasswordBuffer === 'teacher123' || teacherPasswordBuffer === '123teacher') {
+    if (teacherPasswordBuffer === 'teacher123') {
         teacherPasswordBuffer = '';
-        toggleTeacherOverride();
+        activateTeacherMode();
+        return;
+    }
+    
+    if (teacherPasswordBuffer === '123teacher') {
+        teacherPasswordBuffer = '';
+        deactivateTeacherMode();
         return;
     }
     
@@ -7295,6 +7303,74 @@ document.addEventListener('keydown', function(e) {
         return;
     }
 });
+
+// ===== ACTIVATE TEACHER MODE =====
+function activateTeacherMode() {
+    teacherOverride = true;
+    showToast('👨‍🏫 TEACHER MODE ACTIVATED! No waiting time.', 'success', 4000);
+    
+    // Show indicator
+    let indicator = document.getElementById('teacherIndicator');
+    if (!indicator) {
+        indicator = document.createElement('span');
+        indicator.id = 'teacherIndicator';
+        indicator.style.cssText = 'background:#32CD32;color:#000;padding:4px 14px;border-radius:12px;font-weight:bold;margin-left:15px;animation:glowPulse 1.5s infinite;';
+        indicator.textContent = '👨‍🏫 TEACHER MODE ON';
+        const timerEl = document.getElementById('timerEl');
+        if (timerEl && timerEl.parentNode) {
+            timerEl.parentNode.appendChild(indicator);
+        }
+    } else {
+        indicator.textContent = '👨‍🏫 TEACHER MODE ON';
+        indicator.style.background = '#32CD32';
+        indicator.style.animation = 'glowPulse 1.5s infinite';
+    }
+    
+    // Highlight timer
+    const timerEl = document.getElementById('timerEl');
+    if (timerEl) {
+        timerEl.style.border = '3px solid #32CD32';
+        timerEl.style.boxShadow = '0 0 30px rgba(50, 205, 50, 0.4)';
+    }
+    
+    // Update UI
+    updateNavButtons();
+}
+
+// ===== DEACTIVATE TEACHER MODE =====
+function deactivateTeacherMode() {
+    teacherOverride = false;
+    showToast('🔒 Teacher mode deactivated. 15 second wait required.', 'info', 4000);
+    
+    // Remove or update indicator
+    const indicator = document.getElementById('teacherIndicator');
+    if (indicator) {
+        indicator.textContent = '🔒 TEACHER MODE OFF';
+        indicator.style.background = '#FF6B6B';
+        indicator.style.animation = 'none';
+        setTimeout(() => {
+            if (indicator.parentNode) {
+                indicator.remove();
+            }
+        }, 3000);
+    }
+    
+    // Reset timer style
+    const timerEl = document.getElementById('timerEl');
+    if (timerEl) {
+        timerEl.style.border = 'none';
+        timerEl.style.boxShadow = 'none';
+    }
+    
+    // Reset question timer for current question
+    const idx = progress.currentIndex;
+    if (idx !== undefined && !questionWaited[idx]) {
+        questionStartTime = Date.now();
+    }
+    
+    // Update UI
+    updateNavButtons();
+}
 
 function toggleTeacherOverride() {
     teacherOverride = !teacherOverride;
