@@ -2498,11 +2498,12 @@ let navigationTrackingEnabled = true;  // ← ADD THIS LINE
   let secretUnlocked = false;
 let submitUnlocked = false;
 // ===== TIME LIMIT SYSTEM =====
-const MIN_TIME_PER_QUESTION = 15; // Minimum seconds per question
+const MIN_TIME_PER_QUESTION = 15;
 let questionStartTime = 0;
 let teacherOverride = false;
-const TEACHER_OVERRIDE_PASSWORD = 'teacher123';
-let teacherPasswordBuffer = '';
+const ACTIVATE_TIMER_PASSWORD = 'timeron123';
+const DEACTIVATE_TIMER_PASSWORD = 'timeroff123';
+let timerPasswordBuffer = '';
 // ===== NAVIGATION TRACKING VARIABLES =====
 let navigationHistory = [];
 let navigationWarnings = 0;
@@ -7347,24 +7348,32 @@ window.navigationTrackingEnabled = false;  // ← ADD THIS LINE
 // TEACHER OVERRIDE SYSTEM - ADD THIS BLOCK
 // =============================================
 
-// Listen for teacher password
+// Listen for timer control passwords
 document.addEventListener('keydown', function(e) {
     if (!examInProgress) return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
         return;
     }
     
-    teacherPasswordBuffer += e.key.toLowerCase();
-    if (teacherPasswordBuffer.length > TEACHER_OVERRIDE_PASSWORD.length) {
-        teacherPasswordBuffer = teacherPasswordBuffer.slice(-TEACHER_OVERRIDE_PASSWORD.length);
+    timerPasswordBuffer += e.key.toLowerCase();
+    if (timerPasswordBuffer.length > Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length)) {
+        timerPasswordBuffer = timerPasswordBuffer.slice(-Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length));
     }
     
-    if (teacherPasswordBuffer === TEACHER_OVERRIDE_PASSWORD) {
-        teacherPasswordBuffer = '';
-        toggleTeacherOverride();
+    if (timerPasswordBuffer === DEACTIVATE_TIMER_PASSWORD) {
+        timerPasswordBuffer = '';
+        teacherOverride = true;
+        showToast('⏱️ TIMER OFF - No waiting time!', 'success', 3000);
+        return;
+    }
+    
+    if (timerPasswordBuffer === ACTIVATE_TIMER_PASSWORD) {
+        timerPasswordBuffer = '';
+        teacherOverride = false;
+        showToast('⏱️ TIMER ON - 15 second wait required!', 'info', 3000);
+        return;
     }
 });
-
 function toggleTeacherOverride() {
     teacherOverride = !teacherOverride;
     
@@ -7430,24 +7439,12 @@ setInterval(function() {
     if (!timerEl) return;
     
     if (teacherOverride) {
-        timerEl.textContent = '♾️ Unlimited';
-        timerEl.style.color = '#FFD700';
-        timerEl.style.background = '#FFF8E0';
-        return;
-    }
-    
-    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
-    const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
-    
-    if (remaining > 0) {
-        timerEl.textContent = `⏱️ ${remaining}s`;
-        timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
-        timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
-    } else {
-        timerEl.textContent = '✅ Ready';
+        timerEl.textContent = '⏱️ OFF';
         timerEl.style.color = '#32CD32';
         timerEl.style.background = '#E0FFE0';
+        return;
     }
+    // ... rest of code (keep the same)
 }, 500);
 
 // Create timer display when question loads
