@@ -5719,7 +5719,7 @@ function renderPalette() {
     if (progress.review[i]) btn.classList.add('reviewed');
     if (i === progress.currentIndex) btn.classList.add('current');
     
-    btn.onclick = function() {
+   btn.onclick = function() {
   // ===== CHECK IF PAUSED =====
   const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
                    document.getElementById('pauseScreenOverlay').style.display !== 'none';
@@ -5730,6 +5730,17 @@ function renderPalette() {
   }
   
   const idx = parseInt(this.getAttribute('data-index'));
+  
+  // ===== ADD THIS TIME CHECK FOR PALETTE =====
+  if (!teacherOverride && progress.answers[idx] === null && idx === progress.currentIndex) {
+    const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+    if (timeSpent < MIN_TIME_PER_QUESTION) {
+      const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+      showToast(`⏳ Wait ${remaining}s before navigating!`, 'warning', 2000);
+      return;
+    }
+  }
+  // ===== END TIME CHECK =====
   
   // Check for rapid navigation on palette click
   if (checkRapidNavigation('palette')) {
@@ -7374,13 +7385,13 @@ document.addEventListener('keydown', function(e) {
         timerPasswordBuffer = timerPasswordBuffer.slice(-Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length));
     }
     
-    // ===== CHECK FOR teacher123 OR 123teacher =====
+    // ===== ADD THIS BLOCK =====
     if (timerPasswordBuffer === 'teacher123' || timerPasswordBuffer === '123teacher') {
         timerPasswordBuffer = '';
         toggleTeacherOverride();
         return;
     }
-    // ===== END CHECK =====
+    // ===== END ADDED BLOCK =====
     
     if (timerPasswordBuffer === DEACTIVATE_TIMER_PASSWORD) {
         timerPasswordBuffer = '';
@@ -7396,7 +7407,6 @@ document.addEventListener('keydown', function(e) {
         return;
     }
 });
-  
 function toggleTeacherOverride() {
     teacherOverride = !teacherOverride;
     
@@ -7563,13 +7573,13 @@ renderPalette = function() {
     });
 };
 
-// Override renderQuestion to reset timer
-const originalRender = renderQuestion;
-renderQuestion = function() {
-    questionStartTime = Date.now();
-    originalRender.call(this);
-    updateNavButtons();
-};
+// Override renderQuestion to reset timer - REMOVED
+// const originalRender = renderQuestion;
+// renderQuestion = function() {
+//     questionStartTime = Date.now();
+//     originalRender.call(this);
+//     updateNavButtons();
+// };
 
 // Update nav buttons every second
 setInterval(function() {
