@@ -5613,7 +5613,7 @@ function startExam(studentKey) {
     
     if (hasViolations) {
         document.getElementById('submitBtn').style.display = 'inline-block';
-        showToast('⚠️ Previous violations detected. Submit button is available.', 'warning', 5000);
+        showToast('⚠️ Previous violations detected. ', 'warning', 5000);
         localStorage.removeItem('hasViolations');
     } else {
         updateSubmitButtonVisibility();
@@ -7307,7 +7307,7 @@ document.addEventListener('keydown', function(e) {
 // ===== ACTIVATE 💎 MODE =====
 function activateTeacherMode() {
     teacherOverride = true;
-    showToast('💎! No waiting time.', 'success', 4000);
+    showToast('💎 No waiting time.', 'success', 4000);
     
     // Show indicator
     let indicator = document.getElementById('teacherIndicator');
