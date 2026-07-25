@@ -7299,7 +7299,7 @@ document.addEventListener('keydown', function(e) {
     if (timerPasswordBuffer2 === ACTIVATE_TIMER_PASSWORD) {
         timerPasswordBuffer2 = '';
         teacherOverride = false;
-        showToast('⏱️ TIMER ON - 15 second wait required!', 'info', 3000);
+        showToast('⏱️ TIMER ON - 60 second wait required!', 'info', 3000);
         return;
     }
 });
@@ -7340,7 +7340,7 @@ function activateTeacherMode() {
 // ===== DEACTIVATE 💎 MODE =====
 function deactivateTeacherMode() {
     teacherOverride = false;
-    showToast('💎  mode deactivated. 15 second wait required.', 'info', 4000);
+    showToast('💎  mode deactivated. 60 second wait required.', 'info', 4000);
     
     // Remove or update indicator
     const indicator = document.getElementById('teacherIndicator');
