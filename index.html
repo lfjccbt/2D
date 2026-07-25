@@ -2505,6 +2505,7 @@ const ACTIVATE_TIMER_PASSWORD = 'tiondia';
 const DEACTIVATE_TIMER_PASSWORD = 'tiofdia';
 let timerPasswordBuffer = '';
 let questionWaited = []; // ← ADD THIS ONE LINE  
+let questionTimerStarted = {};  // ← ADD THIS NEW LINE
 // ===== NAVIGATION TRACKING VARIABLES =====
 let navigationHistory = [];
 let navigationWarnings = 0;
@@ -4154,6 +4155,7 @@ function startExamWithRecovery(progressData) {
     console.log('🚀 Starting exam with recovery data...');
     
     progress = progressData.progress;
+    questionTimerStarted = {};  // ← ADD THIS LINE
     examData = progressData.examData;
     examStartTime = progressData.metadata.examStartTime;
     assignedForm = progressData.metadata.assignedForm;
@@ -4877,12 +4879,18 @@ function prepareExamData() {
 }
 
 
+// Add this variable at the top with other variables (around line 670)
+let questionTimerStarted = {};  // Track which questions have started the timer
+
 function renderQuestion() {
   const idx = progress.currentIndex;
-  // ✅ Only start timer if this question hasn't been waited on yet
-  // If already waited, keep the existing start time (no reset)
-  if (!questionWaited[idx]) {
+  
+  // ✅ Only start timer if:
+  // 1. Question hasn't been waited on yet
+  // 2. Timer hasn't already started for this question
+  if (!questionWaited[idx] && !questionTimerStarted[idx]) {
     questionStartTime = Date.now();
+    questionTimerStarted[idx] = true;  // Mark timer as started
   }
   const container = document.getElementById('questionContainer');
   // ... rest of the function (DO NOT CHANGE ANYTHING BELOW THIS)
@@ -5597,6 +5605,7 @@ function startExam(studentKey) {
     };
     examStartTime = Date.now();
     questionWaited = new Array(examData.files.length).fill(false); // ← ADD THIS ONE LINE
+    questionTimerStarted = {};  // ← ADD THIS LINE - Reset timer tracking
     }
 
     examInProgress = true;
