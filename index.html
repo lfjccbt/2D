@@ -6438,9 +6438,6 @@ let submissionQueue = [];
 let isSubmitting = false;
 let submissionCounter = 0;
 
-// =============================================
-// ✅ FIXED: Direct submission to Google Forms
-// =============================================
 async function submitToGoogleForms(answersData) {
     const FORM_URL = GOOGLE_FORMS[assignedForm];
     
@@ -6451,88 +6448,33 @@ async function submitToGoogleForms(answersData) {
     }
 
     try {
-        const marks = calculateSubjectMarks(answersData.summary);
+        console.log(`📤 Adding student ${answersData.student.name} to submission queue...`);
         
-        // ===== BUILD FORM DATA =====
-        const formData = new URLSearchParams();
-        
-        // Student Information
-        formData.append(FORM_FIELDS.STUDENT_NAME, answersData.student.name);
-        formData.append(FORM_FIELDS.ROLL_NUMBER, answersData.student.roll);
-        formData.append(FORM_FIELDS.ADMISSION_NUMBER, answersData.student.adm);
-        
-        // Section with date and subject codes
-        const subjectCodes = (EXAM_SETUP.activeForForms || []).map(s => {
-            if (s === "MATHS_A") return "MA";
-            if (s === "MATHS_B") return "MB";
-            if (s === "MATHS") return "M";
-            if (s === "PHYSICS") return "P";
-            if (s === "CHEMISTRY") return "C";
-            if (s === "BOTANY") return "B";
-            if (s === "ZOOLOGY") return "Z";
-            if (s === "BZ") return "BZ";
-            return s.substring(0,1);
-        }).join(', ');
-        
-        const today = new Date();
-        const dateStr = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear().toString().slice(-2)}`;
-        formData.set(FORM_FIELDS.SECTION, answersData.student.sec + " " + dateStr + " " + subjectCodes);
-        
-        // Subject Marks
-        const activeSubjects = EXAM_SETUP.activeForForms || [];
-        for (let subject of activeSubjects) {
-            if (marks[subject] !== undefined) {
-                const markValue = marks[subject].toFixed(2);
-                switch(subject) {
-                    case "PHYSICS": formData.append(FORM_FIELDS.PHYSICS, markValue); break;
-                    case "CHEMISTRY": formData.append(FORM_FIELDS.CHEMISTRY, markValue); break;
-                    case "MATHS": formData.append(FORM_FIELDS.MATHS, markValue); break;
-                    case "MATHS_A": formData.append(FORM_FIELDS.MATHS_A, markValue); break;
-                    case "MATHS_B": formData.append(FORM_FIELDS.MATHS_B, markValue); break;
-                    case "BOTANY": formData.append(FORM_FIELDS.BOTANY, markValue); break;
-                    case "ZOOLOGY": formData.append(FORM_FIELDS.ZOOLOGY, markValue); break;
-                    case "BZ": formData.append(FORM_FIELDS.BZ, markValue); break;
-                }
+        // Add to queue
+        const result = await new Promise((resolve, reject) => {
+            submissionQueue.push({
+                data: answersData,
+                resolve: resolve,
+                reject: reject,
+                timestamp: Date.now()
+            });
+            
+            // Start processing queue if not already running
+            if (!isSubmitting) {
+                processSubmissionQueue();
             }
-        }
-        
-        formData.append(FORM_FIELDS.TOTAL_MARKS, marks.total.toFixed(2));
-        formData.append(FORM_FIELDS.ALL_ANSWERS, formatAllAnswersString(progress.answers));
-        
-        // ===== SEND DATA VIA fetch() =====
-        console.log('📤 Sending data to Google Forms via fetch()...');
-        console.log('📤 URL:', FORM_URL);
-        console.log('📤 Data:', formData.toString());
-        
-        const response = await fetch(FORM_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData.toString()
         });
         
-        console.log('✅ Data sent successfully!');
-        
-        // Save locally as backup
-        saveSubmissionLocally(answersData);
-        localStorage.removeItem('hasViolations');
-        clearSavedExam();
-        
-        // Show summary directly (skip green screen)
-        showSummaryInterface(currentSubjData);
-        showToast('✅ Exam submitted successfully!', 'success', 3000);
-        
-        return true;
+        return result;
         
     } catch (error) {
-        console.error('❌ Submission error:', error);
-        // FALLBACK: Use iframe method
-        console.log('⚠️ fetch() failed, trying iframe fallback...');
-        return submitWithWindowOpen(answersData);
+        console.error("❌ Submission error:", error);
+        saveSubmissionLocally(answersData);
+        showToast('⚠️ Submission saved locally', 'warning', 5000);
+        return false;
     }
 }
+
 // ===== PROCESS QUEUE WITH STAGGERED DELAYS =====
 async function processSubmissionQueue() {
     if (isSubmitting) return;
