@@ -3244,7 +3244,7 @@ function showGreenSubmitScreen(fullUrl, answersData) {
         purpleOverlay.parentNode.removeChild(purpleOverlay);
     }
     
-    // Create green screen overlay with SUBMIT button
+    // Create green screen overlay
     const overlay = document.createElement('div');
     overlay.id = 'greenSubmitOverlay';
     overlay.style.cssText = `
@@ -3269,7 +3269,7 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     overlay.innerHTML = `
         <div style="max-width: 600px; width: 100%; animation: fadeIn 0.3s ease;">
             <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
-            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px;">EXAM READY TO SUBMIT</div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px;">EXAM READY</div>
             <div style="font-size: 18px; margin-bottom: 10px; color: #d4edda;">
                 Your exam is ready to submit.
             </div>
@@ -3291,7 +3291,7 @@ function showGreenSubmitScreen(fullUrl, answersData) {
                 cursor: pointer;
                 box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
                 animation: pulse 1.5s infinite;
-            ">📤 SUBMIT NOW</button>
+            ">📤 SUBMIT</button>
             <div style="margin-top: 20px; font-size: 14px; color: #b7e4c7;">
                 ⚠️ Do not close this page until submission is complete.
             </div>
@@ -3300,7 +3300,6 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     
     document.body.appendChild(overlay);
     
-    // Add click handler for SUBMIT button
     const submitBtn = document.getElementById('greenSubmitBtn');
     if (submitBtn) {
         submitBtn.onclick = function() {
@@ -3313,40 +3312,29 @@ function showGreenSubmitScreen(fullUrl, answersData) {
             
             const status = document.getElementById('submissionStatus');
             if (status) {
-                status.innerHTML = '⏳ Sending your answers to Google Forms... Please wait.';
+                status.innerHTML = '⏳ Sending your answers... Please wait.';
                 status.style.color = '#ffd700';
             }
             
-            // ✅ SEND DATA VIA FETCH WITH no-cors (NO HISTORY, NO MODIFICATION!)
+            // ✅ ONLY FETCH - NO IMAGE BEACON (SINGLE SUBMISSION)
             try {
                 const formData = new URLSearchParams(fullUrl.split('?')[1]);
                 fetch(fullUrl.split('?')[0], {
                     method: 'POST',
                     mode: 'no-cors',
                     body: formData
-                }).then(() => {
-                    console.log('✅ Data sent to Google Forms via fetch (no history!)');
-                }).catch(() => {
-                    console.log('⚠️ Fetch failed, trying backup...');
                 });
+                console.log('✅ Data sent to Google Forms (single submission)');
             } catch(e) {
-                console.log('Fetch error:', e);
+                console.log('❌ Fetch error:', e);
             }
             
-            // ✅ Also send via Image Beacon (backup - no history)
-            try {
-                const img = new Image();
-                img.style.cssText = 'display:none; width:0; height:0;';
-                img.src = fullUrl;
-                document.body.appendChild(img);
-            } catch(e) {}
-            
             if (status) {
-                status.innerHTML = '✅ Data sent! Loading results...';
+                status.innerHTML = '✅ Submission sent! Loading results...';
                 status.style.color = '#90EE90';
             }
             
-            // ✅ Show results after 3 seconds
+            // Show results after 3 seconds
             setTimeout(() => {
                 overlay.remove();
                 showSummaryInterface(currentSubjData);
