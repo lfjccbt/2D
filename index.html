@@ -1759,6 +1759,21 @@ body.anti-sleep-active {
     color: #666;
     font-size: 14px;
     margin-top: 8px;
+} 
+/* ===== POPUP ANIMATIONS ===== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalPopIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }  
 </style>
 </head>
@@ -6438,6 +6453,9 @@ let submissionQueue = [];
 let isSubmitting = false;
 let submissionCounter = 0;
 
+// =============================================
+// ✅ NO IFRAME - Form submits via redirect with popup
+// =============================================
 async function submitToGoogleForms(answersData) {
     const FORM_URL = GOOGLE_FORMS[assignedForm];
     
@@ -6448,33 +6466,313 @@ async function submitToGoogleForms(answersData) {
     }
 
     try {
-        console.log(`📤 Adding student ${answersData.student.name} to submission queue...`);
+        const marks = calculateSubjectMarks(answersData.summary);
+        const data = {};
         
-        // Add to queue
-        const result = await new Promise((resolve, reject) => {
-            submissionQueue.push({
-                data: answersData,
-                resolve: resolve,
-                reject: reject,
-                timestamp: Date.now()
-            });
-            
-            // Start processing queue if not already running
-            if (!isSubmitting) {
-                processSubmissionQueue();
+        // Student Information
+        data[FORM_FIELDS.STUDENT_NAME] = answersData.student.name;
+        data[FORM_FIELDS.ROLL_NUMBER] = answersData.student.roll;
+        data[FORM_FIELDS.ADMISSION_NUMBER] = answersData.student.adm;
+        
+        const subjectCodes = (EXAM_SETUP.activeForForms || []).map(s => {
+            if (s === "MATHS_A") return "MA";
+            if (s === "MATHS_B") return "MB";
+            if (s === "MATHS") return "M";
+            if (s === "PHYSICS") return "P";
+            if (s === "CHEMISTRY") return "C";
+            if (s === "BOTANY") return "B";
+            if (s === "ZOOLOGY") return "Z";
+            if (s === "BZ") return "BZ";
+            return s.substring(0,1);
+        }).join(', ');
+        
+        const today = new Date();
+        const dateStr = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear().toString().slice(-2)}`;
+        data[FORM_FIELDS.SECTION] = answersData.student.sec + " " + dateStr + " " + subjectCodes;
+        
+        const activeSubjects = EXAM_SETUP.activeForForms || [];
+        for (let subject of activeSubjects) {
+            if (marks[subject] !== undefined) {
+                const markValue = marks[subject].toFixed(2);
+                switch(subject) {
+                    case "PHYSICS": data[FORM_FIELDS.PHYSICS] = markValue; break;
+                    case "CHEMISTRY": data[FORM_FIELDS.CHEMISTRY] = markValue; break;
+                    case "MATHS": data[FORM_FIELDS.MATHS] = markValue; break;
+                    case "MATHS_A": data[FORM_FIELDS.MATHS_A] = markValue; break;
+                    case "MATHS_B": data[FORM_FIELDS.MATHS_B] = markValue; break;
+                    case "BOTANY": data[FORM_FIELDS.BOTANY] = markValue; break;
+                    case "ZOOLOGY": data[FORM_FIELDS.ZOOLOGY] = markValue; break;
+                    case "BZ": data[FORM_FIELDS.BZ] = markValue; break;
+                }
             }
-        });
+        }
         
-        return result;
+        data[FORM_FIELDS.TOTAL_MARKS] = marks.total.toFixed(2);
+        data[FORM_FIELDS.ALL_ANSWERS] = formatAllAnswersString(progress.answers);
+        
+        // ============================================================
+        // ✅ SHOW POPUP WITH COUNTDOWN - NO IFRAME
+        // ============================================================
+        showSubmissionPopup(FORM_URL, data, answersData.student.name);
+        
+        localStorage.removeItem('hasViolations');
+        clearSavedExam();
+        return true;
         
     } catch (error) {
-        console.error("❌ Submission error:", error);
+        console.error('❌ Submission error:', error);
         saveSubmissionLocally(answersData);
         showToast('⚠️ Submission saved locally', 'warning', 5000);
         return false;
     }
 }
-
+// =============================================
+// ✅ SUBMISSION POPUP - NO IFRAME!
+// Shows for 3 seconds then redirects
+// =============================================
+function showSubmissionPopup(formUrl, data, studentName) {
+    // Remove existing popup
+    const existing = document.getElementById('submissionPopup');
+    if (existing) existing.remove();
+    
+    // Build URL with all data
+    const params = new URLSearchParams();
+    Object.keys(data).forEach(key => {
+        params.append(key, data[key]);
+    });
+    const fullUrl = formUrl + '?' + params.toString();
+    
+    // ===== CREATE OVERLAY =====
+    const overlay = document.createElement('div');
+    overlay.id = 'submissionPopup';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.92);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 999999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // ===== POPUP CONTENT =====
+    overlay.innerHTML = `
+        <div style="
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: modalPopIn 0.3s ease;
+        ">
+            <div style="font-size: 60px; margin-bottom: 15px;">📤</div>
+            <h2 style="color: #4B0082; margin-bottom: 10px;">Submitting Exam</h2>
+            <p style="color: #666; margin-bottom: 5px;">
+                <strong>Student:</strong> ${studentName}
+            </p>
+            <p style="color: #888; font-size: 14px; margin-bottom: 20px;">
+                Your exam is being submitted. Please wait...
+            </p>
+            
+            <!-- Progress Bar -->
+            <div style="
+                width: 100%;
+                height: 8px;
+                background: #e8e8e8;
+                border-radius: 4px;
+                margin: 20px 0;
+                overflow: hidden;
+            ">
+                <div id="submissionProgress" style="
+                    width: 0%;
+                    height: 100%;
+                    background: linear-gradient(90deg, #4B0082, #32CD32);
+                    border-radius: 4px;
+                    transition: width 0.5s ease;
+                "></div>
+            </div>
+            
+            <!-- Timer / Status -->
+            <div id="popupStatus" style="
+                color: #888;
+                font-size: 16px;
+                margin-bottom: 15px;
+            ">
+                ⏳ Submitting in <span id="countdownNumber">3</span> seconds...
+            </div>
+            
+            <!-- Submit Button (Manual fallback) -->
+            <button id="manualSubmitBtn" style="
+                padding: 15px 40px;
+                background: linear-gradient(145deg, #32CD32, #228B22);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                box-shadow: 0 0 30px rgba(50,205,50,0.3);
+                transition: all 0.3s ease;
+            ">
+                📤 SUBMIT NOW
+            </button>
+            
+            <p style="color: #999; font-size: 12px; margin-top: 15px;">
+                ⚠️ A new tab will open briefly and close automatically.
+            </p>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // ============================================================
+    // ✅ PROGRESS ANIMATION
+    // ============================================================
+    let progress = 0;
+    const progressBar = document.getElementById('submissionProgress');
+    const statusText = document.getElementById('popupStatus');
+    const countdownEl = document.getElementById('countdownNumber');
+    const manualBtn = document.getElementById('manualSubmitBtn');
+    
+    const progressInterval = setInterval(() => {
+        progress += 3;
+        if (progressBar) {
+            progressBar.style.width = Math.min(progress, 95) + '%';
+        }
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+        }
+    }, 100);
+    
+    // ============================================================
+    // ✅ COUNTDOWN: 3... 2... 1... SUBMIT!
+    // ============================================================
+    let countdown = 3;
+    const countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdownEl) {
+            countdownEl.textContent = countdown;
+        }
+        if (statusText) {
+            if (countdown > 0) {
+                statusText.innerHTML = `⏳ Submitting in <span id="countdownNumber">${countdown}</span> seconds...`;
+            } else {
+                statusText.innerHTML = '✅ Redirecting...';
+                statusText.style.color = '#32CD32';
+            }
+        }
+        
+        if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            
+            // Complete progress
+            if (progressBar) {
+                progressBar.style.width = '100%';
+            }
+            
+            // Disable button
+            if (manualBtn) {
+                manualBtn.disabled = true;
+                manualBtn.textContent = '⏳ REDIRECTING...';
+                manualBtn.style.opacity = '0.7';
+            }
+            
+            // ============================================================
+            // ✅ REDIRECT TO GOOGLE FORM (NO IFRAME!)
+            // ============================================================
+            setTimeout(() => {
+                // Open in new tab (briefly)
+                const newTab = window.open(fullUrl, '_blank');
+                
+                if (newTab) {
+                    // Close the tab after 2 seconds
+                    setTimeout(() => {
+                        if (newTab && !newTab.closed) {
+                            newTab.close();
+                        }
+                    }, 2000);
+                    
+                    // Show success message
+                    if (statusText) {
+                        statusText.innerHTML = '✅ Submission successful!';
+                        statusText.style.color = '#32CD32';
+                    }
+                    
+                    // Remove popup after 2 seconds
+                    setTimeout(() => {
+                        if (overlay.parentNode) {
+                            overlay.parentNode.removeChild(overlay);
+                        }
+                        showSummaryInterface(currentSubjData);
+                        showToast('✅ Exam submitted successfully!', 'success', 3000);
+                    }, 2000);
+                    
+                } else {
+                    // If popup blocked, fallback to redirect
+                    statusText.innerHTML = '⚠️ Popup blocked! Redirecting...';
+                    statusText.style.color = '#FF6B6B';
+                    
+                    setTimeout(() => {
+                        window.location.href = fullUrl;
+                    }, 1000);
+                }
+                
+            }, 500);
+        }
+    }, 1000);
+    
+    // ============================================================
+    // ✅ MANUAL SUBMIT BUTTON
+    // ============================================================
+    if (manualBtn) {
+        manualBtn.onclick = function() {
+            clearInterval(countdownInterval);
+            this.disabled = true;
+            this.textContent = '⏳ SUBMITTING...';
+            this.style.opacity = '0.7';
+            
+            if (statusText) {
+                statusText.innerHTML = '✅ Opening form...';
+                statusText.style.color = '#32CD32';
+            }
+            if (progressBar) {
+                progressBar.style.width = '100%';
+            }
+            
+            // Open form
+            const newTab = window.open(fullUrl, '_blank');
+            
+            if (newTab) {
+                setTimeout(() => {
+                    if (newTab && !newTab.closed) {
+                        newTab.close();
+                    }
+                }, 2000);
+                
+                setTimeout(() => {
+                    if (overlay.parentNode) {
+                        overlay.parentNode.removeChild(overlay);
+                    }
+                    showSummaryInterface(currentSubjData);
+                    showToast('✅ Exam submitted successfully!', 'success', 3000);
+                }, 2000);
+            } else {
+                // Fallback redirect
+                window.location.href = fullUrl;
+            }
+        };
+    }
+}
 // ===== PROCESS QUEUE WITH STAGGERED DELAYS =====
 async function processSubmissionQueue() {
     if (isSubmitting) return;
