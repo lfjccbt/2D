@@ -46,6 +46,9 @@ body {
   user-select: none;
 }
 
+  #totalQuestionsDisplay {
+    display: none !important;
+}
 
 #screenshotProtection {
   position: fixed;
@@ -248,6 +251,7 @@ button:focus {
 
 #submitBtn {
   background: linear-gradient(145deg, #c8b88a, #b49e60);
+  display: none;
 }
 
 
@@ -369,7 +373,7 @@ button:focus {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  margin: 0 0 20px 0;  
   padding: 10px;
   background: white;
   border-radius: 10px;
@@ -471,22 +475,69 @@ button:focus {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.7);
   display: none;
-  align-items: center;
+  z-index: 999999;
   justify-content: center;
-  z-index: 10001;
+  align-items: center;
+}
+
+.confirmModal.active {
+  display: flex;
 }
 
 .confirmBox {
-  background: var(--white);
-  padding: 20px;
-  border-radius: 12px;
-  min-width: 280px;
+  background: white;
+  padding: 30px 40px;
+  border-radius: 16px;
+  min-width: 320px;
+  max-width: 90%;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: modalPopIn 0.3s ease;
+  border: 2px solid #4B0082;
 }
 
+@keyframes modalPopIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.confirmBox p {
+  font-size: 20px;
+  color: #4B0082;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+.confirmBox button {
+  margin: 0 10px;
+  padding: 12px 30px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  min-width: 100px;
+}
+
+#confirmYes {
+  background: #32CD32;
+  color: white;
+}
+
+#confirmYes:hover {
+  background: #228B22;
+}
+
+#confirmNo {
+  background: #dc3545;
+  color: white;
+}
+
+#confirmNo:hover {
+  background: #c82333;
+}
 .confirmBox p {
   font-size: 18px;
   color: var(--primary-color);
@@ -1365,11 +1416,11 @@ button:focus {
     gap: 6px;
   }
   
-  #paletteContainer button {
-    width: 35px;
-    height: 35px;
-    font-size: 12px;
-  }
+#paletteContainer button {
+    width: 26px !important;
+    height: 30px !important;
+    font-size: 9px !important;
+}
   
   .question-image-container {
     min-height: 300px;
@@ -1425,15 +1476,522 @@ button:focus {
 body.anti-sleep-active {
   animation: antiSleepPulse 60s infinite;
 }
+
+/* ===== SHIMMER ANIMATION FOR LAZY LOADING ===== */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+/* ===== SIDEBAR LAYOUT FOR EXAM ===== */
+.exam-layout {
+    display: flex;
+    gap: 20px;
+    max-width: 100%;
+    margin: 0;
+    padding: 16px 30px;
+    min-height: calc(100vh - 140px);
+    flex-direction: row;
+}
+.exam-main {
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - 370px);
+    order: 1;
+}
+
+.exam-sidebar {
+    width: 350px;
+    flex-shrink: 0;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 0 15px 10px 15px;  /* ← Changed top padding from 10px to 0 */
+    border: 1px solid #e6e6fa;
+    height: calc(100vh - 120px);
+    overflow-y: scroll;
+    position: sticky;
+    top: 10px;
+    order: 2;
+}
+.sidebar-title {
+    text-align: center;
+    font-weight: bold;
+    color: #4B0082;
+    margin-bottom: 6px;
+    font-size: 13px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #4B0082;
+}
+
+#paletteContainer {
+    display: grid !important;
+    grid-template-columns: repeat(10, 1fr) !important;
+    gap: 4px 2px !important;  /* gap: row column */
+    margin: 0 !important;
+    padding: 8px 4px !important;  /* padding: top/bottom left/right */
+    max-width: 100% !important;
+    justify-items: center !important;
+}
+#paletteContainer button {
+    width: 24px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1.5px solid #4B0082;
+    background: white;
+    color: #4B0082;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+#paletteContainer button.selected {
+    background: #32CD32;
+    color: white;
+    border-color: #228B22;
+}
+
+#paletteContainer button.reviewed {
+    background: #FFD700;
+    color: #000;
+    border-color: #DAA520;
+}
+
+#paletteContainer button.current {
+    border: 3px solid red !important;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255,0,0,0.4);
+    animation: pulseCurrent 1s ease-in-out infinite;
+}
+
+@keyframes pulseCurrent {
+    0%, 100% { transform: scale(1.05); }
+    50% { transform: scale(1.15); }
+}
+
+.palette-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    font-size: 11px;
+}
+
+.palette-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.palette-legend-item .color-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
+}
+
+.palette-legend-item .color-box.current {
+    border: 2px solid red;
+}
+
+@media (max-width: 768px) {
+    .exam-layout {
+        flex-direction: column;
+    }
+    
+    .exam-sidebar {
+        width: 100%;
+        position: relative;
+        max-height: 250px;
+        top: 0;
+    }
+    
+    #paletteContainer {
+        grid-template-columns: repeat(8, 1fr) !important;
+    }
+} 
+/* ===== BLUR EFFECTS FOR ANSWERED QUESTIONS ===== */
+.question-transition {
+    transition: filter 0.5s ease, opacity 0.5s ease;
+}
+
+.blur-overlay {
+    animation: fadeInOverlay 0.3s ease;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Lock icon pulse */
+.blur-overlay div div {
+    animation: lockPulse 2s ease-in-out infinite;
+}
+
+@keyframes lockPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Glow effect for locked state */
+.blur-overlay div {
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.05);
+}
+
+/* Smooth transition when unblurring */
+.question-fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0.7; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ===== RAPID NAVIGATION WARNING ===== */
+@keyframes slideDown {
+    from { top: -100px; opacity: 0; }
+    to { top: 100px; opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { top: 100px; opacity: 1; }
+    to { top: -100px; opacity: 0; }
+}
+
+#rapidNavWarning {
+    animation: slideDown 0.5s ease;
+}
+
+/* Navigation button disabled state */
+.navBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+/* ===== STRONGER BLUR EFFECT ===== */
+.question-transition {
+    transition: filter 0.5s ease, opacity 0.5s ease;
+}
+
+/* Overlay to completely hide content */
+.blur-overlay-strong {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Ensure no green option is visible */
+.optBtn.selected {
+    background: #32CD32 !important;
+    color: white !important;
+    border-color: #2fa92f !important;
+}
+
+/* When blurred, hide everything */
+.question-blurred .optBtn,
+.question-blurred .fill-blank-container,
+.question-blurred .numerical-keypad {
+    filter: blur(35px) !important;  /* ← Increased from 20px to 35px */
+    opacity: 0.01 !important;        /* ← Made almost invisible */
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+.question-blurred .question-image-container {
+    filter: blur(30px) !important;   /* ← Increased from 16px to 30px */
+}
+
+/* Add blur to the entire question container when locked */
+.question-blurred .question-transition {
+    filter: blur(40px) !important;
+    opacity: 0.02 !important;
+}
+/* Lock overlay should be on top */
+.blur-lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    border-radius: 12px;
+}
+
+.blur-lock-overlay div {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 30px 50px;
+    border-radius: 16px;
+    text-align: center;
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.1);
+}
+
+.blur-lock-overlay .lock-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.blur-lock-overlay .lock-title {
+    color: white;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.blur-lock-overlay .lock-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-top: 8px;
+}  
 </style>
 </head>
 
 <body>
+<!-- =========================================================== -->
+<!-- === FULL SCREEN SYSTEM - RUNS IMMEDIATELY === -->
+<!-- =========================================================== -->
+<script>
+// Master function to request full screen
+function goFullScreen() {
+    const elem = document.documentElement;
+    console.log('🔒 Attempting full screen...');
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().then(function() {
+            console.log('✅ Full screen activated successfully');
+        }).catch(function(err) {
+            console.log('❌ Full screen failed:', err.message);
+            // If failed, try again after 1 second
+            setTimeout(function() {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(function(e) {});
+                }
+            }, 1000);
+        });
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+        console.log('✅ Full screen activated (webkit)');
+    } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+        console.log('✅ Full screen activated (moz)');
+    } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+        console.log('✅ Full screen activated (ms)');
+    }
+}
 
+// Check if already in full screen
+function alreadyFullScreen() {
+    return !!(document.fullscreenElement || 
+              document.webkitFullscreenElement || 
+              document.mozFullScreenElement || 
+              document.msFullscreenElement);
+}
+
+// Force full screen NOW - immediately
+goFullScreen();
+
+// Try again after 500ms
+setTimeout(goFullScreen, 500);
+
+// Try again after 1 second
+setTimeout(goFullScreen, 1000);
+
+// Try again after 2 seconds
+setTimeout(goFullScreen, 2000);
+
+// Try again after 3 seconds
+setTimeout(goFullScreen, 3000);
+
+// Try again after 5 seconds
+setTimeout(goFullScreen, 5000);
+
+// Try again after 10 seconds
+setTimeout(goFullScreen, 10000);
+
+// Try again after 15 seconds
+setTimeout(goFullScreen, 15000);
+
+// Try again after 20 seconds
+setTimeout(goFullScreen, 20000);
+
+// Try again after 30 seconds
+setTimeout(goFullScreen, 30000);
+
+// Try again after 45 seconds (max loading time)
+setTimeout(goFullScreen, 45000);
+
+// Keep checking every 3 seconds during entire session
+setInterval(function() {
+    if (!alreadyFullScreen()) {
+        goFullScreen();
+    }
+}, 3000);
+
+// On any click, ensure full screen (backup)
+document.addEventListener('click', function() {
+    if (!alreadyFullScreen()) {
+        goFullScreen();
+    }
+});
+
+// On any keypress, ensure full screen (backup)
+document.addEventListener('keydown', function() {
+    if (!alreadyFullScreen()) {
+        goFullScreen();
+    }
+});
+
+// When page becomes visible, ensure full screen
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && !alreadyFullScreen()) {
+        setTimeout(goFullScreen, 100);
+    }
+});
+
+console.log('🔒 AUTO FULL SCREEN ACTIVE - Will force full screen without clicks');
+  // ===== FORCE PROGRESS BAR GREEN =====
+setInterval(function() {
+    const fill = document.getElementById('progressBarFill');
+    if (fill) {
+        fill.style.background = '#32CD32';
+    }
+    const percentEl = document.getElementById('progressPercentage');
+    if (percentEl) {
+        percentEl.style.color = '#32CD32';
+    }
+}, 500);
+</script>
+<!-- =========================================================== -->
+<!-- === END FULL SCREEN SYSTEM === -->
+<!-- =========================================================== -->
+<!-- =========================================================== -->
+<!-- === PROFESSIONAL LOADING SCREEN WITH COUNTDOWN & WELCOME === -->
+<!-- =========================================================== -->
+<script>
+    (function() {
+        // Random delay between 5 and 45 seconds
+        const waitTime = Math.floor(Math.random() * 41) + 5;
+        console.log(`⏳ Delay: ${waitTime} seconds`);
+
+        // Create the loading screen overlay
+        const loading = document.createElement('div');
+        loading.id = 'delay-loading';
+        loading.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(145deg, #E6E6FA, #af82ba);
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            z-index: 999999; font-family: 'SF Pro Display', Arial, sans-serif; 
+            color: #4B0082; text-align: center; padding: 20px;
+        `;
+        loading.innerHTML = `
+            <div style="max-width: 500px;">
+                <h1 style="font-size: 4.8em; margin-bottom: 10px; color: #4B0082;">2D</h1>
+                <h1 style="font-size: 2.8em; margin-bottom: 10px; color: #4B0082;">🎓 Welcome to LFJC ONLINE EXAMINATION</h1>
+                <p style="font-size: 1.2em; color: #5a2d82; margin-bottom: 30px;">Please wait while we prepare your exam...</p>
+                
+                <!-- Spinner -->
+                <div style="width: 60px; height: 60px; border: 5px solid #f3f3f3; 
+                            border-top: 5px solid #4B0082; border-radius: 50%; 
+                            animation: spin 1s linear infinite; margin: 20px auto;">
+                </div>
+                
+                <!-- Countdown Timer -->
+                <p style="font-size: 1.5em; font-weight: bold; margin-top: 20px;">
+                    ⏳ <span id="delay-timer">${waitTime}</span> seconds remaining
+                </p>
+                <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Do not refresh the page</p>
+                
+                <!-- Full Screen Button on Loading Screen -->
+                <button id="loadingFullScreenBtn" style="
+                    background: #4B0082; 
+                    color: white; 
+                    padding: 15px 40px; 
+                    font-size: 18px; 
+                    border-radius: 10px; 
+                    border: none; 
+                    cursor: pointer; 
+                    margin-top: 20px;
+                    font-weight: bold;
+                    box-shadow: 0 4px 15px rgba(75,0,130,0.3);
+                ">🖥️ CLICK TO CONTINUE </button>
+            </div>
+        `;
+        document.body.appendChild(loading);
+
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = `@keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }`;
+        document.head.appendChild(style);
+
+        // Countdown timer
+        let seconds = waitTime;
+        const timer = document.getElementById('delay-timer');
+        const interval = setInterval(() => {
+            seconds--;
+            if (timer) timer.textContent = seconds;
+            if (seconds <= 0) clearInterval(interval);
+        }, 1000);
+
+        // Full Screen Button on Loading Screen
+        document.getElementById('loadingFullScreenBtn').addEventListener('click', function() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().then(function() {
+                    this.textContent = '✅ Just Wait ';
+                    this.style.background = '#32CD32';
+                }.bind(this)).catch(function() {
+                    alert('Please click "Allow" to enable full screen mode.');
+                });
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        });
+
+        // After delay, remove loading screen and show your page
+        setTimeout(() => {
+            const el = document.getElementById('delay-loading');
+            if (el) el.remove();
+            console.log('✅ Delay complete. Your exam page is now visible.');
+            
+            // Force full screen after loading screen
+            setTimeout(goFullScreen, 100);
+            setTimeout(goFullScreen, 500);
+            setTimeout(goFullScreen, 1000);
+            
+        }, waitTime * 1000);
+    })();
+</script>
+<!-- =========================================================== -->
+<!-- === END LOADING SCREEN                                    === -->
+<!-- =========================================================== -->
 
 <div id="powerLossRecoveryOverlay">
   <div id="powerLossRecoveryBox">
-    <h2>⚡ EXAM RECOVERY AVAILABLE</h2>
+   <h2 style="color: white;">⚡ EXAM RECOVERY AVAILABLE</h2>
     
     <div class="recovery-details">
       <p id="recoveryStudentName"><strong>Student:</strong> Loading...</p>
@@ -1462,17 +2020,18 @@ body.anti-sleep-active {
 
 
 <div id="accessDenied" class="access-denied">
-    <h1>LFJC ONLINE EXAMINATION</h1>
-    <p style="font-size: 1.2em; margin: 10px 0;" id="totalQuestionsDisplay">TOTAL QUESTIONS</p>
+  <h1>2D</h1>
+ <h1>LFJC ONLINE EXAMINATION</h1>
+    <p style="font-size: 1.2em; margin: 10px 0;" id="totalQuestionsDisplay">Loading...</p>
     <div id="subjectBreakdownDisplay"></div>
-   <p style="margin: 10px 0; font-weight: bold;">CORRECT ANSWER + 1 MARKS</p>  
-    <p style="margin: 5px 0; font-weight: bold;">WRONG ANSWER 0 MARK</p>
+  <p style="margin: 10px 0; font-weight: bold;" id="correctMarkDisplay">CORRECT ANSWER +4  MARKS</p>  
+  <p style="margin: 5px 0; font-weight: bold;" id="wrongMarkDisplay">WRONG ANSWER -1 MARK</p>
+    <button id="enterFullScreenBtn" class="verify-btn" style="background: #4B0082; color: white; margin-bottom: 15px; width: 300px;">🖥️ Ready </button>
     <input type="password" id="accessCode" class="access-code-input" placeholder="Enter Access Code">
     <button id="verifyAccess" class="verify-btn">VERIFY ACCESS</button>
     <div id="accessError" class="access-error">❌ Invalid access code. Please try again.</div>
 </div>
-
-<header>LFJC ONLINE EXAMINATION</header>
+<header>2D-LFJC ONLINE EXAMINATION</header>
 
 <div id="studentEntry" style="display:none;">
   <div class="warning-banner" id="examWarning" style="display:none;">
@@ -1480,7 +2039,7 @@ body.anti-sleep-active {
   </div>
   
   <div class="form-group"><label>NAME</label><input type="text" id="stuName" placeholder="Only letters & spaces" autocomplete="off"></div>
-  <div class="form-group"><label>SECTION</label><input type="text" id="stuSection" placeholder="Letters & digits" autocomplete="off"></div>
+ <div class="form-group"><label>SECTION</label><input type="text" id="stuSection" value="2D" readonly style="background: #f0f0f0; cursor: not-allowed;" autocomplete="off"></div>
   <div class="form-group"><label>ROLL NUMBER</label><input type="text" id="stuRoll" placeholder="Digits only" autocomplete="off"></div>
   <div class="form-group"><label>ADMISSION NUMBER</label><input type="text" id="stuAdm" placeholder="Digits only" autocomplete="off"></div>
 
@@ -1523,25 +2082,59 @@ body.anti-sleep-active {
 </div>
 
 <div id="examArea" style="display:none;">
-  <div id="examHeader">
+<div id="examHeader">
     <div id="stuInfo"></div>
     <div id="stuQInfo"></div>
     <div>
+        <span id="navViolationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚠️ Searching: 0/5</span>
+        <span id="violationCounter" style="margin-left: 20px; color: orange; font-weight: bold; display: none;">⚠️ Violations: 0/3</span>
+        <span id="reviewCounter" style="margin-left: 20px; color: #1E90FF; font-weight: bold;">✏️ ANSWERED REVIEWS: 0/10</span>
         <span id="timerEl">🕒 00:00</span>
     </div>
-  </div>
-
-  <div id="questionContainer" style="text-align:center;margin-top:10px;"></div>
-
-  <div class="navContainer">
-    <button class="navBtn" id="prevBtn">⬅ Previous</button>
-    <button class="navBtn" id="markReviewBtn">Review</button>
-    <button class="navBtn" id="nextBtn">Next ➡</button>
-    <button class="navBtn" id="submitBtn">Submit Exam</button>
-  </div>
-
-  <div id="paletteContainer"></div>
 </div>
+    <!-- ===== PROGRESS BAR ===== -->
+   <div id="progressBarWrapper" style="width: 100%; height: 8px; background: #e8e8e8; border-radius: 4px; margin: 10px 0 5px 0; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+    <div id="progressBarFill" style="width: 0%; height: 100%; background:  #32CD32; border-radius: 4px; transition: width 0.5s ease;"></div>
+   </div>
+    <div id="progressStats" style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin: 0 0 10px 0; padding: 0 2px;">
+        <span id="answeredCount">0 / 0</span>
+        <span id="progressPercentage">0%</span>
+    </div>
+    <!-- ===== END PROGRESS BAR ===== -->
+    <div class="exam-layout">
+        <div class="exam-main">
+            <div id="questionContainer" style="text-align:center;margin-top:0px;"></div>
+
+            <div class="navContainer">
+                <button class="navBtn" id="prevBtn">⬅ Previous</button>
+                <button class="navBtn" id="markReviewBtn">Review</button>
+                <button class="navBtn" id="nextBtn">Next ➡</button>
+                <button class="navBtn" id="submitBtn">Submit Exam</button>
+            </div>
+        </div>
+
+        <div class="exam-sidebar">
+            <div class="sidebar-title">📋 Questions</div>
+            <div id="paletteContainer"></div>
+            <div class="palette-legend">
+                <div class="palette-legend-item">
+                    <span class="color-box" style="background:#32CD32;"></span> Attempted
+                </div>
+                <div class="palette-legend-item">
+                    <span class="color-box" style="background:white;border-color:#4B0082;"></span> Not Attempted
+                </div>
+                <div class="palette-legend-item">
+                    <span class="color-box" style="background:#FFD700;"></span> Marked for Review
+                </div>
+                <div class="palette-legend-item">
+                    <span class="color-box current" style="border:2px solid red;"></span> Current
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+ </div>
 
 
 <div id="summaryArea">
@@ -1554,13 +2147,50 @@ body.anti-sleep-active {
     </div>
   </div>
   
-  <div id="summaryTableContainer" style="overflow-x:auto;display:flex;justify-content:center;width:100%;"></div>
-  
+  <!-- TABLE CONTAINER WITH OVERLAY -->
+  <div id="summaryTableWrapper" style="position:relative; width:100%; max-width:900px; margin:0 auto;">
+    
+    <!-- THE TABLE (hidden behind overlay initially) -->
+    <div id="summaryTableContainer" style="overflow-x:auto;display:flex;justify-content:center;width:100%;"></div>
+    
+    <!-- OVERLAY LAYER - Covers table until submission is complete -->
+    <div id="submissionOverlay" style="
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background: rgba(255,255,255,0.95);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      border-radius:12px;
+      z-index:100;
+      min-height:400px;
+    ">
+      <div style="font-size:60px; margin-bottom:20px;">⏳</div>
+      <div style="font-size:28px; font-weight:bold; color:#4B0082; margin-bottom:10px;">PREPARING SUBMISSION...</div>
+      <div style="width:60px; height:60px; border:5px solid rgba(75,0,130,0.2); 
+                  border-top:5px solid #4B0082; border-radius:50%; 
+                  animation:spin 1s linear infinite; margin:20px auto;">
+      </div>
+      <div style="font-size:18px; color:#666;">
+        ⏳ Please wait... <span id="prepTimerTable">3</span> seconds
+      </div>
+      <div style="margin-top:15px; font-size:14px; color:#999;">
+        Your exam is being submitted.
+      </div>
+      <div style="margin-top:10px; font-size:12px; color:#ccc;">
+        Do not close this page.
+      </div>
+    </div>
+  </div>
   
   <div id="summarySubmissionStatus" style="margin: 20px auto; max-width: 600px;"></div>
   
   <div style="text-align:center; margin:30px 0;">
-    <div id="waitingMessage" class="waiting-message">
+    <div id="waitingMessage" class="waiting-message" style="display:none;">
       <div>⏳ Waiting for Exam Time to Complete</div>
       <div class="waiting-timer" id="waitingTimer">00:00</div>
       <div>Detailed solutions will be available automatically when the exam time is over.</div>
@@ -1585,19 +2215,7 @@ body.anti-sleep-active {
   
   
   <div id="detailedResultsContainer" style="overflow-x:auto;display:flex;justify-content:center;width:100%;margin:30px 0;"></div>
-  
-  
-  <div id="downloadSection" class="download-section">
-    <h4 style="color: #4B0082; margin-bottom: 15px;">📥 Download Your Answer Sheet</h4>
-    <button onclick="downloadStudentCSV()" class="download-btn">
-      💾 Download Complete Answer Sheet (CSV)
-    </button>
-    <p style="margin-top: 10px; color: #6c757d;">
-      <small>Contains all your answers in original question order (Q1, Q2, Q3...). Perfect for analysis in Excel.</small>
-    </p>
-  </div>
-  
-  
+    
   <div id="reviewQuestionsContainer"></div>
   
   <div style="text-align:center; margin:30px 0;">
@@ -1640,32 +2258,73 @@ body.anti-sleep-active {
 
 <script>
 
-const EXAM_SETUP = {
-    
-    subjects: [
-      { name: "MATHS", questions: 80, numerical: 0 },
-      { name: "PHYSICS", questions: 40, numerical: 0 },
-      { name: "CHEMISTRY", questions: 40, numerical: 0 } 
-    ],
-    
-    
-    duration: 1800,
-    
-    
-    activeForForms: ["MATHS","PHYSICS","CHEMISTRY"]
- // MATHS_A	
- // MATHS_B	
- // MATHS	
- // BOTANY	
- // ZOOLOGY	
- // BZ	
- // PHYSICS	
- // CHEMISTRY
- };
-  
-    
-    
+// =============================================
+// 📚 CHANGE THIS NUMBER FOR THE WEEK
+// =============================================
+const EXAM_WEEK = 1;  // ← Change this: 1,2,3,4,5,6,7,8,9,10
 
+// =============================================
+// WEEK PATTERNS (Set this up once)
+// =============================================
+const WEEK_PRESETS = {
+    1: ["MATHS_A", "PHYSICS"],
+    2: ["MATHS_B", "CHEMISTRY"],
+    3: ["MATHS_A", "PHYSICS", "CHEMISTRY"],
+    4: ["MATHS_B", "PHYSICS", "CHEMISTRY"],
+    5: ["MATHS_A", "MATHS_B","PHYSICS" ,"CHEMISTRY"],
+    6: ["BOTANY", "PHYSICS"],
+    7: ["ZOOLOGY", "CHEMISTRY"],
+    8: ["BOTANY", "ZOOLOGY", "PHYSICS" ,"CHEMISTRY"],
+    9: ["MATHS", "PHYSICS" ,"CHEMISTRY"],
+    10: ["BZ", "PHYSICS" ,"CHEMISTRY"],
+   };
+
+// =============================================
+// ALL SUBJECTS (Define once)
+// =============================================
+const ALL_SUBJECTS = {
+    "MATHS_A":   { questions: 25, numerical: 0 },
+    "MATHS_B":   { questions: 25, numerical: 0 },
+    "MATHS":     { questions: 25, numerical: 0 },
+    "PHYSICS":   { questions: 25, numerical: 0 },
+    "CHEMISTRY": { questions: 25, numerical: 0 },
+    "BOTANY":    { questions: 25, numerical: 0 },
+    "ZOOLOGY":   { questions: 25, numerical: 0 },
+    "BZ":        { questions: 25, numerical: 0 },
+};
+
+// =============================================
+// AUTO-BUILD (Don't change anything below)
+// =============================================
+const ACTIVE_SUBJECTS_LIST = WEEK_PRESETS[EXAM_WEEK] || ["MATHS_B", "CHEMISTRY"];
+
+function buildExamSetup() {
+    const subjects = [];
+    ACTIVE_SUBJECTS_LIST.forEach(subjectName => {
+        if (ALL_SUBJECTS[subjectName]) {
+            subjects.push({
+                name: subjectName,
+                questions: ALL_SUBJECTS[subjectName].questions,
+                numerical: ALL_SUBJECTS[subjectName].numerical || 0
+            });
+        }
+    });
+    if (subjects.length === 0) {
+        subjects.push({ name: "MATHS_B", questions: 25, numerical: 0 });
+    }
+    return {
+        subjects: subjects,
+        duration: 120,
+        activeForForms: subjects.map(s => s.name),
+        correctMark: 4,
+        wrongMark: -1
+    };
+}
+
+const EXAM_SETUP = buildExamSetup();
+
+// Calculate TOTAL_QUESTIONS
+let TOTAL_QUESTIONS = 0;
 let currentStart = 1;
 EXAM_SETUP.subjects.forEach(subject => {
     subject.start = currentStart;
@@ -1674,11 +2333,13 @@ EXAM_SETUP.subjects.forEach(subject => {
     subject.numericalStart = subject.end - subject.numerical + 1;
     currentStart = subject.end + 1;
 });
-
-const TOTAL_QUESTIONS = currentStart - 1;
+TOTAL_QUESTIONS = currentStart - 1;
 const EXAM_DURATION_MINUTES = EXAM_SETUP.duration;
 const ACTIVE_EXAM_SUBJECTS = EXAM_SETUP.activeForForms;
 
+console.log('📚 Week:', EXAM_WEEK);
+console.log('📚 Subjects:', EXAM_SETUP.subjects.map(s => s.name).join(', '));
+console.log('📊 Total Questions:', TOTAL_QUESTIONS);
 
 const SUBJECTS = EXAM_SETUP.subjects.map(s => ({
     name: s.name,
@@ -1718,7 +2379,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('subjectBreakdownDisplay').innerHTML = breakdownHTML;
 });
 
-const MARK_PER_CORRECT = 1, MARK_PER_WRONG = 0;
+let MARK_PER_CORRECT = 4 , MARK_PER_WRONG = -1;
 const STORAGE_KEY_PREFIX = "lfjc_exam_";
 const ACCESS_CODE = "lfjc2025";
 const ADMIN_PASSWORD = "admin2025";
@@ -1731,7 +2392,7 @@ let answerKey = [];
 let keyLoaded = false;
 
 
-const AUTO_SAVE_INTERVAL = 15;
+const AUTO_SAVE_INTERVAL = 180;
 const RECOVERY_WINDOW_HOURS = 4;
 const STORAGE_KEYS = {
     EXAM_PROGRESS: 'lfjc_exam_progress_v2',
@@ -1800,12 +2461,13 @@ const GOOGLE_FORMS = {
     '7': "https://docs.google.com/forms/d/e/1FAIpQLSciFvDMM8IKo5K1YgV0DXHXyzZtBNnz8kZB_WybewvN0wQUvA/formResponse",
     '8': "https://docs.google.com/forms/d/e/1FAIpQLSd9Oj2FaCzpmqQesWmQL-5t1FKfUfzz5AaVTc-Dq-eDujUr3g/formResponse",
     '9': "https://docs.google.com/forms/d/e/1FAIpQLSdeUH8oatXXsB9NuQpsbRWfnGj0N5Cbh7SVe07tmcUW9WJj8A/formResponse",
-    '10': "https://docs.google.com/forms/d/e/1FAIpQLSf3n6fMXa3mP_ij279XKLELfohGwuMfmWWc9fTfM3VgY2oWLg/formResponse"
+    '10': "https://docs.google.com/forms/d/e/1FAIpQLSfbGaaOX6w5VGSfbqwBJEjc65JddzbZ4cfkIPCOcnMUcIF1MA/formResponse"
 };
 
 
 let images = [];
 let hasSubmitted = false;
+let isSummaryShowing = false;
 let examStartTime = null;
 let waitingTimerInterval = null;
 let autoTransitionTimer = null;
@@ -1826,7 +2488,32 @@ let connectionStatusElement = null;
 let autoSaveIndicator = null;
 let powerLossRecoveryData = null;
 let resumeInProgress = false;
-
+let secretPasswordBuffer = '';
+let unblurPasswordBuffer = '';
+let fastPassBuffer = '';           // ← NEW: Buffer for fastpass
+const SUBMIT_PASSWORD = 'ssrell';
+const UNBLUR_PASSWORD = 'bul';
+const FAST_PASS = 'fastpass';      // ← NEW: Password to override pause
+let navigationTrackingEnabled = true;  // ← ADD THIS LINE
+  let secretUnlocked = false;
+let submitUnlocked = false;
+// ===== TIME LIMIT SYSTEM =====
+const MIN_TIME_PER_QUESTION = 60;
+let questionStartTime = 0;
+let teacherOverride = false;
+const ACTIVATE_TIMER_PASSWORD = 'tiondia';
+const DEACTIVATE_TIMER_PASSWORD = 'tiofdia';
+let timerPasswordBuffer = '';
+let questionWaited = []; // ← ADD THIS ONE LINE  
+let questionTimerStarted = {};  // ← ADD THIS NEW LINE
+// ===== NAVIGATION TRACKING VARIABLES =====
+let navigationHistory = [];
+let navigationWarnings = 0;
+const MAX_NAV_WARNINGS = Infinity; // ← UNLIMITED warnings
+const RAPID_NAV_THRESHOLD = 6; // ← CHANGED: 6 clicks
+const RAPID_NAV_TIME = 10000; // ← CHANGED: 10 seconds
+let lastNavWarningTime = 0;
+let isNavWarningShowing = false;
 
 let autoClickInterval = null;
 let keepAwakeSystem = null;
@@ -1841,8 +2528,16 @@ let systemTrayDetector = null;
 const subjects = EXAM_SETUP.subjects.map(s => s.name);
 let examData = {files: [], subjectNames: [], keys: [], originalOrder: [], questionTypes: []};
 let progress = null, timerInterval = null;
-
-
+let examEndTime = null; 
+// ===== REVIEW TRACKING =====
+let reviewCount = 0;
+const MAX_REVIEWS = 10;
+let lastReviewTime = 0;
+const REVIEW_COOLDOWN = 30000;
+let reviewHistory = [];
+const REVIEW_WINDOW = 60000;
+let reviewedQuestions = new Set();
+let reviewTargetQuestion = -1;  // ← ADD THIS NEW LINE
 function startAutoClick() {
     if (autoClickInterval) {
         clearInterval(autoClickInterval);
@@ -2348,49 +3043,73 @@ class SystemTrayViolationDetector {
         }
     }
     
-    handleViolation(violationType) {
-        if (!examInProgress) return;
-        
-        const currentTime = Date.now();
-        
-        if (currentTime - this.lastViolationTime < 1000) {
-            console.log(`Ignoring rapid system tray violation: ${violationType}`);
-            return;
-        }
-        
-        this.lastViolationTime = currentTime;
-        this.violationCount++;
-        
-        console.log(`🚨 System Tray Violation #${this.violationCount}: ${violationType}`);
-        
-        this.showWarning(this.violationCount, violationType);
-        
-        if (this.violationCount >= this.maxViolations) {
-            console.log('🚨 3 system tray violations detected - submitting exam!');
-            
-            this.showViolationOverlay(`
-                🚨 EXAM VIOLATION DETECTED
-                <br><br>
-                ${violationType}
-                <br><br>
-                <strong>3 system tray violations reached!</strong>
-                <br>
-                Submitting exam in 3 seconds...
-            `, 'red');
-            
-            setTimeout(() => {
-                if (examInProgress) {
-                    submitExam();
-                }
-            }, 3000);
+  handleViolation(violationType) {
+    if (!examInProgress) return;
+    
+    const currentTime = Date.now();
+    
+    if (currentTime - this.lastViolationTime < 1000) {
+        console.log(`Ignoring rapid system tray violation: ${violationType}`);
+        return;
+    }
+    
+    this.lastViolationTime = currentTime;
+    this.violationCount++;
+    
+    // ===== UPDATE SYSTEM TRAY VIOLATION COUNTER =====
+    const counter = document.getElementById('violationCounter');
+    if (counter) {
+        counter.style.display = 'inline-block';
+        counter.textContent = `⚠️ System Violations: ${this.violationCount}/3`;
+        if (this.violationCount >= 3) {
+            counter.style.color = 'red';
+            counter.style.animation = 'blinkTimer 0.5s infinite';
+        } else {
+            counter.style.color = 'orange';
+            counter.style.animation = 'none';
         }
     }
+    
+    console.log(`🚨 System Tray Violation #${this.violationCount}: ${violationType}`);
+    
+    this.showWarning(this.violationCount, violationType);
+    
+    if (this.violationCount >= this.maxViolations) {
+        console.log('🚨 3 system tray violations detected!');
+        localStorage.setItem('hasViolations', 'true');
+        
+        showViolationSubmitScreen(`
+            <div style="font-size: 48px; margin-bottom: 20px;">🚨</div>
+            <div style="font-size: 28px; font-weight: bold; margin-bottom: 20px;">EXAM VIOLATION DETECTED</div>
+            <div style="font-size: 18px; margin-bottom: 10px;">${violationType}</div>
+            <div style="font-size: 16px; margin-bottom: 30px; color: #ffcccc;">
+                <strong>3 system tray violations reached!</strong><br>
+                All answers will be cleared (0 marks).
+            </div>
+            <button id="violationSubmitBtn" style="
+                padding: 20px 60px;
+                font-size: 28px;
+                font-weight: bold;
+                background: #32CD32;
+                color: white;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 0 30px rgba(50, 205, 50, 0.5);
+                animation: pulse 1s infinite;
+            ">✅ CLICK TO SUBMIT</button>
+            <div style="margin-top: 20px; font-size: 14px; color: #ffcccc;">
+                
+            </div>
+        `);
+    }
+}
     
     showWarning(count, violationType) {
         const messages = [
             `⚠️ System Access: ${violationType} (1/${this.maxViolations})`,
-            `⚠️ System Access: ${violationType} (2/${this.maxViolations}) - One more violation will submit exam!`,
-            `🚨 3 system tray violations detected! ${violationType} - Submitting exam...`
+            `⚠️ System Access: ${violationType} (2/${this.maxViolations}) - One more violation will auto-submit!`,
+            `🚨 3 system tray violations detected! ${violationType} - Auto-submitting exam...`
         ];
         
         const messageIndex = Math.min(count - 1, 2);
@@ -2405,6 +3124,7 @@ class SystemTrayViolationDetector {
                 <strong>Count: ${count}/${this.maxViolations}</strong>
                 <br>
                 Accessing system tray, taskbar, or Windows shortcuts is prohibited!
+                ${count >= 3 ? 'Auto-submitting exam...' : ''}
             `, 'orange');
         }
     }
@@ -2456,7 +3176,307 @@ class SystemTrayViolationDetector {
         console.log('🔄 System tray violations reset');
     }
 }
+  // ============================================================
+// VIOLATION SUBMIT SCREEN - RED FULL SCREEN WITH BUTTON
+// ============================================================
 
+function showViolationSubmitScreen(message) {
+    // Remove any existing overlay
+    const existing = document.getElementById('violationSubmitOverlay');
+    if (existing) existing.remove();
+    
+    // Create full screen red overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'violationSubmitOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 0, 0, 0.95);
+        z-index: 999999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="max-width: 600px; width: 100%;">
+            ${message}
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Add click handler for the submit button - IMMEDIATELY (NO DELAY)
+    const submitBtn = document.getElementById('violationSubmitBtn');
+    if (submitBtn) {
+        submitBtn.onclick = function() {
+            // Clear answers immediately
+            for (let i = 0; i < progress.answers.length; i++) {
+                progress.answers[i] = null;
+            }
+            // Remove overlay
+            overlay.remove();
+            // Submit exam IMMEDIATELY
+            submitExam();
+        };
+    }
+}
+
+ // ============================================================
+// GREEN SUBMIT SCREEN - NO HISTORY ENTRY
+// ============================================================
+
+function showGreenSubmitScreen(fullUrl, answersData) {
+     saveSubmissionLocally(answersData);  // ← ADD THIS LINE HERE
+    // Remove any existing overlay
+    const existing = document.getElementById('greenSubmitOverlay');
+    if (existing) existing.remove();
+    
+    // ✅ REMOVE THE PURPLE TRANSITION OVERLAY
+    const purpleOverlay = document.getElementById('transitionOverlay');
+    if (purpleOverlay && purpleOverlay.parentNode) {
+        purpleOverlay.parentNode.removeChild(purpleOverlay);
+    }
+    
+    // Create full screen overlay - IMMEDIATELY FULL GREEN WITH SUBMIT BUTTON
+    const overlay = document.createElement('div');
+    overlay.id = 'greenSubmitOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 128, 0, 0.95);
+        z-index: 999999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="max-width: 600px; width: 100%; animation: fadeIn 0.3s ease;">
+            <div style="font-size: 60px; margin-bottom: 20px;"></div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px;"></div>
+            <div style="font-size: 18px; margin-bottom: 10px; color: #d4edda;">
+                Your exam is ready to submit.
+            </div>
+            <div style="font-size: 16px; margin-bottom: 10px; color: #b7e4c7;">
+                <strong>Student:</strong> ${answersData.student.name}<br>
+                <strong>Roll:</strong> ${answersData.student.roll}
+            </div>
+            <div id="submissionStatus" style="font-size: 16px; color: #ffd700; margin: 15px 0; min-height: 30px;">
+                
+            </div>
+            <button id="greenSubmitBtn" style="
+                padding: 20px 60px;
+                font-size: 28px;
+                font-weight: bold;
+                background: #ffffff;
+                color: #006400;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
+                animation: pulse 1.5s infinite;
+            ">📤 SUBMIT</button>
+            <div style="margin-top: 20px; font-size: 14px; color: #b7e4c7;">
+                ⚠️ Do not close this page until submission is complete.
+            </div>
+        </div>
+    `;
+    
+    // Add animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(overlay);
+    
+    // Add click handler for the submit button immediately (NO DELAY)
+    const submitBtn = document.getElementById('greenSubmitBtn');
+    if (submitBtn) {
+        submitBtn.onclick = function() {
+            // Disable button immediately
+            this.disabled = true;
+            this.textContent = '⏳ SUBMITTING...';
+            this.style.background = '#cccccc';
+            this.style.color = '#666666';
+            this.style.animation = 'none';
+            
+            // Update status
+            const status = document.getElementById('submissionStatus');
+            if (status) {
+                status.innerHTML = '⏳ Submitting your answers... Please wait.';
+                status.style.color = '#ffd700';
+            }
+            
+            console.log('✅ Student clicked SUBMIT on green screen');
+            
+            // Use hidden iframe
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'display:none; width:0; height:0; border:none;';
+            iframe.src = fullUrl;
+            document.body.appendChild(iframe);
+            
+            // Update status
+            if (status) {
+                status.innerHTML = '✅ Submission sent! Processing...';
+                status.style.color = '#90EE90';
+            }
+            
+            // Remove iframe after 3 seconds
+            setTimeout(() => {
+                if (iframe.parentNode) {
+                    iframe.parentNode.removeChild(iframe);
+                }
+                console.log('📤 Form submitted via iframe - No history entry');
+                
+                // Update status
+                if (status) {
+                    status.innerHTML = '✅ Submission successful! Loading results...';
+                    status.style.color = '#32CD32';
+                }
+                
+                // Wait 1 second then show results
+                setTimeout(() => {
+                    // Remove overlay
+                    overlay.remove();
+                    
+                    // Show results
+                    showSummaryInterface(currentSubjData);
+                    
+                    // Save locally as backup
+                    saveSubmissionLocally(answersData);
+                    localStorage.removeItem('hasViolations');
+                    clearSavedExam();
+                    
+                    // Show success toast
+                    showToast('✅ Exam submitted successfully!', 'success', 3000);
+                }, 1000);
+                
+            }, 3000);
+        };
+    }
+    
+    // Prevent closing the page during submission
+    function preventClose(e) {
+        if (document.getElementById('greenSubmitOverlay')) {
+            e.preventDefault();
+            e.returnValue = 'Your exam is being submitted. Please wait.';
+            return e.returnValue;
+        }
+    }
+    
+    window.addEventListener('beforeunload', preventClose);
+    
+    // Remove the listener when overlay is removed
+    const observer = new MutationObserver(function() {
+        if (!document.getElementById('greenSubmitOverlay')) {
+            window.removeEventListener('beforeunload', preventClose);
+            observer.disconnect();
+        }
+    });
+    observer.observe(document.body, { childList: true });
+}
+// ===== SUBMIT WITH GREEN SCREEN (NO UNLINK! STUDENT CLICKS SUBMIT) =====
+function submitWithWindowOpen(answersData) {
+    return new Promise((resolve) => {
+        const FORM_URL = GOOGLE_FORMS[assignedForm];
+        const marks = calculateSubjectMarks(answersData.summary);
+        
+        try {
+            // Build the URL with parameters
+            const params = new URLSearchParams();
+            
+            // Student Information
+            params.append(FORM_FIELDS.STUDENT_NAME, answersData.student.name);
+            params.append(FORM_FIELDS.SECTION, answersData.student.sec);
+            params.append(FORM_FIELDS.ROLL_NUMBER, answersData.student.roll);
+            params.append(FORM_FIELDS.ADMISSION_NUMBER, answersData.student.adm);
+            
+            const subjectCodes = (EXAM_SETUP.activeForForms || []).map(s => {
+                if (s === "MATHS_A") return "MA";
+                if (s === "MATHS_B") return "MB";
+                if (s === "MATHS") return "M";
+                if (s === "PHYSICS") return "P";
+                if (s === "CHEMISTRY") return "C";
+                if (s === "BOTANY") return "B";
+                if (s === "ZOOLOGY") return "Z";
+                if (s === "BZ") return "BZ";
+                return s.substring(0,1);
+            }).join(', ');
+            
+            const today = new Date();
+            const dateStr = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear().toString().slice(-2)}`;
+            params.set(FORM_FIELDS.SECTION, answersData.student.sec + " " + dateStr + " " + subjectCodes);
+            
+            // Subject Marks
+            const activeSubjects = EXAM_SETUP.activeForForms || [];
+            for (let subject of activeSubjects) {
+                if (marks[subject] !== undefined) {
+                    const markValue = marks[subject].toFixed(2);
+                    switch(subject) {
+                        case "PHYSICS": params.append(FORM_FIELDS.PHYSICS, markValue); break;
+                        case "CHEMISTRY": params.append(FORM_FIELDS.CHEMISTRY, markValue); break;
+                        case "MATHS": params.append(FORM_FIELDS.MATHS, markValue); break;
+                        case "MATHS_A": params.append(FORM_FIELDS.MATHS_A, markValue); break;
+                        case "MATHS_B": params.append(FORM_FIELDS.MATHS_B, markValue); break;
+                        case "BOTANY": params.append(FORM_FIELDS.BOTANY, markValue); break;
+                        case "ZOOLOGY": params.append(FORM_FIELDS.ZOOLOGY, markValue); break;
+                        case "BZ": params.append(FORM_FIELDS.BZ, markValue); break;
+                    }
+                }
+            }
+            
+            params.append(FORM_FIELDS.TOTAL_MARKS, marks.total.toFixed(2));
+            params.append(FORM_FIELDS.ALL_ANSWERS, formatAllAnswersString(progress.answers));
+            
+            const fullUrl = FORM_URL + '?' + params.toString();
+            
+            // ✅ Show GREEN SUBMIT SCREEN (instead of Google Form)
+            showGreenSubmitScreen(fullUrl, answersData);
+            
+            // Save locally as backup
+            saveSubmissionLocally(answersData);
+            localStorage.removeItem('hasViolations');
+            clearSavedExam();
+            
+            resolve(true);
+            
+        } catch (error) {
+            console.error('Submission error:', error);
+            resolve(false);
+        }
+    });
+}
 
 async function loadAnswerKey() {
     try {
@@ -2470,7 +3490,6 @@ async function loadAnswerKey() {
         
         const text = await response.text();
         answerKey = parseAnswerKeyFile(text);
-        
       
         if (answerKey.length !== TOTAL_QUESTIONS) {
             console.error(`❌ Expected ${TOTAL_QUESTIONS} answers, but got ${answerKey.length}`);
@@ -2480,11 +3499,9 @@ async function loadAnswerKey() {
             console.log(`✅ Perfect! ${TOTAL_QUESTIONS} answers loaded`);
         }
         
-        
         for (let i = 0; i < TOTAL_QUESTIONS; i++) {
             const qNum = i + 1;
             const answer = answerKey[i];
-            
             
             let isNumerical = false;
             EXAM_SETUP.subjects.forEach(subject => {
@@ -2496,12 +3513,10 @@ async function loadAnswerKey() {
             });
             
             if (isNumerical) {
-                
                 if (answer !== '' && !/^-?\d+(\.\d+)?$/.test(answer)) {
                     throw new Error(`Invalid numerical answer at Q${qNum}: "${answer}"`);
                 }
             } else {
-                
                 if (!['A', 'B', 'C', 'D', ''].includes(answer)) {
                     throw new Error(`Invalid MCQ answer at Q${qNum}: "${answer}"`);
                 }
@@ -2518,6 +3533,7 @@ async function loadAnswerKey() {
             images.push(`questions/${i}.png`);
         }
         
+        // ✅ UNCOMMENT THIS - Call preloadAllImages to start lazy loading
         await preloadAllImages();
         
         showToast('✅ Answer key loaded! Enter access code.', 'success', 3000);
@@ -2551,18 +3567,25 @@ function parseAnswerKeyFile(text) {
     
     for (let line of lines) {
         line = line.trim();
-        if (line) {
-            
-            if (line.length === 5 && /^[A-D]{5}$/.test(line)) {
-                
-                const lineAnswers = line.split('');
-                answers.push(...lineAnswers);
-                console.log(`📝 Line "${line}" → 5 MCQ answers:`, lineAnswers);
-            } else {
-                
-                answers.push(line);
-                console.log(`📝 Single answer: "${line}"`);
+        if (!line) continue;
+        
+        if (/^[A-D]+$/i.test(line)) {
+            for (let i = 0; i < line.length; i++) {
+                answers.push(line[i].toUpperCase());
             }
+            console.log(`📝 Letters "${line}" → ${line.length} answers`);
+        }
+        else if (/^[0-9]+$/.test(line)) {
+            answers.push(line);
+            console.log(`📝 Numerical "${line}" → 1 answer`);
+        }
+        else {
+            for (let i = 0; i < line.length; i++) {
+                if (line[i].match(/[A-D]/i)) {
+                    answers.push(line[i].toUpperCase());
+                }
+            }
+            console.log(`📝 Mixed "${line}" → parsed as letters`);
         }
     }
     
@@ -2571,166 +3594,298 @@ function parseAnswerKeyFile(text) {
 }
 
 
-async function preloadAllImages() {
-    console.log("🖼️ Preloading all question images...");
+// =============================================
+// LAZY LOADING SYSTEM - ADDED ONLY HERE
+// =============================================
+
+const imageCache = new Map();
+const loadingQueue = new Set();
+let totalImagesLoaded = 0;
+
+function getImageWithState(questionNumber) {
+    if (imageCache.has(questionNumber)) {
+        return { state: 'loaded', image: imageCache.get(questionNumber) };
+    }
+    if (loadingQueue.has(questionNumber)) {
+        return { state: 'loading', image: null };
+    }
+    return { state: 'not-loaded', image: null };
+}
+
+function loadImageSafe(questionNumber) {
+    if (loadingQueue.has(questionNumber)) {
+        return Promise.resolve(null);
+    }
+    if (imageCache.has(questionNumber)) {
+        return Promise.resolve(imageCache.get(questionNumber));
+    }
     
-    const imagePromises = [];
+    loadingQueue.add(questionNumber);
     
-    for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
-        const possiblePaths = [
-            `questions/${i}.png`,
-            `questions/Q${i}.png`,
-            `questions/${i}.jpg`,
-            `questions/Q${i}.jpg`,
-            `questions/${i}.jpeg`,
-            `questions/Q${i}.jpeg`,
-            `images/${i}.png`,
-            `images/Q${i}.png`
-        ];
+    return new Promise((resolve) => {
+        const img = new Image();
         
-        for (const path of possiblePaths) {
-            const promise = new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    console.log(`✅ Preloaded: ${path}`);
-                    preloadedImages[path] = img;
-                    resolve(path);
-                };
-                img.onerror = () => {
-                    console.log(`❌ Failed to preload: ${path}`);
-                    resolve(null);
-                };
-                img.src = path;
-            });
-            imagePromises.push(promise);
-        }
-    }
-    
-    await Promise.all(imagePromises);
-    console.log("✅ Image preloading complete");
+        const timeoutId = setTimeout(() => {
+            console.warn(`⚠️ Image ${questionNumber} timeout`);
+            loadingQueue.delete(questionNumber);
+            imageCache.set(questionNumber, null);
+            resolve(null);
+        }, 5000);
+        
+        img.onload = () => {
+            clearTimeout(timeoutId);
+            imageCache.set(questionNumber, img);
+            loadingQueue.delete(questionNumber);
+            totalImagesLoaded++;
+            console.log(`✅ Image ${questionNumber} loaded (${totalImagesLoaded}/${TOTAL_QUESTIONS})`);
+            resolve(img);
+            updateImageDisplay(questionNumber);
+        };
+        
+        img.onerror = () => {
+            clearTimeout(timeoutId);
+            loadingQueue.delete(questionNumber);
+            imageCache.set(questionNumber, null);
+            console.warn(`❌ Image ${questionNumber} not found`);
+            resolve(null);
+            updateImageError(questionNumber);
+        };
+        
+        img.src = getBestImagePath(questionNumber);
+    });
 }
 
-function getBestImagePath(questionNumber) {
-    const possiblePaths = [
-        `questions/${questionNumber}.png`,
-        `questions/Q${questionNumber}.png`,
-        `questions/${questionNumber}.jpg`,
-        `questions/Q${questionNumber}.jpg`,
-        `questions/${questionNumber}.jpeg`,
-        `questions/Q${questionNumber}.jpeg`,
-        `images/${questionNumber}.png`,
-        `images/Q${questionNumber}.png`,
-        `images/${questionNumber}.jpg`,
-        `images/Q${questionNumber}.jpg`
-    ];
+function renderQuestionImage(questionNumber) {
+    const state = getImageWithState(questionNumber);
     
-    for (const path of possiblePaths) {
-        if (preloadedImages[path]) {
-            return path;
-        }
-    }
-    
-    return `questions/${questionNumber}.png`;
-}
-
-function renderImageContainer(imagePath, questionNumber) {
-    const preloadedImg = preloadedImages[imagePath];
-    
-    if (preloadedImg) {
+    if (state.state === 'loaded' && state.image) {
         return `
             <div class="question-image-container">
-                <img src="${imagePath}" 
+                <img src="${getBestImagePath(questionNumber)}" 
                      class="question-image" 
-                     alt="Question ${questionNumber}"
-                     style="max-width: 100%; max-height: 500px; object-fit: contain;">
-            </div>
-        `;
-    } else {
-        return `
-            <div class="question-image-container">
-                <img src="${imagePath}" 
-                     class="question-image" 
-                     alt="Question ${questionNumber}"
-                     onload="console.log('✅ Image loaded successfully: ${imagePath}')"
-                     onerror="handleImageError(this, ${questionNumber})"
-                     style="max-width: 100%; max-height: 500px; object-fit: contain;">
+                     alt="Question"
+                     style="max-width: 100%; max-height: 500px; object-fit: contain; border-radius: 8px;">
             </div>
         `;
     }
-}
-
-function handleImageError(imgElement, questionNumber) {
-    console.error(`❌ Image failed to load: ${imgElement.src}`);
     
-    const container = imgElement.closest('.question-image-container');
-    if (container) {
-        container.innerHTML = `
-            <div class="image-fallback">
-                <h3>⚠️ Question Image Not Available</h3>
-                <p>Question ${questionNumber}</p>
-                <p style="margin-top: 20px; font-size: 14px;">
-                    Please refer to your question paper or contact the exam administrator.
-                </p>
-                <div style="margin-top: 20px;">
-                    <button onclick="retryImageLoad(${questionNumber})" 
-                            style="padding: 8px 16px; background: #4B0082; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Retry Loading
-                    </button>
+    loadImageSafe(questionNumber);
+    
+    const loadingClass = state.state === 'loading' ? 'loading' : '';
+    
+    return `
+        <div class="question-image-container" id="img-container-${questionNumber}">
+            <div class="image-placeholder ${loadingClass}" id="placeholder-${questionNumber}" style="
+                min-height: 300px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                background: #f8f9fa;
+                border: 2px dashed #dee2e6;
+                padding: 20px;
+                ${loadingClass ? 'background: linear-gradient(135deg, #f5f5f5 25%, #e0e0e0 50%, #f5f5f5 75%); background-size: 200% 200%; animation: shimmer 1.5s infinite;' : ''}
+            ">
+                <div style="
+                    width: 40px;
+                    height: 40px;
+                    border: 4px solid #f3f3f3;
+                    border-top: 4px solid #4B0082;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                "></div>
+                <div style="margin-top: 15px; color: #6c757d; font-size: 14px;">
+                    Loading...
                 </div>
+            </div>
+            <img data-question="${questionNumber}"
+                 data-src="${getBestImagePath(questionNumber)}"
+                 class="question-image lazy-image"
+                 alt="Question"
+                 style="display: none; max-width: 100%; max-height: 500px; object-fit: contain; border-radius: 8px;"
+                 onload="this.style.display='block'; document.getElementById('placeholder-${questionNumber}').style.display='none';">
+        </div>
+    `;
+}
+
+function updateImageDisplay(questionNumber) {
+    const container = document.getElementById(`img-container-${questionNumber}`);
+    if (container) {
+        const img = container.querySelector('.lazy-image');
+        const placeholder = document.getElementById(`placeholder-${questionNumber}`);
+        if (img && placeholder) {
+            const cachedImage = imageCache.get(questionNumber);
+            if (cachedImage) {
+                img.style.display = 'block';
+                img.src = img.dataset.src;
+                placeholder.style.display = 'none';
+            }
+        }
+    }
+}
+
+function updateImageError(questionNumber) {
+    const placeholder = document.getElementById(`placeholder-${questionNumber}`);
+    if (placeholder) {
+        placeholder.style.cssText = `
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            color: #856404;
+            text-align: center;
+        `;
+        placeholder.innerHTML = `
+            <div style="font-size: 48px; margin-bottom: 10px;">⚠️</div>
+            <div style="font-weight: bold; margin-bottom: 5px;">Image Not Available</div>
+            <div style="font-size: 14px; color: #856404;">
+                Image could not be loaded
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+                <button onclick="retryImageLoad(${questionNumber})" 
+                        style="padding: 8px 20px; 
+                               background: #4B0082; color: white; border: none; 
+                               border-radius: 4px; cursor: pointer;">
+                    🔄 Retry
+                </button>
+                <button onclick="skipImageError(${questionNumber})" 
+                        style="padding: 8px 20px; 
+                               background: #6c757d; color: white; border: none; 
+                               border-radius: 4px; cursor: pointer;">
+                    ⏭️ Skip
+                </button>
             </div>
         `;
     }
 }
 
 function retryImageLoad(questionNumber) {
-    const idx = progress.currentIndex;
-    const originalIndex = examData.originalOrder[idx] + 1;
+    console.log(`🔄 Retrying image ${questionNumber}`);
+    imageCache.delete(questionNumber);
+    loadingQueue.delete(questionNumber);
+    loadImageSafe(questionNumber);
     
-    const alternativePaths = [
-        `questions/${originalIndex}.png`,
-        `questions/Q${originalIndex}.png`,
-        `questions/${originalIndex}.jpg`,
-        `questions/Q${originalIndex}.jpg`,
-        `images/${originalIndex}.png`,
-        `images/Q${originalIndex}.png`
-    ];
-    
-    let retryCount = 0;
-    const maxRetries = alternativePaths.length;
-    
-    function tryNextPath() {
-        if (retryCount >= maxRetries) {
-            console.error(`❌ All image paths failed for question ${originalIndex}`);
-            return;
-        }
-        
-        const path = alternativePaths[retryCount];
-        console.log(`🔄 Retrying image ${retryCount + 1}/${maxRetries}: ${path}`);
-        
-        const img = new Image();
-        img.onload = function() {
-            console.log(`✅ Retry successful: ${path}`);
-            const container = document.querySelector('.question-image-container');
-            if (container) {
-                container.innerHTML = `
-                    <img src="${path}" 
-                         class="question-image" 
-                         alt="Question ${questionNumber}"
-                         style="max-width: 100%; max-height: 500px; object-fit: contain;">
-                `;
-            }
-        };
-        img.onerror = function() {
-            console.log(`❌ Retry failed: ${path}`);
-            retryCount++;
-            setTimeout(tryNextPath, 500);
-        };
-        img.src = path;
+    const placeholder = document.getElementById(`placeholder-${questionNumber}`);
+    if (placeholder) {
+        placeholder.style.cssText = `
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f5f5f5 25%, #e0e0e0 50%, #f5f5f5 75%);
+            background-size: 200% 200%;
+            animation: shimmer 1.5s infinite;
+            border: 2px dashed #dee2e6;
+            padding: 20px;
+        `;
+        placeholder.innerHTML = `
+            <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #4B0082; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <div style="margin-top: 15px; color: #6c757d; font-size: 14px;">
+                Retrying...
+            </div>
+        `;
     }
-    
-    tryNextPath();
 }
 
+function skipImageError(questionNumber) {
+    const placeholder = document.getElementById(`placeholder-${questionNumber}`);
+    if (placeholder) {
+        placeholder.style.cssText = `
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 20px;
+            color: #6c757d;
+            text-align: center;
+        `;
+        placeholder.innerHTML = `
+            <div style="font-size: 24px; margin-bottom: 10px;">📝</div>
+            <div style="font-size: 14px;">Image not available - you can still answer</div>
+            <div style="font-size: 12px; margin-top: 5px;">Select an option below</div>
+        `;
+    }
+}
+
+function startBackgroundLoading() {
+    console.log("🔄 Background loading started...");
+    
+    const BATCH_SIZE = 5;
+    const DELAY = 200;
+    
+    async function loadBatch(start) {
+        const end = Math.min(start + BATCH_SIZE - 1, TOTAL_QUESTIONS);
+        
+        const toLoad = [];
+        for (let i = start; i <= end; i++) {
+            if (!imageCache.has(i) && !loadingQueue.has(i)) {
+                toLoad.push(i);
+            }
+        }
+        
+        if (toLoad.length > 0) {
+            await Promise.all(toLoad.map(i => loadImageSafe(i)));
+        }
+        
+        if (end < TOTAL_QUESTIONS) {
+            setTimeout(() => loadBatch(end + 1), DELAY);
+        } else {
+            console.log(`✅ All ${TOTAL_QUESTIONS} images loaded!`);
+        }
+    }
+    
+    loadBatch(4);
+}
+
+async function preloadAllImages() {
+    console.log("🖼️ Starting lazy loading...");
+    
+    // Populate images array
+    images = [];
+    for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+        images.push(`questions/${i}.png`);
+    }
+    
+    const initialLoad = Math.min(1, TOTAL_QUESTIONS);
+    for (let i = 1; i <= initialLoad; i++) {
+        await loadImageSafe(i);
+    }
+    
+    setTimeout(() => startBackgroundLoading(), 1000);
+    
+    console.log(`✅ ${initialLoad} images loaded, background loading started`);
+    return true;
+}
+
+// =============================================
+// END LAZY LOADING SYSTEM
+// =============================================
+
+
+function getBestImagePath(questionNumber) {
+    return `questions/${questionNumber}.png`;
+}
+
+function renderImageContainer(imagePath, questionNumber) {
+    return renderQuestionImage(questionNumber);
+}
+
+function handleImageError(imgElement, questionNumber) {
+    console.error(`❌ Image failed to load: ${imgElement.src}`);
+    updateImageError(questionNumber);
+}
 
 
 function initPowerLossProtection() {
@@ -2771,8 +3926,10 @@ function createAutoSaveIndicator() {
 function setupPowerLossEventListeners() {
     window.addEventListener('online', () => {
         updateConnectionStatus(true);
+        sessionStorage.setItem('wasOffline', 'true');
         showToast('✅ Internet connection restored', 'success', 3000);
         syncPendingSubmissions();
+        updateSubmitButtonVisibility();
     });
     
     window.addEventListener('offline', () => {
@@ -2963,6 +4120,8 @@ function showPowerLossRecoveryDialog(progressData, lastSaveTime) {
 function resumeFromPowerLoss(progressData) {
     console.log('🔄 Resuming exam from power loss recovery...');
     
+    sessionStorage.setItem('wasPowerLost', 'true');
+    
     document.getElementById('powerLossRecoveryOverlay').style.display = 'none';
     document.getElementById('accessDenied').style.display = 'none';
     document.getElementById('studentEntry').style.display = 'flex';
@@ -2997,6 +4156,7 @@ function startExamWithRecovery(progressData) {
     console.log('🚀 Starting exam with recovery data...');
     
     progress = progressData.progress;
+    questionTimerStarted = {};  // ← ADD THIS LINE
     examData = progressData.examData;
     examStartTime = progressData.metadata.examStartTime;
     assignedForm = progressData.metadata.assignedForm;
@@ -3013,6 +4173,8 @@ function startExamWithRecovery(progressData) {
     startTimer();
     updateNavButtons();
     
+    updateSubmitButtonVisibility();
+    
     keepAwakeSystem.start();
     
     examSecurity.enable();
@@ -3021,6 +4183,9 @@ function startExamWithRecovery(progressData) {
     showToast('✅ Exam resumed from saved progress', 'success', 4000);
     
     saveExamProgress();
+if (!secretUnlocked && !(progress && progress.timeLeftSec <= 600)) {
+    document.getElementById('submitBtn').style.display = 'none';
+}
 }
 
 function discardPowerLossRecovery() {
@@ -3158,6 +4323,19 @@ function showToast(message, type = 'info', duration = 3000) {
 
 
 function showTabSwitchWarning(count) {
+    const counter = document.getElementById('violationCounter');
+    if (counter) {
+        counter.style.display = 'inline-block';
+        counter.textContent = `⚠️ Tab Violations: ${count}/3`;
+        if (count >= 3) {
+            counter.style.color = 'red';
+            counter.style.animation = 'blinkTimer 0.5s infinite';
+        } else {
+            counter.style.color = 'orange';
+            counter.style.animation = 'none';
+        }
+    }
+    
     const existingWarning = document.querySelector('.tab-switch-warning');
     if (existingWarning) {
         existingWarning.style.animation = 'slideUp 0.5s ease';
@@ -3172,9 +4350,9 @@ function showTabSwitchWarning(count) {
     if (count === 1) {
         message = '⚠️ Warning: Tab switching detected (1/3).';
     } else if (count === 2) {
-        message = '⚠️ Warning: Tab switching detected (2/3). One more switch will submit exam!';
+        message = '⚠️ Warning: Tab switching detected (2/3). One more switch will auto-submit exam!';
     } else if (count >= 3) {
-        message = '🚨 3 tab switches detected! Submitting exam in 3 seconds...';
+        message = '🚨 3 tab switches detected! Auto-submitting exam with 0 marks!';
     }
     
     const warningDiv = document.createElement('div');
@@ -3213,12 +4391,40 @@ function showTabSwitchWarning(count) {
         }, 5000);
     }
     
-    if (count >= 3) {
-        showToast('🚨 3 tab switches detected! Exam will be submitted in 3 seconds.', 'error', 3000);
-    }
+   if (count >= 3) {
+    localStorage.setItem('hasViolations', 'true');
+    showToast('🚨 3 tab switches detected!', 'error', 3000);
+    
+    // ✅ SHOW RED FULL SCREEN WITH SUBMIT BUTTON
+    setTimeout(() => {
+        if (examInProgress) {
+            showViolationSubmitScreen(`
+                <div style="font-size: 48px; margin-bottom: 20px;">🚨</div>
+                <div style="font-size: 28px; font-weight: bold; margin-bottom: 20px;">TAB SWITCH VIOLATION</div>
+                <div style="font-size: 18px; margin-bottom: 10px;">3 tab switches detected</div>
+                <div style="font-size: 16px; margin-bottom: 30px; color: #ffcccc;">
+                    <strong>All answers will be cleared (0 marks).</strong>
+                </div>
+                <button id="violationSubmitBtn" style="
+                    padding: 20px 60px;
+                    font-size: 28px;
+                    font-weight: bold;
+                    background: #32CD32;
+                    color: white;
+                    border: none;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    box-shadow: 0 0 30px rgba(50, 205, 50, 0.5);
+                    animation: pulse 1s infinite;
+                ">✅ CONTINUE</button>
+                <div style="margin-top: 20px; font-size: 14px; color: #ffcccc;">
+                    You must click the CONTINUE button above .
+                </div>
+            `);
+        }
+    }, 1000);
+ }
 }
-
-
 class FullScreenSecurity {
     constructor() {
         this.isFullScreen = false;
@@ -3226,6 +4432,7 @@ class FullScreenSecurity {
         this.retryInterval = null;
         this.maxRetryAttempts = 3;
         this.retryCount = 0;
+        this.warningTimeout = null;  // ADD THIS LINE
         this.createWarningOverlay();
     }
     
@@ -3336,26 +4543,48 @@ class FullScreenSecurity {
         document.addEventListener('keydown', (e) => this.handleKeyDown(e));
     }
     
-    handleFullscreenChange() {
-        const isFs = document.fullscreenElement || 
-                     document.webkitFullscreenElement || 
-                     document.mozFullScreenElement || 
-                     document.msFullscreenElement;
-        
-        this.isFullScreen = !!isFs;
-        
-        if (!isFs && this.securityActive && examInProgress) {
-            this.showWarning();
-        } else if (isFs) {
-            this.hideWarning();
-        }
-    }
+ handleFullscreenChange() {
+    const isFs = document.fullscreenElement || 
+                 document.webkitFullscreenElement || 
+                 document.mozFullScreenElement || 
+                 document.msFullscreenElement;
     
-    showWarning() {
-        if (this.warningOverlay) {
+    // Check if exam is actually active
+    const examActive = examInProgress || 
+                       document.getElementById('examArea').style.display === 'block' ||
+                       document.getElementById('summaryArea').style.display === 'block' ||
+                       document.getElementById('reviewArea').style.display === 'block';
+    
+    this.isFullScreen = !!isFs;
+    
+    if (!isFs && this.securityActive && examActive) {
+        this.showWarning();
+    } else if (isFs) {
+        this.hideWarning();
+    }
+}
+    
+  showWarning() {
+    if (this.warningOverlay) {
+        // Check if actually in full screen
+        const isFs = !!(document.fullscreenElement || 
+                        document.webkitFullscreenElement || 
+                        document.mozFullScreenElement || 
+                        document.msFullscreenElement);
+        
+        // Only show if NOT in full screen AND exam is active
+        const examActive = examInProgress || 
+                           document.getElementById('examArea').style.display === 'block' ||
+                           document.getElementById('summaryArea').style.display === 'block' ||
+                           document.getElementById('reviewArea').style.display === 'block';
+        
+        if (!isFs && examActive) {
             this.warningOverlay.style.display = 'flex';
+        } else {
+            this.warningOverlay.style.display = 'none';
         }
     }
+}
     
     hideWarning() {
         if (this.warningOverlay) {
@@ -3401,6 +4630,51 @@ class FullScreenSecurity {
 }
 
 const examSecurity = new FullScreenSecurity();
+// ===== CONTINUOUS FULL SCREEN MONITOR - STRONGER =====
+setInterval(function() {
+    const examActive = examInProgress || 
+                       document.getElementById('examArea').style.display === 'block' ||
+                       document.getElementById('summaryArea').style.display === 'block' ||
+                       document.getElementById('reviewArea').style.display === 'block' ||
+                       document.getElementById('studentEntry').style.display === 'flex';
+    
+    const accessVisible = document.getElementById('accessDenied').style.display === 'flex';
+    
+    if (examActive || accessVisible) {
+        const isFs = !!(document.fullscreenElement || 
+                        document.webkitFullscreenElement || 
+                        document.mozFullScreenElement || 
+                        document.msFullscreenElement);
+        
+        if (!isFs) {
+            console.log('🔒 Full screen exited - forcing back immediately');
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(function(err) {
+                    console.log('Full screen force failed:', err);
+                });
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        } else {
+            // Full screen is active - hide warning if showing
+            if (examSecurity && examSecurity.hideWarning) {
+                examSecurity.hideWarning();
+            }
+        }
+    }
+}, 500);
+// ===== END CONTINUOUS FULL SCREEN MONITOR =====
+
+
+
+
+
+
 
 
 document.addEventListener('visibilitychange', function() {
@@ -3420,23 +4694,14 @@ document.addEventListener('visibilitychange', function() {
         if (currentTime - lastTabSwitchTime > 2000) {
             systemTrayDetector.handleViolation('Possible system tray/taskbar click');
         }
-        
-        if (tabSwitchCount >= 3) {
-            console.log('🚨 3 tab switches detected - submitting exam');
-            setTimeout(() => {
-                if (examInProgress) {
-                    submitExam();
-                }
-            }, 3000);
-        }
     }
 });
 
 
 function handleNumericalInput(inputElement, questionIndex) {
-    
     progress.answers[questionIndex] = inputElement.value;
     updatePalette();
+    updateProgressBar(); // <--- ADDED THIS LINE
     if (examInProgress) {
         setTimeout(() => saveExamProgress(), 500);
     }
@@ -3483,16 +4748,42 @@ function submitNumericalAnswer(questionIndex) {
     
     const answer = input.value.trim();
     
+    // ===== TIME CHECK =====
+    if (!teacherOverride && progress.answers[questionIndex] === null) {
+        // If already waited, skip timer
+        if (!questionWaited[questionIndex]) {
+            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+            if (timeSpent < MIN_TIME_PER_QUESTION) {
+                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
+                return;
+            }
+            // ✅ Only mark as waited when time is complete
+            questionWaited[questionIndex] = true;
+        }
+    }
     if (answer === '') {
         showToast('Please enter an answer', 'warning', 2000);
         return;
     }
     
-    
     progress.answers[questionIndex] = answer;
     showToast('✓ Answer submitted!', 'success', 2000);
+    
+    secretUnlocked = false;
+    
+    if (reviewTimer) {
+        clearTimeout(reviewTimer);
+        reviewTimer = null;
+    }
+    
     updatePalette();
+    updateProgressBar();
     saveExamProgress();
+    
+    setTimeout(() => {
+        renderQuestion();
+    }, 100);
     
     setTimeout(() => {
         if (questionIndex < examData.files.length - 1) {
@@ -3502,24 +4793,31 @@ function submitNumericalAnswer(questionIndex) {
         }
     }, 1500);
 }
-
 function getFormFields(formId) {
     return FORM_FIELDS;
 }
 
 function getAssignedForm(studentData) {
-    const forms = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+    // Roll Number Distribution to 10 Google Forms
+    // Roll 1,11,21,31... → Form 1
+    // Roll 2,12,22,32... → Form 2
+    // Roll 3,13,23,33... → Form 3
+    // ... and so on up to Form 10
     
-    if (studentData.roll && !isNaN(studentData.roll)) {
-        const rollNumber = parseInt(studentData.roll);
-        const formIndex = (rollNumber - 1) % forms.length;
-        console.log("Assigned Form:", forms[formIndex]);
-        return forms[formIndex];
-    }
+    const roll = parseInt(studentData.roll) || 0;
     
-    return '1';
+    if (roll <= 0) return '1'; // Default fallback
+    
+    // Calculate which form based on roll number
+    // Formula: (roll - 1) % 10 + 1
+    const formNumber = ((roll - 1) % 10) + 1;
+    
+    // Ensure form number is between 1 and 10
+    const finalForm = Math.min(Math.max(formNumber, 1), 10);
+    
+    console.log(`📋 Roll ${roll} → Form ${finalForm}`);
+    return finalForm.toString();
 }
-
 
 function prepareExamData() {
   examData.files = []; 
@@ -3542,7 +4840,6 @@ function prepareExamData() {
         subjectQuestions.push(images[imgIndex]);
         subjectKeys.push(answerKey[imgIndex]);
         subjectOriginalOrder.push(imgIndex);
-        
        
         let questionType = 'mcq';
         if (subject.numerical > 0 && i >= subject.numericalStart) {
@@ -3583,21 +4880,37 @@ function prepareExamData() {
 }
 
 
+
+
 function renderQuestion() {
   const idx = progress.currentIndex;
+  
+  // ✅ Only start timer if:
+  // 1. Question hasn't been waited on yet
+  // 2. Timer hasn't already started for this question
+  if (!questionWaited[idx] && !questionTimerStarted[idx]) {
+    questionStartTime = Date.now();
+    questionTimerStarted[idx] = true;  // Mark timer as started
+  }
   const container = document.getElementById('questionContainer');
+  // ... rest of the function (DO NOT CHANGE ANYTHING BELOW THIS)
   
   const originalIndex = examData.originalOrder[idx] + 1;
   const imagePath = getBestImagePath(originalIndex);
   const questionType = examData.questionTypes[idx];
   
-  console.log(`🖼️ Loading: ${imagePath} (Question ${originalIndex}/${TOTAL_QUESTIONS}) - ${examData.subjectNames[idx]} - ${questionType}`);
+  // ===== FIX: Check if THIS specific question should be unblurred =====
+  const isAnswered = progress.answers[idx] !== null && progress.answers[idx] !== '';
+  const isCurrentlyReviewed = reviewTargetQuestion === idx && secretUnlocked;
+  const shouldBlur = isAnswered && !isCurrentlyReviewed;
+  
+  console.log(`🖼️ Loading: ${imagePath} (Question ${originalIndex}/${TOTAL_QUESTIONS}) - ${examData.subjectNames[idx]} - ${questionType} ${shouldBlur ? '(BLURRED)' : ''}`);
   
   let optionsHTML = '';
   
   if (questionType === 'fill-blank') {
     optionsHTML = `
-      <div class="fill-blank-container">
+      <div class="fill-blank-container" style="${shouldBlur ? 'filter: blur(25px); pointer-events: none; opacity: 0.05;' : ''}">
         <div style="margin: 20px 0; font-weight: bold; color: #4B0082; font-size: 18px;">
           Enter answer:
         </div>
@@ -3607,92 +4920,117 @@ function renderQuestion() {
                  class="fill-blank-input"
                  placeholder="Enter answer"
                  value="${progress.answers[idx] || ''}"
-                 style="
-                   padding: 12px 18px;
-                   font-size: 22px;
-                   border: 2px solid #4B0082;
-                   border-radius: 8px;
-                   width: 200px;
-                   text-align: center;
-                   outline: none;
-                   font-weight: bold;
-                 "
+                 style="padding: 12px 18px; font-size: 22px; border: 2px solid #4B0082; border-radius: 8px; width: 200px; text-align: center; outline: none; font-weight: bold;"
                  oninput="handleNumericalInput(this, ${idx})"
                  onkeypress="handleNumericalKeyPress(event, ${idx})"
-                 tabindex="0">
+                 tabindex="0"
+                 ${shouldBlur ? 'disabled' : ''}>
           <button class="submit-fill-blank-btn" 
                   onclick="submitNumericalAnswer(${idx})"
                   tabindex="0"
-                  style="
-                    padding: 12px 24px;
-                    background: linear-gradient(145deg, #32CD32, #228B22);
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    font-weight: bold;
-                    cursor: pointer;
-                  ">
+                  style="padding: 12px 24px; background: linear-gradient(145deg, #32CD32, #228B22); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;"
+                  ${shouldBlur ? 'disabled' : ''}>
             Submit
           </button>
         </div>
         
-        <!-- Numerical Keypad -->
-        <div class="numerical-keypad">
+        <div class="numerical-keypad" style="${shouldBlur ? 'filter: blur(25px); pointer-events: none; opacity: 0.05;' : ''}">
           <div class="keypad-grid">
             ${[1,2,3,4,5,6,7,8,9].map(num => `
-              <button class="num-key-btn" 
-                      onclick="handleKeypadButton('${num}', ${idx})"
-                      tabindex="0">
-                ${num}
-              </button>
+              <button class="num-key-btn" onclick="handleKeypadButton('${num}', ${idx})" tabindex="0">${num}</button>
             `).join('')}
-            <button class="num-key-btn special-btn" 
-                    onclick="handleKeypadButton('0', ${idx})"
-                    tabindex="0">
-              0
-            </button>
-            <button class="num-key-btn special-btn clear-btn" 
-                    onclick="handleKeypadButton('C', ${idx})"
-                    tabindex="0">
-              C
-            </button>
-            <button class="num-key-btn special-btn submit-num-btn" 
-                    onclick="handleKeypadButton('✓', ${idx})"
-                    tabindex="0">
-              ✓
-            </button>
+            <button class="num-key-btn special-btn" onclick="handleKeypadButton('0', ${idx})" tabindex="0">0</button>
+            <button class="num-key-btn special-btn clear-btn" onclick="handleKeypadButton('C', ${idx})" tabindex="0">C</button>
+            <button class="num-key-btn special-btn submit-num-btn" onclick="handleKeypadButton('✓', ${idx})" tabindex="0">✓</button>
           </div>
         </div>
       </div>
     `;
   } else {
     optionsHTML = `
-      <div class="options-container">
-        <button class="optBtn ${progress.answers[idx] === 'A' ? 'selected' : ''}" data-opt="A" tabindex="0">A</button>
-        <button class="optBtn ${progress.answers[idx] === 'B' ? 'selected' : ''}" data-opt="B" tabindex="0">B</button>
-        <button class="optBtn ${progress.answers[idx] === 'C' ? 'selected' : ''}" data-opt="C" tabindex="0">C</button>
-        <button class="optBtn ${progress.answers[idx] === 'D' ? 'selected' : ''}" data-opt="D" tabindex="0">D</button>
+        <div class="options-container" style="${shouldBlur ? 'filter: blur(35px); pointer-events: none; opacity: 0.01;' : ''}">
+        <button class="optBtn ${progress.answers[idx] === 'A' ? 'selected' : ''}" data-opt="A" tabindex="0" ${shouldBlur ? 'disabled' : ''}>A</button>
+        <button class="optBtn ${progress.answers[idx] === 'B' ? 'selected' : ''}" data-opt="B" tabindex="0" ${shouldBlur ? 'disabled' : ''}>B</button>
+        <button class="optBtn ${progress.answers[idx] === 'C' ? 'selected' : ''}" data-opt="C" tabindex="0" ${shouldBlur ? 'disabled' : ''}>C</button>
+        <button class="optBtn ${progress.answers[idx] === 'D' ? 'selected' : ''}" data-opt="D" tabindex="0" ${shouldBlur ? 'disabled' : ''}>D</button>
       </div>
     `;
   }
   
-  container.innerHTML = `
-    <div class="question-transition question-fade-in">
-      ${renderImageContainer(imagePath, originalIndex)}
+  // Build the container with blur
+  let containerHTML = `
+    <div class="question-transition question-fade-in" style="position: relative;">
+      <div style="${shouldBlur ? 'filter: blur(35px);' : ''}">
+        ${renderQuestionImage(originalIndex)}
+      </div>
       ${optionsHTML}
-    </div>
   `;
+
+  // ===== FIX: Show overlay only for THIS question when it's answered and NOT being reviewed =====
+  if (isAnswered && !isCurrentlyReviewed) {
+    containerHTML += `
+      <div id="blurOverlay-${idx}" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        cursor: default;
+      ">
+        <div style="
+          background: rgba(0, 0, 0, 0.9);
+          padding: 40px 50px;
+          border-radius: 16px;
+          text-align: center;
+          border: 2px solid #FFD700;
+          box-shadow: 0 0 60px rgba(255, 215, 0, 0.15);
+        ">
+          <div style="font-size: 50px; margin-bottom: 10px;">🔒</div>
+          <div style="color: #FFD700; font-weight: bold; font-size: 22px; margin-bottom: 5px;">Answered</div>
+          <div style="color: #888; font-size: 14px; margin-bottom: 15px;"></div>
+          <button onclick="reviewQuestionQuick(${idx})" style="
+            padding: 12px 30px;
+            background: linear-gradient(145deg, #1E90FF, #0066CC);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(30, 144, 255, 0.4);
+            transition: all 0.3s ease;
+          " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 50px rgba(30, 144, 255, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 30px rgba(30, 144, 255, 0.4)';">
+            ✏️ MODIFY ANSWER
+          </button>
+          <div style="color: #FFFFFF; font-weight: bold; font-size: 18px; margin-top: 15px;">
+            Reviews remaining: <span id="reviewRemaining">${MAX_REVIEWS - reviewCount}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  containerHTML += `</div>`;
+
+  container.innerHTML = containerHTML;
   
   updateQuestionInfo();
   
-  if (questionType !== 'fill-blank') {
+  if (questionType !== 'fill-blank' && !shouldBlur) {
     document.querySelectorAll('.optBtn').forEach(btn => {
-      btn.onclick = function() { 
-        selectOption(this.getAttribute('data-opt')); 
-      };
+      if (!btn.disabled) {
+        btn.onclick = function() { 
+          selectOption(this.getAttribute('data-opt')); 
+        };
+      }
     });
-  } else {
+  } else if (questionType === 'fill-blank' && !shouldBlur) {
     setTimeout(() => {
       const input = document.getElementById('fillBlankInput');
       if (input) input.focus();
@@ -3700,10 +5038,200 @@ function renderQuestion() {
   }
   
   updatePalette();
+  updateProgressBar();
+  
+  const next1 = originalIndex + 1;
+  const next2 = originalIndex + 2;
+  if (next1 <= TOTAL_QUESTIONS && !imageCache.has(next1)) {
+    loadImageSafe(next1);
+  }
+  if (next2 <= TOTAL_QUESTIONS && !imageCache.has(next2)) {
+    loadImageSafe(next2);
+  }
 }
+// ===== REVIEW QUESTION FOR 5 SECONDS =====
+let reviewTimer = null;
 
+function reviewQuestionQuick(questionIndex) {
+    const now = Date.now();
+    
+    // ===== CHECK IF ALREADY REVIEWED THIS QUESTION =====
+    const isAlreadyReviewed = reviewedQuestions.has(questionIndex);
+    
+    // ===== CHECK MAX REVIEWS (only count unique questions) =====
+    if (!isAlreadyReviewed && reviewCount >= MAX_REVIEWS) {
+        // ===== SHOW CENTER SCREEN WARNING =====
+        showCenterScreenMessage('⚠️ MAXIMUM 10 REVIEWS REACHED!', 'red');
+        return;
+    }
+    
+    // ===== RECORD REVIEW (only if not already reviewed) =====
+    if (!isAlreadyReviewed) {
+        reviewCount++;
+        reviewedQuestions.add(questionIndex);
+        
+        // Update review counter
+        const reviewCounter = document.getElementById('reviewCounter');
+        if (reviewCounter) {
+            reviewCounter.textContent = `✏️ Modify Answers: ${reviewCount}/${MAX_REVIEWS}`;
+            if (reviewCount >= MAX_REVIEWS) {
+                reviewCounter.style.color = 'red';
+            } else if (reviewCount >= MAX_REVIEWS - 2) {
+                reviewCounter.style.color = 'orange';
+            } else {
+                reviewCounter.style.color = '#1E90FF';
+            }
+        }
+        
+        const remaining = MAX_REVIEWS - reviewCount;
+        showToast(`👁️ Question visible for 5 seconds (${remaining} reviews remaining)`, 'info', 3000);
+    } else {
+        showToast(`👁️ Question visible for 5 seconds (already reviewed)`, 'info', 3000);
+    }
+    
+    // ===== UPDATE HISTORY =====
+    lastReviewTime = now;
+    reviewHistory.push({
+        time: now,
+        question: questionIndex,
+        isNew: !isAlreadyReviewed
+    });
+    
+    if (reviewHistory.length > 20) {
+        reviewHistory.shift();
+    }
+    
+    // ===== CLEAR ANY EXISTING TIMER =====
+    if (reviewTimer) {
+        clearTimeout(reviewTimer);
+        reviewTimer = null;
+    }
+    
+    // ===== SET THE TARGET QUESTION =====
+    reviewTargetQuestion = questionIndex;
+    
+    // ===== UNBLUR ONLY THIS QUESTION =====
+    secretUnlocked = true;
+    renderQuestion();
+    
+    // ===== AUTO RE-LOCK AFTER 5 SECONDS =====
+    reviewTimer = setTimeout(() => {
+        secretUnlocked = false;
+        reviewTargetQuestion = -1;  // Reset target
+        renderQuestion();
+        showToast('🔒 Question re-locked', 'info', 2000);
+        reviewTimer = null;
+    }, 5000);
+// ===== SHOW CENTER SCREEN MESSAGE =====
+function showCenterScreenMessage(message, color = 'red') {
+    // Remove existing
+    const existing = document.getElementById('centerMessageOverlay');
+    if (existing) existing.remove();
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'centerMessageOverlay';
+    overlay.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(0, 0, 0, 0.92) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        z-index: 9999999 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        flex-direction: column !important;
+        padding: 20px !important;
+        animation: fadeInOverlay 0.3s ease !important;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="
+            max-width: 550px;
+            width: 90%;
+            padding: 50px 40px;
+            background: #cc0000;
+            border-radius: 20px;
+            border: 5px solid #ffffff;
+            box-shadow: 0 0 100px rgba(255, 0, 0, 0.6);
+            animation: modalPopIn 0.3s ease;
+            text-align: center;
+        ">
+            <div style="font-size: 80px; margin-bottom: 15px;">🚫</div>
+            <div style="font-size: 34px; font-weight: bold; margin-bottom: 15px; color: #FFD700;">
+                ${message}
+            </div>
+            <div style="font-size: 20px; color: #ffffff; margin-bottom: 10px;">
+                You have used all ${MAX_REVIEWS} reviews.
+            </div>
+            <div style="font-size: 17px; color: #ffdddd; margin-bottom: 30px;">
+                You cannot review any more answered questions.
+            </div>
+            <button id="closeCenterMessageBtn" style="
+                padding: 15px 60px;
+                font-size: 22px;
+                font-weight: bold;
+                background: #32CD32;
+                color: white;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 0 40px rgba(50, 205, 50, 0.5);
+                transition: all 0.3s ease;
+            "
+            onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 60px rgba(50,205,50,0.8)'"
+            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 40px rgba(50,205,50,0.5)'">
+                OK
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    overlay.style.display = 'flex';
+    
+    // Close button
+    const closeBtn = document.getElementById('closeCenterMessageBtn');
+    if (closeBtn) {
+        closeBtn.onclick = function(e) {
+            e.stopPropagation();
+            if (overlay.parentNode) overlay.remove();
+        };
+    }
+    
+    // Click outside to close
+    overlay.onclick = function(e) {
+        if (e.target === overlay) overlay.remove();
+    };
+    
+    // Auto close after 10 seconds
+    setTimeout(() => {
+        if (document.getElementById('centerMessageOverlay')) {
+            document.getElementById('centerMessageOverlay').remove();
+        }
+    }, 10000);
+}}
+  
 function selectOption(opt) {
     const idx = progress.currentIndex;
+    
+    // ===== TIME CHECK =====
+    if (!teacherOverride && progress.answers[idx] === null) {
+        // If already waited, skip timer
+        if (!questionWaited[idx]) {
+            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+            if (timeSpent < MIN_TIME_PER_QUESTION) {
+                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                showToast(`⏳ Please wait ${remaining} more seconds!`, 'warning', 3000);
+                return;
+            }
+            // ✅ Only mark as waited when time is complete
+            questionWaited[idx] = true;
+        }
+    }
     
     if (progress.answers[idx] === opt) {
         progress.answers[idx] = null;
@@ -3711,16 +5239,24 @@ function selectOption(opt) {
     } else {
         progress.answers[idx] = opt;
         console.log(`Selected option ${opt} for question ${idx + 1}`);
+        secretUnlocked = false;
+        reviewTargetQuestion = -1;
+        if (reviewTimer) {
+            clearTimeout(reviewTimer);
+            reviewTimer = null;
+        }
+        setTimeout(() => {
+            renderQuestion();
+        }, 100);
     }
     
     updateOptionButtons();
     updatePalette();
-    
+    updateProgressBar();
     if (examInProgress) {
         setTimeout(() => saveExamProgress(), 500);
     }
 }
-
 function updateOptionButtons() {
     const idx = progress.currentIndex;
     const currentAnswer = progress.answers[idx];
@@ -3738,15 +5274,36 @@ function validateStudentInputs() {
         r = document.getElementById('stuRoll'), 
         a = document.getElementById('stuAdm');
   
-  if (s.value) s.value = s.value.toUpperCase();
+  // CONVERT NAME TO UPPERCASE
+  if (n.value) {
+    n.value = n.value.toUpperCase();
+    // Only allow letters, spaces, and dots
+    n.value = n.value.replace(/[^A-Z .]/g, '');
+  }
   
-  let v1 = /^[A-Za-z .]+$/.test(n.value), 
-      v2 = /^[A-Za-z0-9]+$/.test(s.value),
-      v3 = /^[0-9]+$/.test(r.value), 
-      v4 = /^[0-9]+$/.test(a.value);
+  // SECTION - Always "2D", prevent editing
+  if (s.value !== '2D') {
+    s.value = '2D';
+  }
+  
+  // ROLL NUMBER VALIDATION: Remove leading zeros and only allow numbers
+  if (r.value) {
+    r.value = r.value.replace(/^0+/, '');
+    r.value = r.value.replace(/[^0-9]/g, '');
+  }
+  
+  // ADMISSION NUMBER: Only allow digits
+  if (a.value) {
+    a.value = a.value.replace(/[^0-9]/g, '');
+  }
+  
+  let v1 = /^[A-Z .]+$/.test(n.value) && n.value !== '', 
+      v2 = s.value === '2D',
+      v3 = /^[0-9]+$/.test(r.value) && r.value !== '', 
+      v4 = /^[0-9]+$/.test(a.value) && a.value !== '';
   
   n.classList.toggle('error', !v1 && n.value !== ""); 
-  s.classList.toggle('error', !v2 && s.value !== "");
+  s.classList.toggle('error', !v2);
   r.classList.toggle('error', !v3 && r.value !== ""); 
   a.classList.toggle('error', !v4 && a.value !== "");
   
@@ -3756,6 +5313,10 @@ function validateStudentInputs() {
   if (v1 && v2 && v3 && v4) {
     const studentData = { name: n.value, sec: s.value, roll: r.value, adm: a.value };
     assignedForm = getAssignedForm(studentData);
+    
+    // Log to console only (student won't see this)
+    console.log(`📋 Student ${n.value} (Roll: ${r.value}) → Form ${assignedForm}`);
+    
     document.getElementById('resubmissionSection').style.display = 'none';
     document.getElementById('stuStartBtn').style.display = allValid ? "inline-block" : "none";
   } else {
@@ -3767,7 +5328,6 @@ function validateStudentInputs() {
   
   return allValid;
 }
-
 function showError(message) {
     const errorDiv = document.getElementById('errorMessages');
     errorDiv.innerHTML = `<div class="error-message">${message}</div>`;
@@ -3815,6 +5375,16 @@ function verifyAccessCode() {
     errorElement.style.display = 'none';
     
     if (enteredCode === ACCESS_CODE) {
+        // Try full screen on verify
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(function(err) {});
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+        }
+        
         accessDenied.style.display = 'none';
         document.getElementById('studentEntry').style.display = 'flex';
         document.getElementById('accessCode').value = '';
@@ -3827,29 +5397,64 @@ function verifyAccessCode() {
         setTimeout(() => accessDenied.style.animation = '', 500);
     }
 }
+// Full Screen Button Handler
+document.addEventListener('DOMContentLoaded', function() {
+    const fsBtn = document.getElementById('enterFullScreenBtn');
+    if (fsBtn) {
+        fsBtn.addEventListener('click', function() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().then(function() {
+                    fsBtn.textContent = '✅ ';
+                    fsBtn.style.background = '#32CD32';
+                }).catch(function() {
+                    alert('Please click "Allow" to enable full screen mode.');
+                });
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        });
+    }
+});  
+
+
 
 
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
 
-document.addEventListener('keydown', function(e) {
-    if (e.keyCode === 123 || 
-        (e.ctrlKey && e.shiftKey && e.keyCode === 73) ||
-        (e.ctrlKey && e.shiftKey && e.keyCode === 74) ||
-        (e.ctrlKey && e.keyCode === 85) ||
-        (e.ctrlKey && e.keyCode === 83) ||
-        (e.ctrlKey && e.keyCode === 80) ||
-        e.keyCode === 44 ||
-        (e.ctrlKey && e.key === 'p') ||
-        (e.metaKey && e.key === 'p')) {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-});
 
 
 ["stuName", "stuSection", "stuRoll", "stuAdm"].forEach(id => {
   document.getElementById(id).addEventListener("input", validateStudentInputs);
 });
 
+// Additional handler for Name - force uppercase and only letters/spaces
+document.getElementById('stuName').addEventListener('input', function() {
+  this.value = this.value.toUpperCase();
+  this.value = this.value.replace(/[^A-Z .]/g, '');
+});
+
+// Additional handler for Section - lock to "2D"
+document.getElementById('stuSection').addEventListener('input', function() {
+  this.value = '2D';
+});
+
+// Additional handler for Roll Number - prevent leading zeros
+document.getElementById('stuRoll').addEventListener('input', function() {
+  if (this.value.length > 1 && this.value.startsWith('0')) {
+    this.value = this.value.replace(/^0+/, '');
+  }
+  this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+// Additional handler for Admission Number - only digits
+document.getElementById('stuAdm').addEventListener('input', function() {
+  this.value = this.value.replace(/[^0-9]/g, '');
+});
 document.getElementById('stuStartBtn').onclick = () => { 
   if (!validateStudentInputs()) return; 
   showConfirm("Start Exam?", startWithSecurity); 
@@ -3890,6 +5495,9 @@ function generateStudentId(studentData) {
 function startWithSecurity(ok) {
   if (!ok) return;
   
+  // Force full screen
+  goFullScreen();
+  
   tabSwitchCount = 0;
   lastTabSwitchTime = 0;
   systemTrayDetector.reset();
@@ -3902,17 +5510,65 @@ function startWithSecurity(ok) {
   const studentKey = `${stuName.value}|${stuSection.value}|${stuRoll.value}|${stuAdm.value}`;
   
   examSecurity.enable().then(() => {
-    startExam(studentKey);
+    // Add random delay to stagger student starts (0.5-2 seconds)
+    const delay = Math.random() * 1500 + 500;
+    console.log(`⏳ Student ${stuName.value} starting in ${(delay/1000).toFixed(1)} seconds`);
+    setTimeout(() => {
+      startExam(studentKey);
+    }, delay);
   }).catch(err => {
     console.error('Failed to enable security:', err);
     alert('⚠️ Please allow full-screen mode to start the exam.');
+    // Still try to start
+    goFullScreen();
+    setTimeout(() => {
+      startExam(studentKey);
+    }, 500);
   });
 }
-
 function startExam(studentKey) {
+    isSummaryShowing = false;
+    
+    // ===== RESET NAVIGATION TRACKER =====
+    navigationHistory = [];
+    navigationWarnings = 0;
+    lastNavWarningTime = 0;
+    isNavWarningShowing = false;
+    console.log('🔄 Navigation tracker reset for new exam');
+    
+       // ===== RESET PASSWORD BUFFERS =====
+    secretPasswordBuffer = '';
+    unblurPasswordBuffer = '';
+    submitUnlocked = false;
+    secretUnlocked = false;
+    document.getElementById('submitBtn').style.display = 'none';
+    console.log('🔐 Password buffers reset');
+    
+    // ===== RESET REVIEW TRACKER =====
+    reviewCount = 0;
+    lastReviewTime = 0;
+    reviewHistory = [];
+    reviewedQuestions = new Set();
+    if (reviewTimer) {
+        clearTimeout(reviewTimer);
+        reviewTimer = null;
+    }
+      const reviewCounter = document.getElementById('reviewCounter');
+    if (reviewCounter) {
+        reviewCounter.textContent = `✏️ Modify Answers: 0/${MAX_REVIEWS}`;
+        reviewCounter.style.color = '#1E90FF';
+    }
+    console.log('🔄 Review tracker reset');
     if (!keyLoaded) {
         alert('Answer key not loaded. Contact admin.');
         return;
+    }
+
+    const hasViolations = localStorage.getItem('hasViolations') === 'true';
+    
+    if (hasViolations) {
+        hasSubmitted = false;
+        console.log('🔄 Previous violations detected. Starting fresh exam with submit button visible.');
     }
 
     const stuName = document.getElementById('stuName');
@@ -3940,6 +5596,16 @@ function startExam(studentKey) {
             timeLeftSec: EXAM_DURATION_MINUTES * 60
         };
         examStartTime = Date.now();
+          progress = {
+        answers: Array(examData.files.length).fill(null),
+        review: Array(examData.files.length).fill(false),
+        currentIndex: 0,
+        student: {name: stuName.value, sec: stuSection.value, roll: stuRoll.value, adm: stuAdm.value},
+        timeLeftSec: EXAM_DURATION_MINUTES * 60
+    };
+    examStartTime = Date.now();
+    questionWaited = new Array(examData.files.length).fill(false); // ← ADD THIS ONE LINE
+    questionTimerStarted = {};  // ← ADD THIS LINE - Reset timer tracking
     }
 
     examInProgress = true;
@@ -3952,11 +5618,24 @@ function startExam(studentKey) {
     renderPalette(); 
     startTimer(); 
     updateNavButtons();
+    updateProgressBar();
+    
+    if (hasViolations) {
+        document.getElementById('submitBtn').style.display = 'inline-block';
+        showToast('⚠️ Previous violations detected. ', 'warning', 5000);
+        localStorage.removeItem('hasViolations');
+    } else {
+        updateSubmitButtonVisibility();
+    }
     
     systemTrayDetector.enable();
     
     saveExamProgress();
+    secretUnlocked = false;
+    submitUnlocked = false;
+    document.getElementById('submitBtn').style.display = 'none';
 }
+
 
 
 function updateQuestionInfo() {
@@ -3964,8 +5643,22 @@ function updateQuestionInfo() {
   const stuInfoEl = document.getElementById('stuInfo');
   const stuQInfoEl = document.getElementById('stuQInfo');
   
+  const isAnswered = progress.answers[idx] !== null && progress.answers[idx] !== '';
+  const isLocked = isAnswered && !secretUnlocked;
+  
   if (stuInfoEl) stuInfoEl.textContent = `${progress.student.name} | ${progress.student.sec} | Roll: ${progress.student.roll}`;
-  if (stuQInfoEl) stuQInfoEl.textContent = `Question ${idx+1} of ${TOTAL_QUESTIONS} | ${examData.subjectNames[idx]}`;
+  
+  if (stuQInfoEl) {
+    // ALWAYS show subject name
+    let subjectDisplay = `Question ${idx+1} of ${TOTAL_QUESTIONS} | ${examData.subjectNames[idx]}`;
+    if (isLocked) {
+      subjectDisplay = `🔒 ${subjectDisplay}`;
+      stuQInfoEl.style.color = '#FFD700';
+    } else {
+      stuQInfoEl.style.color = '';
+    }
+    stuQInfoEl.textContent = subjectDisplay;
+  }
 }
 
 
@@ -3978,6 +5671,7 @@ function renderPalette() {
     btn.className = 'palette-btn';
     btn.textContent = i + 1;
     btn.tabindex = "0";
+    btn.setAttribute('data-index', i);
     
     if (examData.questionTypes[i] === 'fill-blank') {
       btn.style.background = '#FFD700';
@@ -3988,16 +5682,84 @@ function renderPalette() {
     if (progress.review[i]) btn.classList.add('reviewed');
     if (i === progress.currentIndex) btn.classList.add('current');
     
-    btn.onclick = () => {
-      progress.currentIndex = i;
-      renderQuestion();
-      updateNavButtons();
-    };
+ btn.onclick = function() {
+  // ===== CHECK IF PAUSED =====
+  const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
+                   document.getElementById('pauseScreenOverlay').style.display !== 'none';
+  
+  if (isPaused) {
+    showToast('⏳ Navigation is paused! Wait or type "fastpass"', 'warning', 2000);
+    return;
+  }
+  
+  const idx = parseInt(this.getAttribute('data-index'));
+  
+  // ===== TIME CHECK =====
+  // Only check if the target question hasn't been answered yet
+  if (!teacherOverride && progress.answers[idx] === null) {
+    // Only check the current question's timer if navigating to a different question
+    if (idx !== progress.currentIndex && !questionWaited[progress.currentIndex]) {
+      const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+      if (timeSpent < MIN_TIME_PER_QUESTION) {
+        const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+        showToast(`⏳ Please wait ${remaining}s on current question before navigating!`, 'warning', 2000);
+        return;
+      }
+      questionWaited[progress.currentIndex] = true;
+    }
+  }
+  // ===== END TIME CHECK =====
+  
+  // Check for rapid navigation on palette click
+  if (checkRapidNavigation('palette')) {
+    showRapidNavWarning(navigationWarnings + 1);
+  }
+  
+  progress.currentIndex = idx;
+  renderQuestion();
+  updateNavButtons();
+  updatePalette();
+};
     
     container.appendChild(btn);
   }
 }
-
+// ===== UPDATE PROGRESS BAR =====
+function updateProgressBar() {
+    const total = examData.files.length || 1;
+    const answered = progress.answers.filter(a => a !== null && a !== '').length;
+    const percent = Math.round((answered / total) * 100);
+    
+    // Update fill
+    const fill = document.getElementById('progressBarFill');
+    if (fill) {
+        fill.style.width = percent + '%';
+        fill.style.background = '#32CD32';
+    }
+    
+    // Update stats
+   const countEl = document.getElementById('answeredCount');
+if (countEl) {
+    countEl.textContent = `✅ ${answered} / ${total} answered`;
+    countEl.style.fontSize = '18px'; 
+    countEl.style.fontWeight = 'bold'; 
+}
+    
+   const percentEl = document.getElementById('progressPercentage');
+if (percentEl) {
+    percentEl.textContent = percent + '% complete';
+    if (percent === 100) {
+        percentEl.style.color = '#000000';
+        percentEl.style.fontWeight = 'bold';
+        percentEl.style.fontSize = '18px'; 
+    } else {
+        percentEl.style.color = '#000000';
+        percentEl.style.fontWeight = 'normal';
+        percentEl.style.fontSize = '18px'; 
+    }
+}
+}
+// ===== END PROGRESS BAR =====  
 function updatePalette() {
   const buttons = document.querySelectorAll('.palette-btn');
   buttons.forEach((btn, i) => {
@@ -4019,6 +5781,10 @@ function updatePalette() {
 
 
 function updateNavButtons() {
+  if (submitUnlocked) {
+      document.getElementById('submitBtn').style.display = 'inline-block';
+  }
+  
   const idx = progress.currentIndex;
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
@@ -4035,29 +5801,293 @@ function updateNavButtons() {
     markReviewBtn.style.background = 'linear-gradient(145deg, #ffb84d, var(--warning))';
   }
 }
-
-document.getElementById('prevBtn').onclick = () => {
-  if (progress.currentIndex > 0) {
-    progress.currentIndex--;
-    renderQuestion();
-    updateNavButtons();
-    
-    if (examInProgress) {
-      setTimeout(() => saveExamProgress(), 500);
+// ===== RAPID NAVIGATION DETECTION FUNCTION =====
+function checkRapidNavigation(direction) {
+    // ===== PERMANENT DISABLE CHECK =====
+    if (window.navigationTrackingEnabled === false) {
+        return false;  // ← NEVER triggers pause
     }
-  }
+    
+    if (!examInProgress) return false;
+    
+    const now = Date.now();
+    const currentIdx = progress.currentIndex;
+    const isAnswered = progress.answers[currentIdx] !== null && progress.answers[currentIdx] !== '';
+    
+    // Record navigation
+    navigationHistory.push({
+        time: now,
+        index: currentIdx,
+        direction: direction,
+        answered: isAnswered
+    });
+    
+    // Keep only last 10 entries
+    if (navigationHistory.length > 10) {
+        navigationHistory.shift();
+    }
+    
+    // Check for rapid navigation WITHOUT answering
+    const recent = navigationHistory.slice(-RAPID_NAV_THRESHOLD);
+    
+    if (recent.length >= RAPID_NAV_THRESHOLD) {
+        const timeSpan = recent[recent.length-1].time - recent[0].time;
+        const allWithoutAnswer = recent.every(e => !e.answered);
+        
+        // If 3+ navigations in 3 seconds without answering
+        if (timeSpan <= RAPID_NAV_TIME && allWithoutAnswer) {
+            return true; // Rapid navigation detected
+        }
+    }
+    
+    return false;
+}
+
+function showRapidNavWarning(count) {
+    // Prevent spam
+    const now = Date.now();
+    if (now - lastNavWarningTime < 5000) return;
+    lastNavWarningTime = now;
+    
+    navigationWarnings++;
+    
+    // ===== UPDATE NAVIGATION VIOLATION COUNTER =====
+    const navCounter = document.getElementById('navViolationCounter');
+    if (navCounter) {
+        navCounter.style.display = 'inline-block';
+        navCounter.textContent = `⏳ Paused: ${navigationWarnings}`;
+        navCounter.style.color = '#FFD700';
+        navCounter.style.animation = 'none';
+    }
+    
+    // Show toast
+    showToast(`⏳ Navigating too fast! Paused for 30 seconds (Warning #${navigationWarnings})`, 'warning', 4000);
+    
+    // Show warning overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'rapidNavWarning';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 165, 0, 0.95);
+        color: white;
+        padding: 20px 30px;
+        border-radius: 10px;
+        z-index: 10001;
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+        border: 3px solid white;
+        box-shadow: 0 0 40px orange;
+        max-width: 80%;
+        min-width: 300px;
+        animation: slideDown 0.5s ease;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="font-size: 30px; margin-bottom: 5px;">⏳</div>
+        <div>NAVIGATION PAUSED!</div>
+        <div style="font-size: 14px; margin-top: 10px; opacity: 0.9;">
+            You are navigating too quickly without answering.
+        </div>
+        <div style="font-size: 14px; margin-top: 5px; opacity: 0.9;">
+            <strong id="pauseTimerDisplay">180</strong> seconds pause...
+        </div>
+        <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
+            Warning #${navigationWarnings}
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+   // ===== PAUSE THE STUDENT (3 minutes) =====
+   const pauseDuration = 180000;
+    
+    // Disable ALL navigation buttons
+    document.getElementById('prevBtn').disabled = true;
+    document.getElementById('nextBtn').disabled = true;
+    document.getElementById('submitBtn').disabled = true;
+    
+    // Disable palette buttons
+    document.querySelectorAll('.palette-btn').forEach(btn => {
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.5';
+    });
+    
+    // Start countdown on the overlay
+    let seconds = pauseDuration / 1000;
+    const timerDisplay = document.getElementById('pauseTimerDisplay');
+    if (timerDisplay) {
+        const interval = setInterval(() => {
+            seconds--;
+            timerDisplay.textContent = seconds;
+            if (seconds <= 0) clearInterval(interval);
+        }, 1000);
+    }
+    
+    // Show full pause screen
+    showPauseScreen(pauseDuration, navigationWarnings);
+    
+    // Re-enable after pause
+    setTimeout(() => {
+        // Re-enable buttons
+        document.getElementById('prevBtn').disabled = false;
+        document.getElementById('nextBtn').disabled = false;
+        document.getElementById('submitBtn').disabled = false;
+        
+        // Re-enable palette
+        document.querySelectorAll('.palette-btn').forEach(btn => {
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+        });
+        
+        // Hide pause screen
+        hidePauseScreen();
+        
+        // Remove warning overlay
+        if (overlay.parentNode) overlay.remove();
+        
+        showToast('✅ Navigation resumed. Please continue.', 'success', 3000);
+    }, pauseDuration);
+}  // ← THIS IS WHERE THE FUNCTION ENDS
+
+// ===== PAUSE SCREEN FUNCTIONS =====
+function showPauseScreen(duration, warningCount) {
+    // Remove existing pause screen
+    const existing = document.getElementById('pauseScreenOverlay');
+    if (existing) existing.remove();
+    
+    const seconds = duration / 1000;
+    
+    // Create pause screen
+    const overlay = document.createElement('div');
+overlay.id = 'pauseScreenOverlay';
+overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+`;
+    overlay.innerHTML = `
+        <div style="max-width: 500px; width: 100%;">
+            <div style="font-size: 60px; margin-bottom: 20px;">⏳</div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px; color: #FFD700;">
+               ⚠️ PAUSED FOR 3 MINUTES
+            </div>
+            <div style="font-size: 18px; margin-bottom: 10px; color: #ccc;">
+                You have been searching for a particular question.
+            </div>
+            <div style="font-size: 16px; margin-bottom: 30px; color: #aaa;">
+                Warning #${warningCount}
+            </div>
+            <div style="font-size: 72px; font-weight: bold; color: #32CD32; margin: 20px 0;">
+                <span id="pauseScreenTimer">${seconds}</span>
+            </div>
+            <div style="font-size: 16px; color: #888;">
+                seconds remaining
+            </div>
+            <div style="margin-top: 30px; font-size: 14px; color: #666;">
+                ⚠️ Do not repeat.
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Start countdown on pause screen
+    let countdown = seconds;
+    const timerEl = document.getElementById('pauseScreenTimer');
+    if (timerEl) {
+        const interval = setInterval(() => {
+            countdown--;
+            timerEl.textContent = countdown;
+            if (countdown <= 0) clearInterval(interval);
+        }, 1000);
+    }
+}
+
+function hidePauseScreen() {
+    const overlay = document.getElementById('pauseScreenOverlay');
+    if (overlay) overlay.remove();
+}
+
+// ===== MODIFIED NAVIGATION HANDLERS =====
+document.getElementById('prevBtn').onclick = function() {
+    if (this.disabled) return;
+    if (progress.currentIndex > 0) {
+        // ===== TIME CHECK FOR NAVIGATION =====
+        const currentIdx = progress.currentIndex;
+        if (!teacherOverride && progress.answers[currentIdx] === null && !questionWaited[currentIdx]) {
+            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+            if (timeSpent < MIN_TIME_PER_QUESTION) {
+                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                showToast(`⏳ Please wait ${remaining}s before navigating!`, 'warning', 2000);
+                return;
+            }
+            questionWaited[currentIdx] = true;
+        }
+        // ===== END TIME CHECK =====
+        
+        // Check for rapid navigation
+        if (checkRapidNavigation('prev')) {
+            showRapidNavWarning(navigationWarnings + 1);
+        }
+        
+        progress.currentIndex--;
+        renderQuestion();
+        updateNavButtons();
+        
+        if (examInProgress) {
+            setTimeout(() => saveExamProgress(), 500);
+        }
+    }
 };
 
-document.getElementById('nextBtn').onclick = () => {
-  if (progress.currentIndex < examData.files.length - 1) {
-    progress.currentIndex++;
-    renderQuestion();
-    updateNavButtons();
-    
-    if (examInProgress) {
-      setTimeout(() => saveExamProgress(), 500);
+document.getElementById('nextBtn').onclick = function() {
+    if (this.disabled) return;
+    if (progress.currentIndex < examData.files.length - 1) {
+        // ===== TIME CHECK FOR NAVIGATION =====
+        const currentIdx = progress.currentIndex;
+        if (!teacherOverride && progress.answers[currentIdx] === null && !questionWaited[currentIdx]) {
+            const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+            if (timeSpent < MIN_TIME_PER_QUESTION) {
+                const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                showToast(`⏳ Please wait ${remaining}s before navigating!`, 'warning', 2000);
+                return;
+            }
+            questionWaited[currentIdx] = true;
+        }
+        // ===== END TIME CHECK =====
+        
+        // Check for rapid navigation
+        if (checkRapidNavigation('next')) {
+            showRapidNavWarning(navigationWarnings + 1);
+        }
+        
+        progress.currentIndex++;
+        renderQuestion();
+        updateNavButtons();
+        
+        if (examInProgress) {
+            setTimeout(() => saveExamProgress(), 500);
+        }
     }
-  }
 };
 
 document.getElementById('markReviewBtn').onclick = () => {
@@ -4072,35 +6102,65 @@ document.getElementById('markReviewBtn').onclick = () => {
 };
 
 
-document.getElementById('submitBtn').onclick = () => {
-  showConfirmWithBothButtons("Submit Exam? You cannot change answers after submission.");
+document.getElementById('submitBtn').onclick = function() {
+  console.log('Submit button clicked - showing confirmation dialog');
+  showConfirmWithBothButtons("⚠️ Are you sure you want to submit? You cannot change answers after submission.");
 };
 
 function showConfirmWithBothButtons(message) {
   const modal = document.getElementById('confirmModal');
   const text = document.getElementById('confirmText');
-  const yesBtn = document.getElementById('confirmYes');
-  const noBtn = document.getElementById('confirmNo');
   
-  text.textContent = message;
-  modal.style.display = 'flex';
+  // Safety check - if modal doesn't exist, use browser confirm
+  if (!modal || !text) {
+    console.error('Modal elements not found!');
+    if (confirm(message)) {
+      submitExam();
+    }
+    return;
+  }
   
+  // Get button references
+  let yesBtn = document.getElementById('confirmYes');
+  let noBtn = document.getElementById('confirmNo');
+  
+  // Remove old event listeners by cloning
   const newYesBtn = yesBtn.cloneNode(true);
   const newNoBtn = noBtn.cloneNode(true);
   yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
   noBtn.parentNode.replaceChild(newNoBtn, noBtn);
   
-  newYesBtn.onclick = () => { 
-    modal.style.display = 'none'; 
-    submitExam(); 
+  // Get fresh references
+  yesBtn = document.getElementById('confirmYes');
+  noBtn = document.getElementById('confirmNo');
+  
+  // Set the message
+  text.textContent = message;
+  
+  // Show the modal
+  modal.style.display = 'flex';
+  
+  // YES button - submit exam
+  yesBtn.onclick = function() {
+    modal.style.display = 'none';
+    console.log('✅ User confirmed - submitting exam');
+    submitExam();
   };
   
-  newNoBtn.onclick = () => { 
-    modal.style.display = 'none'; 
-    console.log('User chose not to submit exam');
+  // NO button - cancel
+  noBtn.onclick = function() {
+    modal.style.display = 'none';
+    console.log('❌ User cancelled submission');
+  };
+  
+  // Click outside to close
+  modal.onclick = function(e) {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+      console.log('❌ User closed modal (clicked outside)');
+    }
   };
 }
-
 function showConfirm(message, callback) {
   const modal = document.getElementById('confirmModal');
   const text = document.getElementById('confirmText');
@@ -4126,28 +6186,127 @@ function showConfirm(message, callback) {
   };
 }
 
+function showExitConfirmModal() {
+    const modal = document.getElementById('confirmModal');
+    const text = document.getElementById('confirmText');
+    
+    // Safety check
+    if (!modal || !text) {
+        // Fallback to browser confirm
+        if (confirm('✅ Your exam has been submitted successfully! Are you sure you want to exit?')) {
+            closeExamTab();
+        }
+        return;
+    }
+    
+    // Get button references
+    let yesBtn = document.getElementById('confirmYes');
+    let noBtn = document.getElementById('confirmNo');
+    
+    // Remove old event listeners by cloning
+    const newYesBtn = yesBtn.cloneNode(true);
+    const newNoBtn = noBtn.cloneNode(true);
+    yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+    noBtn.parentNode.replaceChild(newNoBtn, noBtn);
+    
+    // Get fresh references
+    yesBtn = document.getElementById('confirmYes');
+    noBtn = document.getElementById('confirmNo');
+    
+    // Set the message
+    text.textContent = '✅ Your exam has been submitted successfully! Are you sure you want to exit?';
+    
+    // Show the modal
+    modal.style.display = 'flex';
+    
+    // YES button - close exam
+    yesBtn.onclick = function() {
+        modal.style.display = 'none';
+        console.log('✅ User confirmed - closing exam');
+        closeExamTab();
+    };
+    
+    // NO button - cancel
+    noBtn.onclick = function() {
+        modal.style.display = 'none';
+        console.log('❌ User cancelled exit');
+    };
+    
+    // Click outside to close
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            console.log('❌ User closed modal (clicked outside)');
+        }
+    };
+}  
+function updateSubmitButtonVisibility() {
+    const submitBtn = document.getElementById('submitBtn');
+    if (!submitBtn || !progress) return;
+    
+    // If submit password was entered, show button
+    if (submitUnlocked) {
+        submitBtn.style.display = 'inline-block';
+        return;
+    }
+    
+    const timeLeft = progress.timeLeftSec || 0;
+    const isLessThan10Min = timeLeft <= 600;
+    
+    const wasOffline = sessionStorage.getItem('wasOffline') === 'true';
+    const wasPowerLost = sessionStorage.getItem('wasPowerLost') === 'true';
+    const hasViolations = localStorage.getItem('hasViolations') === 'true';
+    
+    if (isLessThan10Min || wasOffline || wasPowerLost || hasViolations) {
+        submitBtn.style.display = 'inline-block';
+        if (wasOffline) sessionStorage.removeItem('wasOffline');
+        if (wasPowerLost) sessionStorage.removeItem('wasPowerLost');
+    } else {
+        submitBtn.style.display = 'none';
+    }
+}
+
 
 function startTimer() {
-  timerInterval = setInterval(() => {
-    progress.timeLeftSec--;
+    // Store the exact end time
+    const examEndTime = Date.now() + (EXAM_DURATION_MINUTES * 60 * 1000);
+    progress.timeLeftSec = EXAM_DURATION_MINUTES * 60;
     
-    const minutes = Math.floor(progress.timeLeftSec / 60);
-    const seconds = progress.timeLeftSec % 60;
-    const timerEl = document.getElementById('timerEl');
-    
-    timerEl.textContent = `🕒 ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    
-    if (progress.timeLeftSec <= 300) timerEl.classList.add('blink');
-    
-    if (progress.timeLeftSec <= 0) {
-      clearInterval(timerInterval);
-      submitExam();
-    }
-    
-    if (progress.timeLeftSec % 60 === 0 && examInProgress) {
-      saveExamProgress();
-    }
-  }, 1000);
+    timerInterval = setInterval(() => {
+        // Calculate EXACT time left using real clock
+        const timeLeft = examEndTime - Date.now();
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            submitExam();
+            return;
+        }
+        
+        const minutes = Math.floor(timeLeft / 60000);
+        const seconds = Math.floor((timeLeft % 60000) / 1000);
+        const timerEl = document.getElementById('timerEl');
+        
+        timerEl.textContent = `🕒 ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Update progress with accurate value
+        progress.timeLeftSec = Math.floor(timeLeft / 1000);
+        
+        // Show submit button at 20 minutes
+        if (timeLeft <= 1200000) {
+            document.getElementById('submitBtn').style.display = 'inline-block';
+        }
+        
+        // Blink at 5 minutes
+        if (timeLeft <= 300000) {
+            timerEl.classList.add('blink');
+        }
+        
+        // Auto-save every minute
+        if (examInProgress && Math.floor(timeLeft / 1000) % 60 === 0) {
+            saveExamProgress();
+        }
+        
+    }, 200); // Check frequently, but ALWAYS based on real time
 }
 
 
@@ -4275,180 +6434,116 @@ function calculateSubjectMarks(summary) {
 }
 
 
-// =============================================
-// ✅ RELIABLE - Form Submit with Redirect
-// NO fetch(), NO iframe, NO problems!
-// =============================================
+// ===== SUBMISSION QUEUE SYSTEM =====
+let submissionQueue = [];
+let isSubmitting = false;
+let submissionCounter = 0;
+
 async function submitToGoogleForms(answersData) {
     const FORM_URL = GOOGLE_FORMS[assignedForm];
     
     if (!FORM_URL) {
-        console.error(`❌ No Google Form URL found`);
+        console.error(`❌ No Google Form URL found for form ${assignedForm}`);
         saveSubmissionLocally(answersData);
         return false;
     }
 
     try {
-        const marks = calculateSubjectMarks(answersData.summary);
-        const data = {};
+        console.log(`📤 Adding student ${answersData.student.name} to submission queue...`);
         
-        // ===== STUDENT INFO =====
-        data[FORM_FIELDS.STUDENT_NAME] = answersData.student.name;
-        data[FORM_FIELDS.ROLL_NUMBER] = answersData.student.roll;
-        data[FORM_FIELDS.ADMISSION_NUMBER] = answersData.student.adm;
-        data[FORM_FIELDS.TOTAL_MARKS] = marks.total.toFixed(2);
-        data[FORM_FIELDS.ALL_ANSWERS] = formatAllAnswersString(progress.answers);
-        
-        // ===== SUBJECT MARKS =====
-        const subjectCodes = ACTIVE_EXAM_SUBJECTS.map(s => {
-            if (s === "MATHS_A") return "MA";
-            if (s === "MATHS_B") return "MB";
-            if (s === "MATHS") return "M";
-            if (s === "PHYSICS") return "P";
-            if (s === "CHEMISTRY") return "C";
-            if (s === "BOTANY") return "B";
-            if (s === "ZOOLOGY") return "Z";
-            if (s === "BZ") return "BZ";
-            return s.substring(0,1);
-        }).join(', ');
-        
-        const today = new Date();
-        const dateStr = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear().toString().slice(-2)}`;
-        data[FORM_FIELDS.SECTION] = answersData.student.sec + " " + dateStr + " " + subjectCodes;
-        
-        for (let subject of ACTIVE_EXAM_SUBJECTS) {
-            const markValue = marks[subject]?.toFixed(2) || "0.00";
-            switch(subject) {
-                case "PHYSICS": data[FORM_FIELDS.PHYSICS] = markValue; break;
-                case "CHEMISTRY": data[FORM_FIELDS.CHEMISTRY] = markValue; break;
-                case "MATHS": data[FORM_FIELDS.MATHS] = markValue; break;
-                case "MATHS_A": data[FORM_FIELDS.MATHS_A] = markValue; break;
-                case "MATHS_B": data[FORM_FIELDS.MATHS_B] = markValue; break;
-                case "BOTANY": data[FORM_FIELDS.BOTANY] = markValue; break;
-                case "ZOOLOGY": data[FORM_FIELDS.ZOOLOGY] = markValue; break;
-                case "BZ": data[FORM_FIELDS.BZ] = markValue; break;
+        // Add to queue
+        const result = await new Promise((resolve, reject) => {
+            submissionQueue.push({
+                data: answersData,
+                resolve: resolve,
+                reject: reject,
+                timestamp: Date.now()
+            });
+            
+            // Start processing queue if not already running
+            if (!isSubmitting) {
+                processSubmissionQueue();
             }
-        }
-        
-        // ============================================================
-        // ✅ CREATE FORM (REDIRECTS TO GOOGLE FORMS)
-        // ============================================================
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = FORM_URL;
-        form.style.cssText = 'display: none;';
-        
-        // Add all data as hidden inputs
-        Object.keys(data).forEach(key => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = data[key];
-            form.appendChild(input);
         });
         
-        document.body.appendChild(form);
-        
-        // ============================================================
-        // ✅ SHOW POPUP, THEN REDIRECT
-        // ============================================================
-        showRedirectPopup(answersData.student.name);
-        
-        // Redirect after 3 seconds
-        setTimeout(() => {
-            form.submit();
-            console.log('✅ Redirecting to Google Forms');
-        }, 3000);
-        
-        clearSavedExam();
-        return true;
+        return result;
         
     } catch (error) {
-        console.error('❌ Submission error:', error);
+        console.error("❌ Submission error:", error);
         saveSubmissionLocally(answersData);
         showToast('⚠️ Submission saved locally', 'warning', 5000);
         return false;
     }
 }
 
-// =============================================
-// ✅ POPUP FOR REDIRECT
-// =============================================
-function showRedirectPopup(studentName) {
-    const existing = document.getElementById('redirectPopup');
-    if (existing) existing.remove();
+// ===== PROCESS QUEUE WITH STAGGERED DELAYS =====
+async function processSubmissionQueue() {
+    if (isSubmitting) return;
+    if (submissionQueue.length === 0) return;
     
-    const overlay = document.createElement('div');
-    overlay.id = 'redirectPopup';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.92);
-        z-index: 999999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        padding: 20px;
-        animation: fadeIn 0.3s ease;
-    `;
+    isSubmitting = true;
+    let processed = 0;
+    const total = submissionQueue.length;
     
-    overlay.innerHTML = `
-        <div style="
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        ">
-            <div style="font-size: 60px; margin-bottom: 15px;">📤</div>
-            <h2 style="color: #4B0082;">Submitting Exam</h2>
-            <p style="color: #666;"><strong>Student:</strong> ${studentName}</p>
+    while (submissionQueue.length > 0) {
+        const queueItem = submissionQueue.shift();
+        const { data: answersData, resolve, reject } = queueItem;
+        
+        try {
+            processed++;
             
-            <div style="
-                background: #d4edda;
-                border: 2px solid #32CD32;
-                padding: 12px;
-                border-radius: 8px;
-                margin: 15px 0;
-            ">
-                <p style="color: #155724; font-size: 14px; margin: 0;">
-                    ✅ Your answers are being submitted.
-                    <br><small>You will be redirected to confirm.</small>
-                </p>
+            // Show progress every 5 students
+            if (processed % 5 === 0 || processed === total) {
+                showSubmissionProgress(processed, total);
+            }
+            
+            // Calculate delay (5-10 seconds between students)
+            const delay = 5000 + (Math.random() * 5000);
+            
+            console.log(`⏳ Waiting ${(delay/1000).toFixed(1)}s before submitting ${answersData.student.name}`);
+            await sleep(delay);
+            
+            console.log(`📤 Submitting #${++submissionCounter} for ${answersData.student.name}`);
+            
+            // Submit using simple window.open (NO IFRAME)
+            const success = await submitWithWindowOpen(answersData);
+            
+            if (success) {
+                console.log(`✅ Submission #${submissionCounter} successful for ${answersData.student.name}`);
+                resolve(true);
+            } else {
+                saveSubmissionLocally(answersData);
+                reject(new Error('Submission failed'));
+            }
+            
+        } catch (error) {
+            console.error(`❌ Submission #${submissionCounter} failed:`, error);
+            saveSubmissionLocally(answersData);
+            reject(error);
+        }
+    }
+    
+    isSubmitting = false;
+    console.log('✅ All submissions processed!');
+    
+    // Show final completion
+    const statusDiv = document.getElementById('summarySubmissionStatus');
+    if (statusDiv) {
+        statusDiv.innerHTML = `
+            <div class="submission-status submission-success">
+                ✅ <strong>All ${total} submissions processed!</strong>
             </div>
-            
-            <div style="margin: 20px 0;">
-                <div style="
-                    width: 50px;
-                    height: 50px;
-                    border: 4px solid #f3f3f3;
-                    border-top: 4px solid #4B0082;
-                    border-radius: 50%;
-                    margin: 0 auto;
-                    animation: spin 1s linear infinite;
-                "></div>
-            </div>
-            
-            <p style="color: #888;">Redirecting in <span id="countdown">3</span> seconds...</p>
-        </div>
-    `;
-    
-    document.body.appendChild(overlay);
-    
-    // Countdown
-    let count = 3;
-    const countdownEl = document.getElementById('countdown');
-    const timer = setInterval(() => {
-        count--;
-        if (countdownEl) countdownEl.textContent = count;
-        if (count <= 0) clearInterval(timer);
-    }, 1000);
+        `;
+    }
 }
+
+
+// ===== HELPER =====
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+        
+       
 
 function saveSubmissionLocally(answersData) {
     try {
@@ -4484,11 +6579,24 @@ function updateSubmissionStatus(status, message) {
         entryStatus.style.display = 'block';
     }
 }
-
-async function submitToGoogleFormsWithRetry(answersData, maxRetries = 3) {
+function showSubmissionProgress(processed, total) {
+    const percent = Math.round((processed / total) * 100);
+    const statusDiv = document.getElementById('summarySubmissionStatus');
+    if (statusDiv) {
+        statusDiv.innerHTML = `
+            <div class="submission-status submission-pending">
+                <strong>📤 ${processed}/${total}</strong>
+                <div style="width:100%; height:8px; background:#e0e0e0; border-radius:4px; margin:8px 0;">
+                    <div style="width:${percent}%; height:100%; background:#4B0082; border-radius:4px;"></div>
+                </div>
+            </div>
+        `;
+    }
+}
+async function submitToGoogleFormsWithRetry(answersData, maxRetries = 10) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            console.log(`📤 Submission attempt ${attempt}/${maxRetries}`);
+            console.log(`📤 Submission attempt ${attempt}/${maxRetries} for ${answersData.student.name}`);
             
             if (!navigator.onLine) {
                 console.log('📴 Offline - saving locally');
@@ -4503,10 +6611,10 @@ async function submitToGoogleFormsWithRetry(answersData, maxRetries = 3) {
             }
             
             if (attempt < maxRetries) {
-                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
-                console.log(`⏳ Retrying in ${delay/1000} seconds...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            }
+            const backoff = 5000 * Math.pow(2, attempt - 1);
+            console.log(`⏳ Backoff ${backoff/1000}s before retry ${attempt + 1}`);
+            await sleep(backoff);
+        }
             
         } catch (error) {
             console.error(`❌ Submission error (attempt ${attempt}):`, error);
@@ -4521,9 +6629,81 @@ async function submitToGoogleFormsWithRetry(answersData, maxRetries = 3) {
     return { success: false, error: 'Max retries exceeded' };
 }
 
-
 function submitExam() {
-  if (hasSubmitted) return;
+  // ✅ PREVENT MULTIPLE SUBMISSIONS - CHECK FIRST!
+  if (hasSubmitted) {
+    console.log('⚠️ Exam already submitted - ignoring duplicate call');
+    return;
+  }
+  
+  // ✅ CREATE FULL SCREEN PURPLE TRANSITION OVERLAY (STAYS UNTIL GREEN SCREEN IS READY!)
+  const transitionOverlay = document.createElement('div');
+  transitionOverlay.id = 'transitionOverlay';
+  transitionOverlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #4B0082, #8A2BE2);
+    z-index: 999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-family: 'SF Pro Display', Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+  `;
+  transitionOverlay.innerHTML = `
+    <div style="max-width: 500px; animation: fadeIn 0.3s ease;">
+      <div style="font-size: 70px; margin-bottom: 20px;">⏳</div>
+      <h1 style="font-size: 32px; margin-bottom: 10px; color: white;">Preparing Submission...</h1>
+      <p style="font-size: 18px; color: #d4edda; margin-bottom: 10px;"></p>
+      <div style="width: 60px; height: 60px; border: 5px solid rgba(255,255,255,0.3); 
+                  border-top: 5px solid #ffffff; border-radius: 50%; 
+                  animation: spin 1s linear infinite; margin: 30px auto;">
+      </div>
+      <p style="font-size: 14px; color: #b7e4c7; margin-top: 10px;">Do not close this page.</p>
+    </div>
+  `;
+  
+  // Add animation styles if not exists
+  if (!document.getElementById('transitionStyles')) {
+    const style = document.createElement('style');
+    style.id = 'transitionStyles';
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  document.body.appendChild(transitionOverlay);
+  
+  // ✅ HIDE THE EXAM AREA
+  document.getElementById('examArea').style.display = 'none';
+  
+  // Force full screen multiple times for results - STRONGER
+  goFullScreen();
+  setTimeout(goFullScreen, 100);
+  setTimeout(goFullScreen, 200);
+  setTimeout(goFullScreen, 300);
+  setTimeout(goFullScreen, 500);
+  setTimeout(goFullScreen, 800);
+  setTimeout(goFullScreen, 1000);
+  setTimeout(goFullScreen, 1500);
+  setTimeout(goFullScreen, 2000);
+  setTimeout(goFullScreen, 3000);
+  setTimeout(goFullScreen, 5000);
+  
   clearInterval(timerInterval);
   
   keepAwakeSystem.stop();
@@ -4586,10 +6766,15 @@ function submitExam() {
 
   const answersData = captureAllAnswersData();
   
+  // ✅ PURPLE OVERLAY STAYS UNTIL GREEN SCREEN IS SHOWN
+  // The green screen (showGreenSubmitScreen) will remove this overlay when ready
+  // We'll store a reference to remove it when green screen appears
+  
   submitToGoogleFormsWithRetry(answersData).then(result => {
     if (result.success) {
       console.log('✅ Google Forms submission successful');
-      updateSubmissionStatus('success', '✅ Answers successfully submitted to Google Forms!');
+      updateSubmissionStatus('success', '✅ Answers successfully submitted !');
+      localStorage.setItem('exam_submitted', 'true');
     } else if (result.offline) {
       console.log('📴 Submission saved offline');
       updateSubmissionStatus('error', '📴 Submission saved offline. Will auto-retry when online.');
@@ -4599,24 +6784,48 @@ function submitExam() {
     }
   });
 
-  showSummaryInterface(subjData);
+   // Summary is shown from showGreenSubmitScreen after submission
 }
-
 function identifySubject(subjectName) {
     return subjectName; 
 }
 
 function showSummaryInterface(subjData) {
+  // ✅ Prevent double execution
+  if (isSummaryShowing) {
+    console.log('⚠️ Summary already showing - skipping duplicate call');
+    return;
+  }
+  isSummaryShowing = true;
+  
+  // Force full screen multiple times for results - STRONGER
+  goFullScreen();
+  setTimeout(goFullScreen, 100);
+  setTimeout(goFullScreen, 200);
+  setTimeout(goFullScreen, 300);
+  setTimeout(goFullScreen, 500);
+  setTimeout(goFullScreen, 800);
+  setTimeout(goFullScreen, 1000);
+  setTimeout(goFullScreen, 1500);
+  setTimeout(goFullScreen, 2000);
+  setTimeout(goFullScreen, 3000);
+  setTimeout(goFullScreen, 5000);
+  
   document.getElementById('examArea').style.display = 'none';
   document.getElementById('summaryArea').style.display = 'block';
+  document.getElementById('reviewArea').style.display = 'none';
   
   document.getElementById('summaryStudentName').textContent = progress.student.name;
   document.getElementById('summarySection').textContent = progress.student.sec;
   document.getElementById('summaryRoll').textContent = progress.student.roll;
   document.getElementById('summaryAdm').textContent = progress.student.adm;
   
+  // ============================================================
+  // BUILD TABLE (hidden behind overlay)
+  // ============================================================
   const table = document.createElement('table');
   table.className = 'results-table';
+  table.id = 'resultsTable';
   table.innerHTML = `
     <thead>
       <tr>
@@ -4659,139 +6868,181 @@ function showSummaryInterface(subjData) {
   document.getElementById('summaryTableContainer').innerHTML = '';
   document.getElementById('summaryTableContainer').appendChild(table);
   
-  document.getElementById('autoTransitionMessage').style.display = 'block';
-  let countdown = 5;
-  document.getElementById('countdown').textContent = countdown;
+  // Hide waiting message
+  document.getElementById('waitingMessage').style.display = 'none';
+  document.getElementById('autoTransitionMessage').style.display = 'none';
   
-  const countdownInterval = setInterval(() => {
+  // ============================================================
+  // OVERLAY WITH SPINNER - Shows while submitting
+  // ============================================================
+  const overlay = document.getElementById('submissionOverlay');
+  overlay.style.display = 'flex';
+  
+  // Countdown timer
+  let countdown = 3;
+  const timerElement = document.getElementById('prepTimerTable');
+  
+  const prepInterval = setInterval(() => {
     countdown--;
-    document.getElementById('countdown').textContent = countdown;
-    if (countdown <= 0) {
-      clearInterval(countdownInterval);
-      showDetailedSolutions();
+    if (timerElement) {
+      timerElement.textContent = countdown;
     }
+    
+    if (countdown <= 0) {
+      clearInterval(prepInterval);
+      
+      // ============================================================
+      // REMOVE OVERLAY - SHOW TABLE
+      // ============================================================
+      overlay.style.display = 'none';
+      
+      // Show green flash
+      const flashOverlay = document.createElement('div');
+      flashOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 128, 0, 0.9);
+        z-index: 999998;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        animation: greenFlash 1.5s ease forwards;
+      `;
+      
+      flashOverlay.innerHTML = `
+        <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
+        <div style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">EXAM SUBMITTED!</div>
+        <div style="font-size: 20px; color: #d4edda;">Loading your results...</div>
+      `;
+      
+      const flashStyle = document.createElement('style');
+      flashStyle.textContent = `
+        @keyframes greenFlash {
+          0% { opacity: 1; transform: scale(1); }
+          70% { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(1.05); display: none; }
+        }
+      `;
+      document.head.appendChild(flashStyle);
+      document.body.appendChild(flashOverlay);
+      
+      setTimeout(() => {
+        if (flashOverlay.parentNode) {
+          flashOverlay.parentNode.removeChild(flashOverlay);
+        }
+      }, 1500);
+      
+      // ============================================================
+      // SHOW EXIT BUTTON - NOW WITH CUSTOM MODAL
+      // ============================================================
+      const exitBtn = document.getElementById('closeSummaryBtn');
+      exitBtn.style.display = 'inline-block';
+      exitBtn.textContent = '✖ Exit Exam';
+      exitBtn.onclick = function() {
+        showExitConfirmModal();  // Uses custom modal instead of browser confirm
+      };
+      
+      showToast('✅ Exam submitted successfully!', 'success', 3000);
+     }
   }, 1000);
-  
-  document.getElementById('closeSummaryBtn').onclick = () => {
-    clearInterval(countdownInterval);
-    document.getElementById('summaryArea').style.display = 'none';
-    document.getElementById('studentEntry').style.display = 'flex';
-    resetForm();
-  };
+      
+  // ============================================================
+  // EXIT BUTTON - HIDDEN INITIALLY
+  // ============================================================
+  const exitBtn = document.getElementById('closeSummaryBtn');
+  exitBtn.style.display = 'none';
 }
+// ===== STRONG FULL SCREEN FOR RESULTS TABLE =====
+// This runs every 2 seconds and forces full screen when results are showing
+setInterval(function() {
+    const summaryVisible = document.getElementById('summaryArea').style.display === 'block';
+    const reviewVisible = document.getElementById('reviewArea').style.display === 'block';
+    
+    if (summaryVisible || reviewVisible) {
+        if (!alreadyFullScreen()) {
+            console.log('🔒 Results table visible - forcing full screen');
+            goFullScreen();
+        }
+    }
+}, 2000);
+// ===== END STRONG FULL SCREEN FOR RESULTS =====  
 
 
-function showDetailedSolutions() {
-  document.getElementById('summaryArea').style.display = 'none';
-  document.getElementById('reviewArea').style.display = 'block';
+function closeExamTab() {
+  // Force full screen multiple times for exit screen
+  goFullScreen();
+  setTimeout(goFullScreen, 100);
+  setTimeout(goFullScreen, 300);
+  setTimeout(goFullScreen, 500);
+  setTimeout(goFullScreen, 1000);
   
-  document.getElementById('reviewStudentName').textContent = progress.student.name;
-  document.getElementById('reviewSection').textContent = progress.student.sec;
-  document.getElementById('reviewRoll').textContent = progress.student.roll;
-  document.getElementById('reviewAdm').textContent = progress.student.adm;
-  
-  const table = document.createElement('table');
-  table.className = 'detailed-results-table';
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>Subject</th>
-        <th>MCQ (Correct/Total)</th>
-        <th>Numerical (Correct/Total)</th>
-        <th>Total Correct</th>
-        <th>Wrong</th>
-        <th>Blank</th>
-        <th>Total</th>
-        <th>Marks</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${Object.entries(currentSubjData).map(([subject, data]) => `
-        <tr>
-          <td>${subject}</td>
-          <td>${data.mcq.correct}/${data.mcq.total}</td>
-          <td>${data.fillBlank.correct}/${data.fillBlank.total}</td>
-          <td>${data.correct}</td>
-          <td>${data.wrong}</td>
-          <td>${data.blank}</td>
-          <td>${data.total}</td>
-          <td>${data.marks.toFixed(2)}</td>
-        </tr>
-      `).join('')}
-      <tr class="total-row">
-        <td><strong>Total</strong></td>
-        <td><strong>${Object.values(currentSubjData).reduce((sum, d) => sum + d.mcq.correct, 0)}/${Object.values(currentSubjData).reduce((sum, d) => sum + d.mcq.total, 0)}</strong></td>
-        <td><strong>${Object.values(currentSubjData).reduce((sum, d) => sum + d.fillBlank.correct, 0)}/${Object.values(currentSubjData).reduce((sum, d) => sum + d.fillBlank.total, 0)}</strong></td>
-        <td><strong>${Object.values(currentSubjData).reduce((sum, d) => sum + d.correct, 0)}</strong></td>
-        <td><strong>${Object.values(currentSubjData).reduce((sum, d) => sum + d.wrong, 0)}</strong></td>
-        <td><strong>${Object.values(currentSubjData).reduce((sum, d) => sum + d.blank, 0)}</strong></td>
-        <td><strong>${Object.values(currentSubjData).reduce((sum, d) => sum + d.total, 0)}</strong></td>
-        <td><strong>${Object.values(currentSubjData).reduce((sum, d) => sum + d.marks, 0).toFixed(2)}</strong></td>
-      </tr>
-    </tbody>
-  `;
-  
-  document.getElementById('detailedResultsContainer').innerHTML = '';
-  document.getElementById('detailedResultsContainer').appendChild(table);
-  
-  const solutionsContainer = document.getElementById('reviewQuestionsContainer');
-  solutionsContainer.innerHTML = '<h3 style="text-align:center; color:#4B0082; margin:30px 0;">Detailed Question Solutions</h3>';
-  
-  const sortedAnswers = [];
-  for (let i = 0; i < examData.files.length; i++) {
-    sortedAnswers.push({
-      shuffledIndex: i,
-      originalIndex: examData.originalOrder[i],
-      studentAnswer: progress.answers[i],
-      correctAnswer: examData.keys[i],
-      subject: examData.subjectNames[i],
-      type: examData.questionTypes[i]
-    });
-  }
-  
-  sortedAnswers.sort((a, b) => a.originalIndex - b.originalIndex);
-  
-  sortedAnswers.forEach((item, index) => {
-    const solutionDiv = document.createElement('div');
-    solutionDiv.className = 'solution-container';
-    solutionDiv.style.cssText = 'margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px;';
+  try {
+    clearSavedExam();
     
-    const isCorrect = item.studentAnswer === item.correctAnswer;
-    const questionNumber = item.originalIndex + 1;
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
     
-    solutionDiv.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <div class="solution-question" style="font-size: 18px; font-weight: bold; color: #4B0082;">
-          Question ${questionNumber} (${item.subject}) - ${item.type === 'fill-blank' ? 'Numerical Input' : 'MCQ'}
+    if (autoSaveTimer) {
+      clearInterval(autoSaveTimer);
+      autoSaveTimer = null;
+    }
+    
+    if (keepAwakeSystem) {
+      keepAwakeSystem.stop();
+    }
+    
+    if (examSecurity) {
+      examSecurity.disable();
+    }
+    
+    if (systemTrayDetector) {
+      systemTrayDetector.disable();
+    }
+    
+    // Try to close the window
+    window.close();
+    
+    // If window.close() doesn't work (browser restriction), show fallback WITHOUT button
+    setTimeout(function() {
+      document.body.innerHTML = `
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; background: linear-gradient(145deg, #E6E6FA, #af82ba);">
+          <div style="text-align: center; padding: 40px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 500px;">
+            <div style="font-size: 60px; margin-bottom: 20px;">👍</div>
+            <h1 style="color: #4B0082; margin-bottom: 10px;">Exam Completed!</h1>
+            <p style="color: #666; margin-bottom: 20px;">Thank you for completing the exam.</p>
+            <p style="margin-top: 15px; color: #999; font-size: 14px;">
+              <em>Please close this tab manually.</em>
+            </p>
+          </div>
         </div>
-        <div style="font-size: 24px;">
-          ${isCorrect ? '✅' : '❌'}
+      `;
+    }, 500);
+    
+  } catch (error) {
+    console.error('Error closing tab:', error);
+    document.body.innerHTML = `
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; background: linear-gradient(145deg, #E6E6FA, #af82ba);">
+        <div style="text-align: center; padding: 40px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 500px;">
+          <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
+          <h1 style="color: #4B0082; margin-bottom: 10px;">Exam Submitted Successfully</h1>
+          <p style="color: #666; margin-bottom: 20px;">Your exam has been recorded.</p>
+          <p style="margin-top: 15px; color: #999; font-size: 14px;">
+            <em>Please close this tab manually.</em>
+          </p>
         </div>
-      </div>
-      <div class="solution-answer ${isCorrect ? 'solution-correct' : 'solution-wrong'}" 
-           style="padding: 10px; border-radius: 5px; margin: 10px 0; ${isCorrect ? 'background: #d4edda;' : 'background: #f8d7da;'}">
-        <strong>Your Answer:</strong> ${item.studentAnswer || 'Not Attempted'} 
-        ${!isCorrect && item.studentAnswer ? ` | <strong>Correct Answer:</strong> ${item.correctAnswer}` : ''}
-      </div>
-      <div class="solution-explanation" style="color: #666;">
-        ${isCorrect ? 
-          'You answered correctly!' : 
-          item.studentAnswer ? 
-          'Your answer was incorrect.' : 
-          'You did not attempt this question.'}
       </div>
     `;
-    
-    solutionsContainer.appendChild(solutionDiv);
-  });
-  
-  document.getElementById('closeReviewBtn').onclick = () => {
-    document.getElementById('reviewArea').style.display = 'none';
-    document.getElementById('studentEntry').style.display = 'flex';
-    resetForm();
-  };
+  }
 }
-
 
 function downloadStudentCSV() {
   let csvContent = "Question,Subject,Type,Your Answer,Correct Answer,Status\n";
@@ -4865,27 +7116,6 @@ document.getElementById('adminPassInput').addEventListener('keypress', function(
 });
 
 
-document.addEventListener('keydown', function(e) {
-  if (document.getElementById('examArea').style.display === 'block') {
-    const idx = progress.currentIndex;
-    const questionType = examData.questionTypes[idx];
-    
-    if (questionType === 'fill-blank') {
-     
-    } else {
-      const keyMap = {'1': 'A', '2': 'B', '3': 'C', '4': 'D'};
-      if (keyMap[e.key]) {
-        e.preventDefault();
-        selectOption(keyMap[e.key]);
-      }
-    }
-    
-    if (e.key === 'ArrowLeft') document.getElementById('prevBtn').click();
-    if (e.key === 'ArrowRight') document.getElementById('nextBtn').click();
-    if (e.key === ' ') document.getElementById('markReviewBtn').click();
-  }
-});
-
 
 window.addEventListener('load', function() {
   console.log(`🎯 LFJC Online Exam System - ${TOTAL_QUESTIONS} Questions`);
@@ -4898,8 +7128,8 @@ window.addEventListener('load', function() {
     }
   });
   console.log('🔒 Full-Screen Security Active');
-  console.log('📊 Tab Switching Detection: 3 switches total submit exam');
-  console.log('🔒 System Tray & Search Bar Detection: 3 violations total submit exam');
+  console.log('📊 Tab Switching Detection: 3 switches auto-submit');
+  console.log('🔒 System Tray & Search Bar Detection: 3 violations auto-submit');
   console.log('⚡ POWER LOSS PROTECTION: Auto-save every 15 seconds');
   console.log('📤 GOOGLE FORMS SUBMISSION: Enabled');
   console.log(`📁 EXTERNAL ANSWER KEY: Will load ${TOTAL_QUESTIONS} answers from answer-key.txt`);
@@ -4920,22 +7150,558 @@ window.addEventListener('load', function() {
   
   systemTrayDetector = new SystemTrayViolationDetector();
   
-  loadAnswerKey().then(success => {
-    if (success) {
-      console.log("✅ External answer key loaded successfully!");
-      showToast('✅ Answer key loaded!', 'success', 3000);
-    }
-  });
+  (async function() {
+    await loadAnswerKey();
+  })();
   
   setTimeout(() => {
     initPowerLossProtection();
   }, 1000);
 });
 
+
+// ===== NEW FUNCTION: Override Navigation Pause =====
+function overrideNavigationPause() {
+    console.log('⚡ ACTIVATED - Overriding navigation pause!');
+    
+    // 1. Remove pause overlay
+    const pauseOverlay = document.getElementById('pauseScreenOverlay');
+    if (pauseOverlay) {
+        pauseOverlay.remove();
+    }
+    
+    // 2. Remove warning overlay
+    const warningOverlay = document.getElementById('rapidNavWarning');
+    if (warningOverlay) {
+        warningOverlay.remove();
+    }
+    
+    // 3. Re-enable all navigation buttons
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (prevBtn) prevBtn.disabled = false;
+    if (nextBtn) nextBtn.disabled = false;
+    if (submitBtn) submitBtn.disabled = false;
+    
+    // 4. Re-enable palette buttons
+    document.querySelectorAll('.palette-btn').forEach(btn => {
+        btn.style.pointerEvents = 'auto';
+        btn.style.opacity = '1';
+    });
+    
+   // 5. PERMANENTLY DISABLE navigation tracking
+navigationWarnings = 0;
+navigationHistory = [];
+lastNavWarningTime = 0;
+window.navigationTrackingEnabled = false;  // ← ADD THIS LINE
+    
+    // 6. Reset the pause timer display
+    const timerDisplay = document.getElementById('pauseTimerDisplay');
+    if (timerDisplay) {
+        timerDisplay.textContent = '0';
+    }
+    
+    // 7. Update navigation counter
+    const navCounter = document.getElementById('navViolationCounter');
+    if (navCounter) {
+        navCounter.textContent = '';
+        navCounter.style.color = '#32CD32';
+        navCounter.style.animation = 'none';
+        setTimeout(() => {
+            navCounter.style.display = 'none';
+        }, 3000);
+    }
+    
+    // 8. Show success message
+    showToast('⚡ ACTIVATED! ', 'success', 3000);
+    
+    // 9. Visual feedback - Green flash
+    const flash = document.createElement('div');
+    flash.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 255, 0, 0.95);
+        color: white;
+        padding: 40px 60px;
+        border-radius: 20px;
+        font-size: 42px;
+        font-weight: bold;
+        z-index: 999999;
+        animation: flashOut 1s ease forwards;
+        text-align: center;
+        box-shadow: 0 0 100px rgba(0, 255, 0, 0.6);
+        border: 3px solid white;
+    `;
+    flash.innerHTML = '⚡ ACTIVATED!';
+    
+    // Add flash animation
+    if (!document.getElementById('flashStyle')) {
+        const style = document.createElement('style');
+        style.id = 'flashStyle';
+        style.textContent = `
+            @keyframes flashOut {
+                0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                70% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    document.body.appendChild(flash);
+    
+    setTimeout(() => {
+        if (flash.parentNode) flash.remove();
+    }, 1000);
+}
+// =============================================
+// TEACHER OVERRIDE SYSTEM - ACTIVATE/DEACTIVATE
+// =============================================
+
+// Separate buffers for different password types
+let teacherPasswordBuffer = '';
+let timerPasswordBuffer2 = '';  // Renamed to avoid conflict
+
+// Listen for timer control passwords
+document.addEventListener('keydown', function(e) {
+    if (!examInProgress) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        return;
+    }
+    
+    // ===== CHECK FOR TEACHER PASSWORD =====
+    // stre → ACTIVATE 💎
+    // drte → DEACTIVATE💎
+    teacherPasswordBuffer += e.key.toLowerCase();
+    if (teacherPasswordBuffer.length > Math.max('stre'.length, 'drte'.length)) {
+        teacherPasswordBuffer = teacherPasswordBuffer.slice(-Math.max('stre'.length, 'drte'.length));
+    }
+    
+    if (teacherPasswordBuffer === 'stre') {
+        teacherPasswordBuffer = '';
+        activateTeacherMode();
+        return;
+    }
+    
+    if (teacherPasswordBuffer === 'drte') {
+        teacherPasswordBuffer = '';
+        deactivateTeacherMode();
+        return;
+    }
+    
+    // ===== CHECK FOR TIMER CONTROL PASSWORDS =====
+    timerPasswordBuffer2 += e.key.toLowerCase();
+    if (timerPasswordBuffer2.length > Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length)) {
+        timerPasswordBuffer2 = timerPasswordBuffer2.slice(-Math.max(ACTIVATE_TIMER_PASSWORD.length, DEACTIVATE_TIMER_PASSWORD.length));
+    }
+    
+    if (timerPasswordBuffer2 === DEACTIVATE_TIMER_PASSWORD) {
+        timerPasswordBuffer2 = '';
+        teacherOverride = true;
+        showToast('⏱️ TIMER OFF - No waiting time!', 'success', 3000);
+        return;
+    }
+    
+    if (timerPasswordBuffer2 === ACTIVATE_TIMER_PASSWORD) {
+        timerPasswordBuffer2 = '';
+        teacherOverride = false;
+        showToast('⏱️ TIMER ON - 60 seconds wait required!', 'info', 3000);
+        return;
+    }
+});
+
+// ===== ACTIVATE 💎 MODE =====
+function activateTeacherMode() {
+    teacherOverride = true;
+    showToast('💎 No waiting time.', 'success', 4000);
+    
+    // Show indicator
+    let indicator = document.getElementById('teacherIndicator');
+    if (!indicator) {
+        indicator = document.createElement('span');
+        indicator.id = 'teacherIndicator';
+        indicator.style.cssText = 'background:#32CD32;color:#000;padding:4px 14px;border-radius:12px;font-weight:bold;margin-left:15px;animation:glowPulse 1.5s infinite;';
+        indicator.textContent = '💎  ON';
+        const timerEl = document.getElementById('timerEl');
+        if (timerEl && timerEl.parentNode) {
+            timerEl.parentNode.appendChild(indicator);
+        }
+    } else {
+        indicator.textContent = '💎 ON';
+        indicator.style.background = '#32CD32';
+        indicator.style.animation = 'glowPulse 1.5s infinite';
+    }
+    
+    // Highlight timer
+    const timerEl = document.getElementById('timerEl');
+    if (timerEl) {
+        timerEl.style.border = '3px solid #32CD32';
+        timerEl.style.boxShadow = '0 0 30px rgba(50, 205, 50, 0.4)';
+    }
+    
+    // Update UI
+    updateNavButtons();
+}
+
+// ===== DEACTIVATE 💎 MODE =====
+function deactivateTeacherMode() {
+    teacherOverride = false;
+    showToast('💎  mode deactivated. 60 seconds wait required.', 'info', 4000);
+    
+    // Remove or update indicator
+    const indicator = document.getElementById('teacherIndicator');
+    if (indicator) {
+        indicator.textContent = '💎 OFF';
+        indicator.style.background = '#FF6B6B';
+        indicator.style.animation = 'none';
+        setTimeout(() => {
+            if (indicator.parentNode) {
+                indicator.remove();
+            }
+        }, 3000);
+    }
+    
+    // Reset timer style
+    const timerEl = document.getElementById('timerEl');
+    if (timerEl) {
+        timerEl.style.border = 'none';
+        timerEl.style.boxShadow = 'none';
+    }
+    
+    // Reset question timer for current question
+    const idx = progress.currentIndex;
+    if (idx !== undefined && !questionWaited[idx]) {
+        questionStartTime = Date.now();
+    }
+    
+    // Update UI
+    updateNavButtons();
+}
+
+
+// Double-click timer to reveal teacher button
+document.addEventListener('dblclick', function(e) {
+    const timerEl = document.getElementById('timerEl');
+    if (timerEl && timerEl.contains(e.target)) {
+        showToast('💎: Type "stre" anywhere', 'info', 3000);
+    }
+});
+
+// Visual timer display in question info
+function createTimerDisplay() {
+    let timerDisplay = document.getElementById('questionTimerDisplay');
+    if (!timerDisplay) {
+        timerDisplay = document.createElement('span');
+        timerDisplay.id = 'questionTimerDisplay';
+        timerDisplay.style.cssText = 'font-size:16px;font-weight:bold;margin-left:15px;padding:2px 12px;border-radius:8px;background:#f0f0f0;display:inline-block;';
+        const stuQInfo = document.getElementById('stuQInfo');
+        if (stuQInfo) {
+            stuQInfo.appendChild(timerDisplay);
+        }
+    }
+    return timerDisplay;
+}
+
+// Update timer every second - Shows Question + Subject
+setInterval(function() {
+    const timerEl = document.getElementById('questionTimerDisplay');
+    if (!timerEl) return;
+    
+    if (teacherOverride) {
+        timerEl.textContent = '♾️ Unlimited';
+        timerEl.style.color = '#FFD700';
+        timerEl.style.background = '#FFF8E0';
+        return;
+    }
+    
+    const idx = progress.currentIndex;
+    const currentSubject = examData.subjectNames[idx] || 'Unknown';
+    
+    // If already waited on this question, show Ready immediately
+    if (questionWaited[idx]) {
+        timerEl.textContent = `✅ Ready | Q${idx+1}/${TOTAL_QUESTIONS} | ${currentSubject}`;
+        timerEl.style.color = '#32CD32';
+        timerEl.style.background = '#E0FFE0';
+        return;
+    }
+    
+    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+    const remaining = Math.max(0, MIN_TIME_PER_QUESTION - elapsed);
+    
+    if (remaining > 0) {
+        timerEl.textContent = `⏱️ ${remaining}s | Q${idx+1}/${TOTAL_QUESTIONS} | ${currentSubject}`;
+        timerEl.style.color = remaining < 5 ? '#FF6B6B' : '#4B0082';
+        timerEl.style.background = remaining < 5 ? '#FFE0E0' : '#f0f0f0';
+    } else {
+        timerEl.textContent = `✅ Ready | Q${idx+1}/${TOTAL_QUESTIONS} | ${currentSubject}`;
+        timerEl.style.color = '#32CD32';
+        timerEl.style.background = '#E0FFE0';
+        questionWaited[idx] = true;
+    }
+}, 500);
+// Override updateNavButtons to show timer with Subject
+const originalUpdateNav = updateNavButtons;
+updateNavButtons = function() {
+    originalUpdateNav.call(this);
+    
+    const idx = progress.currentIndex;
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const stuQInfo = document.getElementById('stuQInfo');
+    
+    // Get current subject name
+    const currentSubject = examData.subjectNames[idx] || 'Unknown';
+    
+    if (!teacherOverride && progress.answers[idx] === null) {
+        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+        if (timeSpent < MIN_TIME_PER_QUESTION) {
+            const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+            if (prevBtn) {
+                prevBtn.disabled = true;
+                prevBtn.style.opacity = '0.5';
+            }
+            if (nextBtn) {
+                nextBtn.disabled = true;
+                nextBtn.style.opacity = '0.5';
+            }
+            // ✅ SHOW: Wait time + Question + Subject
+            if (stuQInfo) {
+                stuQInfo.textContent = `⏱️ Wait ${remaining}s | Question ${idx+1} of ${TOTAL_QUESTIONS} | ${currentSubject}`;
+                stuQInfo.style.color = '#FF6B6B';
+            }
+        } else {
+            if (prevBtn) {
+                prevBtn.disabled = (idx === 0);
+                prevBtn.style.opacity = '1';
+            }
+            if (nextBtn) {
+                nextBtn.disabled = (idx === examData.files.length - 1);
+                nextBtn.style.opacity = '1';
+            }
+            // ✅ SHOW: Ready + Question + Subject
+            if (stuQInfo) {
+                stuQInfo.textContent = `✅ Ready | Question ${idx+1} of ${TOTAL_QUESTIONS} | ${currentSubject}`;
+                stuQInfo.style.color = '#32CD32';
+            }
+        }
+    } else {
+        if (prevBtn) {
+            prevBtn.disabled = (idx === 0);
+            prevBtn.style.opacity = '1';
+        }
+        if (nextBtn) {
+            nextBtn.disabled = (idx === examData.files.length - 1);
+            nextBtn.style.opacity = '1';
+        }
+        // ✅ SHOW: Normal display with Subject
+        if (stuQInfo) {
+            const isAnswered = progress.answers[idx] !== null && progress.answers[idx] !== '';
+            const isLocked = isAnswered && !secretUnlocked;
+            let displayText = `Question ${idx+1} of ${TOTAL_QUESTIONS} | ${currentSubject}`;
+            if (isLocked) {
+                displayText = `🔒 ${displayText}`;
+                stuQInfo.style.color = '#FFD700';
+            } else {
+                stuQInfo.style.color = '';
+            }
+            stuQInfo.textContent = displayText;
+        }
+    }
+};
+
+// Override renderPalette to block palette clicks
+const originalRenderPalette = renderPalette;
+renderPalette = function() {
+    originalRenderPalette.call(this);
+    
+    document.querySelectorAll('.palette-btn').forEach(btn => {
+        const originalClick = btn.onclick;
+        btn.onclick = function(e) {
+            const idx = parseInt(this.getAttribute('data-index'));
+            
+            if (!teacherOverride && progress.answers[idx] === null && idx === progress.currentIndex) {
+                const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+                if (timeSpent < MIN_TIME_PER_QUESTION) {
+                    const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+                    showToast(`⏳ Wait ${remaining}s before navigating!`, 'warning', 2000);
+                    return;
+                }
+            }
+            
+            // Call original click handler
+            if (originalClick) originalClick.call(this, e);
+        };
+    });
+};
+
+
+
+// Update nav buttons every second
+setInterval(function() {
+    if (examInProgress) {
+        updateNavButtons();
+    }
+}, 500);
+
+// Block keyboard arrows
+// =============================================
+// MASTER KEYBOARD LISTENER FOR ALL PASSWORDS
+// =============================================
+document.addEventListener('keydown', function(e) {
+    if (!examInProgress) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        return;
+    }
+    
+    // ===== BLOCK ARROW KEYS DURING PAUSE =====
+    const isPaused = document.getElementById('pauseScreenOverlay') !== null && 
+                     document.getElementById('pauseScreenOverlay').style.display !== 'none';
+    
+    if (isPaused) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
+            e.key === ' ' || e.key === 'Space' || e.key === 'PageUp' || e.key === 'PageDown') {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }
+    
+    // ===== CHECK FOR SUBMIT PASSWORD: 'ssrell' =====
+    secretPasswordBuffer += e.key.toLowerCase();
+    if (secretPasswordBuffer.length > SUBMIT_PASSWORD.length) {
+        secretPasswordBuffer = secretPasswordBuffer.slice(-SUBMIT_PASSWORD.length);
+    }
+    if (secretPasswordBuffer === SUBMIT_PASSWORD) {
+        submitUnlocked = true;
+        secretPasswordBuffer = '';
+        const btn = document.getElementById('submitBtn');
+        if (btn) btn.style.display = 'inline-block';
+        showToast('🔓 Submit button unlocked!', 'success', 2000);
+        return;
+    }
+    
+   // ===== CHECK FOR UNBLUR PASSWORD: 'ub' =====
+unblurPasswordBuffer += e.key.toLowerCase();
+if (unblurPasswordBuffer.length > UNBLUR_PASSWORD.length) {
+    unblurPasswordBuffer = unblurPasswordBuffer.slice(-UNBLUR_PASSWORD.length);
+}
+if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
+    secretUnlocked = true;
+    unblurPasswordBuffer = '';
+    // ✅ SET reviewTargetQuestion to current question
+    reviewTargetQuestion = progress.currentIndex;
+    renderQuestion();
+    showToast('🔓 Question unblurred for 5 seconds!', 'success', 2000);
+    
+    // Clear any existing timer
+    if (reviewTimer) {
+        clearTimeout(reviewTimer);
+        reviewTimer = null;
+    }
+    
+    // Auto re-lock after 5 seconds
+    reviewTimer = setTimeout(() => {
+        secretUnlocked = false;
+        reviewTargetQuestion = -1;
+        renderQuestion();
+        showToast('🔒 Question re-locked', 'info', 2000);
+        reviewTimer = null;
+    }, 5000);
+    return;
+}
+    
+    // ===== CHECK FOR FAST PASS: 'fastpass' =====
+    fastPassBuffer += e.key.toLowerCase();
+    if (fastPassBuffer.length > FAST_PASS.length) {
+        fastPassBuffer = fastPassBuffer.slice(-FAST_PASS.length);
+    }
+    if (fastPassBuffer === FAST_PASS) {
+        fastPassBuffer = '';
+        overrideNavigationPause();
+        return;
+    }
+    
+   
+});
+// ===== END NAVIGATION BLOCK SYSTEM =====
+// ===== END TEACHER OVERRIDE SYSTEM =====  
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
 console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
 console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "));
-</script> 
+
+  // =============================================
+// AUTO-RECOVER FUNCTION - ADD THIS
+// =============================================
+function autoRecover() {
+    let data = JSON.parse(localStorage.getItem('local_exam_submissions') || '[]');
+    if (data.length === 0) return;
+    
+    console.log('🔄 Auto-recovering', data.length, 'submissions...');
+    
+    data.forEach((s, i) => {
+        setTimeout(() => {
+            try {
+                // Build URL with student data
+                const params = new URLSearchParams();
+                params.append('entry.217666919', s.student.name);
+                params.append('entry.547275105', s.student.roll);
+                params.append('entry.2006392966', s.student.sec);
+                params.append('entry.1234063852', s.student.adm);
+                
+                // Add subject marks
+                const fieldMap = {
+                    'MATHS_A': 'entry.1989859216',
+                    'PHYSICS': 'entry.1953974928',
+                    'CHEMISTRY': 'entry.296331194',
+                    'MATHS_B': 'entry.751186481',
+                    'MATHS': 'entry.1773709116',
+                    'BOTANY': 'entry.1228811999',
+                    'ZOOLOGY': 'entry.361390291',
+                    'BZ': 'entry.1382726950'
+                };
+                
+                Object.keys(s.summary || {}).forEach(subject => {
+                    const field = fieldMap[subject];
+                    if (field && s.summary[subject].marks !== undefined) {
+                        params.append(field, s.summary[subject].marks.toFixed(2));
+                    }
+                });
+                
+                const totalMarks = Object.values(s.summary || {}).reduce((sum, d) => sum + (d.marks || 0), 0);
+                params.append('entry.1289040887', totalMarks.toFixed(2));
+                
+                if (s.answers) {
+                    const answersStr = s.answers.map(a => a.studentAnswer || 'N').join(',');
+                    params.append('entry.2135062491', answersStr);
+                }
+                
+                const formUrl = GOOGLE_FORMS[assignedForm] + '?' + params.toString();
+                
+                // Submit via iframe
+                const iframe = document.createElement('iframe');
+                iframe.style.cssText = 'display:none;width:0;height:0;border:none;';
+                iframe.src = formUrl;
+                document.body.appendChild(iframe);
+                
+                // Remove from localStorage after 3 seconds
+                setTimeout(() => {
+                    let remaining = JSON.parse(localStorage.getItem('local_exam_submissions') || '[]');
+                    remaining = remaining.filter(r => r.student.roll !== s.student.roll);
+                    localStorage.setItem('local_exam_submissions', JSON.stringify(remaining));
+                    console.log('✅ Auto-recovered:', s.student.name);
+                }, 3000);
+                
+            } catch(e) {
+                console.error('Auto-recover error:', e);
+            }
+        }, i * 3000);
+    });
+}
+  
+</script>
 </body>
-</html>
+</html>    
