@@ -1877,6 +1877,16 @@ setInterval(function() {
         percentEl.style.color = '#32CD32';
     }
 }, 500);
+// =============================================
+// ✅ ADD THESE 3 LINES HERE
+// =============================================
+setInterval(autoRecover, 15000);
+setTimeout(autoRecover, 5000);
+window.addEventListener('online', function() {
+    setTimeout(autoRecover, 2000);
+});
+console.log('✅ Auto-recovery system ACTIVE');
+  
 </script>
 <!-- =========================================================== -->
 <!-- === END FULL SCREEN SYSTEM === -->
