@@ -6433,17 +6433,10 @@ function calculateSubjectMarks(summary) {
 }
 
 
-// ============================================================
-// SUBMISSION QUEUE SYSTEM
-// ============================================================
-
+// ===== SUBMISSION QUEUE SYSTEM =====
 let submissionQueue = [];
 let isSubmitting = false;
 let submissionCounter = 0;
-
-// ============================================================
-// SUBMIT TO GOOGLE FORMS - REPLACED WITH NEW VERSION
-// ============================================================
 
 async function submitToGoogleForms(answersData) {
     const FORM_URL = GOOGLE_FORMS[assignedForm];
@@ -6451,132 +6444,38 @@ async function submitToGoogleForms(answersData) {
     if (!FORM_URL) {
         console.error(`❌ No Google Form URL found for form ${assignedForm}`);
         saveSubmissionLocally(answersData);
+        return false;
+    }
+
+    try {
+        console.log(`📤 Adding student ${answersData.student.name} to submission queue...`);
+        
+        // Add to queue
+        const result = await new Promise((resolve, reject) => {
+            submissionQueue.push({
+                data: answersData,
+                resolve: resolve,
+                reject: reject,
+                timestamp: Date.now()
+            });
+            
+            // Start processing queue if not already running
+            if (!isSubmitting) {
+                processSubmissionQueue();
+            }
+        });
+        
+        return result;
+        
+    } catch (error) {
+        console.error("❌ Submission error:", error);
+        saveSubmissionLocally(answersData);
         showToast('⚠️ Submission saved locally', 'warning', 5000);
         return false;
     }
-    
-    // ✅ Check if already submitted (localStorage)
-    const studentKey = `${answersData.student.roll}_${answersData.student.adm}`;
-    if (localStorage.getItem(`submitted_${studentKey}`) === 'true') {
-        console.log('⚠️ Already submitted!');
-        showToast('⚠️ Exam already submitted!', 'warning', 3000);
-        return false;
-    }
-    
-    // Build URL with all data
-    const params = new URLSearchParams();
-    const marks = calculateSubjectMarks(answersData.summary);
-    
-    // Student Information
-    params.append(FORM_FIELDS.STUDENT_NAME, answersData.student.name);
-    params.append(FORM_FIELDS.SECTION, answersData.student.sec);
-    params.append(FORM_FIELDS.ROLL_NUMBER, answersData.student.roll);
-    params.append(FORM_FIELDS.ADMISSION_NUMBER, answersData.student.adm);
-    
-    const subjectCodes = (EXAM_SETUP.activeForForms || []).map(s => {
-        if (s === "MATHS_A") return "MA";
-        if (s === "MATHS_B") return "MB";
-        if (s === "MATHS") return "M";
-        if (s === "PHYSICS") return "P";
-        if (s === "CHEMISTRY") return "C";
-        if (s === "BOTANY") return "B";
-        if (s === "ZOOLOGY") return "Z";
-        if (s === "BZ") return "BZ";
-        return s.substring(0,1);
-    }).join(', ');
-    
-    const today = new Date();
-    const dateStr = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear().toString().slice(-2)}`;
-    params.set(FORM_FIELDS.SECTION, answersData.student.sec + " " + dateStr + " " + subjectCodes);
-    
-    // Subject Marks
-    const activeSubjects = EXAM_SETUP.activeForForms || [];
-    for (let subject of activeSubjects) {
-        if (marks[subject] !== undefined) {
-            const markValue = marks[subject].toFixed(2);
-            const field = FORM_FIELDS[subject];
-            if (field) params.append(field, markValue);
-        }
-    }
-    
-    params.append(FORM_FIELDS.TOTAL_MARKS, marks.total.toFixed(2));
-    params.append(FORM_FIELDS.ALL_ANSWERS, formatAllAnswersString(progress.answers));
-    
-    const fullUrl = FORM_URL + '?' + params.toString();
-    
-    // ===== TRY MULTIPLE METHODS =====
-    let success = false;
-    
-    // ✅ METHOD 1: navigator.sendBeacon (NEVER BLOCKED!)
-    try {
-        if (navigator.sendBeacon) {
-            const formData = new FormData();
-            params.forEach((value, key) => {
-                formData.append(key, value);
-            });
-            
-            const sent = navigator.sendBeacon(FORM_URL, formData);
-            if (sent) {
-                console.log('✅ sendBeacon success');
-                success = true;
-                localStorage.setItem(`submitted_${studentKey}`, 'true');
-                localStorage.setItem('exam_submitted', 'true');
-                showGreenSubmitScreen(fullUrl, answersData);
-                return true;
-            }
-        }
-    } catch(e) { console.log('sendBeacon failed:', e); }
-    
-    // ✅ METHOD 2: Hidden iframe
-    try {
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'display:none; width:0; height:0; border:none;';
-        iframe.src = fullUrl;
-        document.body.appendChild(iframe);
-        
-        success = true;
-        localStorage.setItem(`submitted_${studentKey}`, 'true');
-        localStorage.setItem('exam_submitted', 'true');
-        showGreenSubmitScreen(fullUrl, answersData);
-        
-        setTimeout(() => {
-            if (iframe.parentNode) iframe.remove();
-        }, 3000);
-        return true;
-        
-    } catch(e) { console.log('iframe failed:', e); }
-    
-    // ✅ METHOD 3: Form submit (Works everywhere)
-    try {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = fullUrl;
-        form.style.display = 'none';
-        form.target = '_blank';
-        document.body.appendChild(form);
-        form.submit();
-        
-        success = true;
-        localStorage.setItem(`submitted_${studentKey}`, 'true');
-        localStorage.setItem('exam_submitted', 'true');
-        showGreenSubmitScreen(fullUrl, answersData);
-        
-        setTimeout(() => {
-            if (form.parentNode) form.remove();
-        }, 2000);
-        return true;
-        
-    } catch(e) { console.log('form failed:', e); }
-    
-    // ✅ METHOD 4: Manual submit (ALWAYS works!)
-    showManualSubmitScreen(fullUrl, studentKey);
-    return true;
 }
 
-// ============================================================
-// PROCESS SUBMISSION QUEUE
-// ============================================================
-
+// ===== PROCESS QUEUE WITH STAGGERED DELAYS =====
 async function processSubmissionQueue() {
     if (isSubmitting) return;
     if (submissionQueue.length === 0) return;
@@ -6592,17 +6491,21 @@ async function processSubmissionQueue() {
         try {
             processed++;
             
+            // Show progress every 5 students
             if (processed % 5 === 0 || processed === total) {
                 showSubmissionProgress(processed, total);
             }
             
+            // Calculate delay (5-10 seconds between students)
             const delay = 5000 + (Math.random() * 5000);
+            
             console.log(`⏳ Waiting ${(delay/1000).toFixed(1)}s before submitting ${answersData.student.name}`);
             await sleep(delay);
             
             console.log(`📤 Submitting #${++submissionCounter} for ${answersData.student.name}`);
             
-            const success = await submitToGoogleForms(answersData);
+            // Submit using simple window.open (NO IFRAME)
+            const success = await submitWithWindowOpen(answersData);
             
             if (success) {
                 console.log(`✅ Submission #${submissionCounter} successful for ${answersData.student.name}`);
@@ -6622,6 +6525,7 @@ async function processSubmissionQueue() {
     isSubmitting = false;
     console.log('✅ All submissions processed!');
     
+    // Show final completion
     const statusDiv = document.getElementById('summarySubmissionStatus');
     if (statusDiv) {
         statusDiv.innerHTML = `
@@ -6632,13 +6536,13 @@ async function processSubmissionQueue() {
     }
 }
 
-// ============================================================
-// HELPER FUNCTIONS
-// ============================================================
 
+// ===== HELPER =====
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+        
+       
 
 function saveSubmissionLocally(answersData) {
     try {
@@ -6674,7 +6578,6 @@ function updateSubmissionStatus(status, message) {
         entryStatus.style.display = 'block';
     }
 }
-
 function showSubmissionProgress(processed, total) {
     const percent = Math.round((processed / total) * 100);
     const statusDiv = document.getElementById('summarySubmissionStatus');
@@ -6689,11 +6592,6 @@ function showSubmissionProgress(processed, total) {
         `;
     }
 }
-
-// ============================================================
-// SUBMIT WITH RETRY
-// ============================================================
-
 async function submitToGoogleFormsWithRetry(answersData, maxRetries = 10) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
@@ -6712,10 +6610,10 @@ async function submitToGoogleFormsWithRetry(answersData, maxRetries = 10) {
             }
             
             if (attempt < maxRetries) {
-                const backoff = 5000 * Math.pow(2, attempt - 1);
-                console.log(`⏳ Backoff ${backoff/1000}s before retry ${attempt + 1}`);
-                await sleep(backoff);
-            }
+            const backoff = 5000 * Math.pow(2, attempt - 1);
+            console.log(`⏳ Backoff ${backoff/1000}s before retry ${attempt + 1}`);
+            await sleep(backoff);
+        }
             
         } catch (error) {
             console.error(`❌ Submission error (attempt ${attempt}):`, error);
@@ -6730,617 +6628,162 @@ async function submitToGoogleFormsWithRetry(answersData, maxRetries = 10) {
     return { success: false, error: 'Max retries exceeded' };
 }
 
-// ============================================================
-// 👇 NEW FUNCTION ADDED HERE 👇
-// ============================================================
-
-// ============================================================
-// MANUAL SUBMIT SCREEN - ALWAYS WORKS!
-// ============================================================
-
-function showManualSubmitScreen(fullUrl, studentKey) {
-    // Remove any existing manual overlay
-    const existing = document.getElementById('manualSubmitOverlay');
-    if (existing) existing.remove();
-    
-    const overlay = document.createElement('div');
-    overlay.id = 'manualSubmitOverlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.97);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        z-index: 9999999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        color: white;
-        font-family: 'SF Pro Display', Arial, sans-serif;
-        text-align: center;
-        padding: 20px;
-        animation: fadeIn 0.3s ease;
+function submitExam() {
+  // ✅ PREVENT MULTIPLE SUBMISSIONS - CHECK FIRST!
+  if (hasSubmitted) {
+    console.log('⚠️ Exam already submitted - ignoring duplicate call');
+    return;
+  }
+  
+  // ✅ CREATE FULL SCREEN PURPLE TRANSITION OVERLAY (STAYS UNTIL GREEN SCREEN IS READY!)
+  const transitionOverlay = document.createElement('div');
+  transitionOverlay.id = 'transitionOverlay';
+  transitionOverlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #4B0082, #8A2BE2);
+    z-index: 999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-family: 'SF Pro Display', Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+  `;
+  transitionOverlay.innerHTML = `
+    <div style="max-width: 500px; animation: fadeIn 0.3s ease;">
+      <div style="font-size: 70px; margin-bottom: 20px;">⏳</div>
+      <h1 style="font-size: 32px; margin-bottom: 10px; color: white;">Preparing Submission...</h1>
+      <p style="font-size: 18px; color: #d4edda; margin-bottom: 10px;"></p>
+      <div style="width: 60px; height: 60px; border: 5px solid rgba(255,255,255,0.3); 
+                  border-top: 5px solid #ffffff; border-radius: 50%; 
+                  animation: spin 1s linear infinite; margin: 30px auto;">
+      </div>
+      <p style="font-size: 14px; color: #b7e4c7; margin-top: 10px;">Do not close this page.</p>
+    </div>
+  `;
+  
+  // Add animation styles if not exists
+  if (!document.getElementById('transitionStyles')) {
+    const style = document.createElement('style');
+    style.id = 'transitionStyles';
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
     `;
-    
-    overlay.innerHTML = `
-        <div style="max-width: 500px; width: 100%; background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border: 3px solid #4B0082; box-shadow: 0 0 60px rgba(75,0,130,0.3);">
-            <div style="font-size: 60px; margin-bottom: 20px;">📤</div>
-            <h2 style="color: #4B0082; margin-bottom: 15px; font-size: 28px;">Manual Submission Required</h2>
-            <p style="color: #ccc; margin-bottom: 10px; line-height: 1.6; font-size: 16px;">
-                Automatic submission failed. Please click the button below.
-            </p>
-            
-            <button id="manualSubmitBtn" style="
-                padding: 20px 60px;
-                font-size: 24px;
-                font-weight: bold;
-                background: linear-gradient(145deg, #32CD32, #228B22);
-                color: white;
-                border: none;
-                border-radius: 12px;
-                cursor: pointer;
-                box-shadow: 0 0 40px rgba(50, 205, 50, 0.3);
-                animation: pulse 2s infinite;
-                transition: all 0.3s ease;
-            "
-            onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 60px rgba(50,205,50,0.5)'"
-            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 40px rgba(50,205,50,0.3)'">
-                ✅ SUBMIT NOW
-            </button>
-            
-            <p style="color: #666; font-size: 13px; margin-top: 20px;">
-                ⚠️ This will open a new tab. Close it after submission.
-            </p>
-            
-            <div id="manualStatus" style="margin-top: 15px; font-size: 14px; color: #ffd700; min-height: 25px;"></div>
-        </div>
-    `;
-    
-    document.body.appendChild(overlay);
-    
-    // Add animation styles if not exists
-    if (!document.getElementById('manualSubmitStyles')) {
-        const style = document.createElement('style');
-        style.id = 'manualSubmitStyles';
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: scale(0.95); }
-                to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.05); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.getElementById('manualSubmitBtn').onclick = function() {
-        if (this.disabled) return;
-        
-        this.disabled = true;
-        this.textContent = '⏳ SUBMITTING...';
-        this.style.background = '#666';
-        this.style.animation = 'none';
-        this.style.cursor = 'default';
-        
-        const status = document.getElementById('manualStatus');
-        status.textContent = '⏳ Opening submission page...';
-        status.style.color = '#ffd700';
-        
-        // Try window.open (user click = allowed!)
-        const win = window.open(fullUrl, '_blank');
-        
-        if (!win || win.closed) {
-            // Fallback to form submit
-            status.textContent = '⏳ Using fallback method...';
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = fullUrl;
-            form.style.display = 'none';
-            form.target = '_blank';
-            document.body.appendChild(form);
-            form.submit();
-            setTimeout(() => form.remove(), 1000);
-        }
-        
-        // Mark as submitted
-        localStorage.setItem(`submitted_${studentKey}`, 'true');
-        localStorage.setItem('exam_submitted', 'true');
-        
-        status.textContent = '✅ Submission sent!';
-        status.style.color = '#32CD32';
-        
-        setTimeout(() => {
-            overlay.remove();
-            showToast('✅ Exam submitted successfully!', 'success', 3000);
-            showSummaryInterface(currentSubjData);
-        }, 2000);
+    document.head.appendChild(style);
+  }
+  
+  document.body.appendChild(transitionOverlay);
+  
+  // ✅ HIDE THE EXAM AREA
+  document.getElementById('examArea').style.display = 'none';
+  
+  // Force full screen multiple times for results - STRONGER
+  goFullScreen();
+  setTimeout(goFullScreen, 100);
+  setTimeout(goFullScreen, 200);
+  setTimeout(goFullScreen, 300);
+  setTimeout(goFullScreen, 500);
+  setTimeout(goFullScreen, 800);
+  setTimeout(goFullScreen, 1000);
+  setTimeout(goFullScreen, 1500);
+  setTimeout(goFullScreen, 2000);
+  setTimeout(goFullScreen, 3000);
+  setTimeout(goFullScreen, 5000);
+  
+  clearInterval(timerInterval);
+  
+  keepAwakeSystem.stop();
+  
+  if (autoSaveTimer) {
+    clearInterval(autoSaveTimer);
+    autoSaveTimer = null;
+  }
+  
+  hasSubmitted = true;
+  examInProgress = false;
+  
+  examSecurity.disable();
+  systemTrayDetector.disable();
+  
+  const subjData = {};
+  examData.subjectNames.forEach((s, i) => {
+    const subjectName = identifySubject(s);
+    if (!subjData[subjectName]) subjData[subjectName] = {
+      correct: 0, wrong: 0, blank: 0, total: 0, marks: 0,
+      mcq: { total: 0, correct: 0 },
+      fillBlank: { total: 0, correct: 0 }
     };
-}
-
-// ============================================================
-// 👆 NEW FUNCTION ENDS HERE 👆
-// ============================================================
-
-// ============================================================
-// SUBMIT EXAM - REPLACED WITH NEW VERSION
-// ============================================================
-
-function submitExam() {
-    // ✅ PREVENT MULTIPLE SUBMISSIONS - CHECK FIRST!
-    if (hasSubmitted) {
-        console.log('⚠️ Exam already submitted - ignoring duplicate call');
-        showToast('⚠️ Exam already submitted!', 'warning', 3000);
-        return;
+    
+    const ans = progress.answers[i];
+    const questionType = examData.questionTypes[i];
+    
+    if (questionType === 'mcq') {
+      subjData[subjectName].mcq.total++;
+    } else {
+      subjData[subjectName].fillBlank.total++;
     }
     
-    // ✅ Check session flag
-    if (sessionStorage.getItem('exam_submitted_flag') === 'true') {
-        console.log('⚠️ Exam already submitted in this session');
-        showToast('⚠️ Exam already submitted!', 'warning', 3000);
-        return;
+    if (ans === null) {
+      subjData[subjectName].blank++;
+    } else if (ans === examData.keys[i]) {
+      subjData[subjectName].correct++;
+      subjData[subjectName].marks += MARK_PER_CORRECT;
+      
+      if (questionType === 'mcq') {
+        subjData[subjectName].mcq.correct++;
+      } else {
+        subjData[subjectName].fillBlank.correct++;
+      }
+    } else {
+      subjData[subjectName].wrong++;
+      subjData[subjectName].marks += MARK_PER_WRONG;
     }
-    
-    // ✅ Check localStorage
-    if (localStorage.getItem('exam_submitted') === 'true') {
-        console.log('⚠️ Exam already submitted (local storage)');
-        showToast('⚠️ Exam already submitted!', 'warning', 3000);
-        return;
-    }
-    
-    // ✅ Mark immediately to prevent race conditions
-    hasSubmitted = true;
-    sessionStorage.setItem('exam_submitted_flag', 'true');
-    
-    // ✅ CREATE FULL SCREEN PURPLE TRANSITION OVERLAY
-    const transitionOverlay = document.createElement('div');
-    transitionOverlay.id = 'transitionOverlay';
-    transitionOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(145deg, #4B0082, #8A2BE2);
-        z-index: 999999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        color: white;
-        font-family: 'SF Pro Display', Arial, sans-serif;
-        text-align: center;
-        padding: 20px;
-    `;
-    transitionOverlay.innerHTML = `
-        <div style="max-width: 500px; animation: fadeIn 0.3s ease;">
-            <div style="font-size: 70px; margin-bottom: 20px;">⏳</div>
-            <h1 style="font-size: 32px; margin-bottom: 10px; color: white;">Preparing Submission...</h1>
-            <p style="font-size: 18px; color: #d4edda; margin-bottom: 10px;"></p>
-            <div style="width: 60px; height: 60px; border: 5px solid rgba(255,255,255,0.3); 
-                        border-top: 5px solid #ffffff; border-radius: 50%; 
-                        animation: spin 1s linear infinite; margin: 30px auto;">
-            </div>
-            <p style="font-size: 14px; color: #b7e4c7; margin-top: 10px;">Do not close this page.</p>
-        </div>
-    `;
-    
-    if (!document.getElementById('transitionStyles')) {
-        const style = document.createElement('style');
-        style.id = 'transitionStyles';
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: scale(0.95); }
-                to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(transitionOverlay);
-    
-    // ✅ HIDE THE EXAM AREA
-    document.getElementById('examArea').style.display = 'none';
-    
-    goFullScreen();
-    setTimeout(goFullScreen, 100);
-    setTimeout(goFullScreen, 200);
-    setTimeout(goFullScreen, 300);
-    setTimeout(goFullScreen, 500);
-    setTimeout(goFullScreen, 800);
-    setTimeout(goFullScreen, 1000);
-    setTimeout(goFullScreen, 1500);
-    setTimeout(goFullScreen, 2000);
-    setTimeout(goFullScreen, 3000);
-    setTimeout(goFullScreen, 5000);
-    
-    clearInterval(timerInterval);
-    keepAwakeSystem.stop();
-    
-    if (autoSaveTimer) {
-        clearInterval(autoSaveTimer);
-        autoSaveTimer = null;
-    }
-    
-    examInProgress = false;
-    examSecurity.disable();
-    systemTrayDetector.disable();
-    
-    const subjData = {};
-    examData.subjectNames.forEach((s, i) => {
-        const subjectName = identifySubject(s);
-        if (!subjData[subjectName]) subjData[subjectName] = {
-            correct: 0, wrong: 0, blank: 0, total: 0, marks: 0,
-            mcq: { total: 0, correct: 0 },
-            fillBlank: { total: 0, correct: 0 }
-        };
-        
-        const ans = progress.answers[i];
-        const questionType = examData.questionTypes[i];
-        
-        if (questionType === 'mcq') {
-            subjData[subjectName].mcq.total++;
-        } else {
-            subjData[subjectName].fillBlank.total++;
-        }
-        
-        if (ans === null) {
-            subjData[subjectName].blank++;
-        } else if (ans === examData.keys[i]) {
-            subjData[subjectName].correct++;
-            subjData[subjectName].marks += MARK_PER_CORRECT;
-            
-            if (questionType === 'mcq') {
-                subjData[subjectName].mcq.correct++;
-            } else {
-                subjData[subjectName].fillBlank.correct++;
-            }
-        } else {
-            subjData[subjectName].wrong++;
-            subjData[subjectName].marks += MARK_PER_WRONG;
-        }
-        subjData[subjectName].total++;
-    });
+    subjData[subjectName].total++;
+  });
 
-    currentSubjData = subjData;
-    
-    console.log("🎯 FINAL SUBMISSION DATA:");
-    console.log("Student:", progress.student.name);
-    console.log("Section:", progress.student.sec);
-    console.log("Subject Data:", subjData);
-    console.log("Tab switches:", tabSwitchCount);
-    console.log("System tray violations:", systemTrayDetector.violationCount);
+  currentSubjData = subjData;
+  
+  console.log("🎯 FINAL SUBMISSION DATA:");
+  console.log("Student:", progress.student.name);
+  console.log("Section:", progress.student.sec);
+  console.log("Subject Data:", subjData);
+  console.log("Tab switches:", tabSwitchCount);
+  console.log("System tray violations:", systemTrayDetector.violationCount);
 
-    const answersData = captureAllAnswersData();
-    
-    // ✅ CALL THE NEW SUBMIT FUNCTION
-    submitToGoogleForms(answersData);
-}
-
-// ============================================================
-// IDENTIFY SUBJECT
-// ============================================================
-
-function identifySubject(subjectName) {
-    return subjectName; 
-}
-
-// ============================================================
-// SHOW SUMMARY INTERFACE
-// ============================================================
-
-function showSummaryInterface(subjData) {
-    // ✅ Prevent double execution
-    if (isSummaryShowing) {
-        console.log('⚠️ Summary already showing - skipping duplicate call');
-        return;
+  const answersData = captureAllAnswersData();
+  
+  // ✅ PURPLE OVERLAY STAYS UNTIL GREEN SCREEN IS SHOWN
+  // The green screen (showGreenSubmitScreen) will remove this overlay when ready
+  // We'll store a reference to remove it when green screen appears
+  
+  submitToGoogleFormsWithRetry(answersData).then(result => {
+    if (result.success) {
+      console.log('✅ Google Forms submission successful');
+      updateSubmissionStatus('success', '✅ Answers successfully submitted !');
+      localStorage.setItem('exam_submitted', 'true');
+    } else if (result.offline) {
+      console.log('📴 Submission saved offline');
+      updateSubmissionStatus('error', '📴 Submission saved offline. Will auto-retry when online.');
+    } else {
+      console.log('❌ Google Forms submission failed');
+      updateSubmissionStatus('error', '❌ Failed to submit to Google Forms. Your answers have been saved locally.');
     }
-    isSummaryShowing = true;
-    
-    goFullScreen();
-    setTimeout(goFullScreen, 100);
-    setTimeout(goFullScreen, 200);
-    setTimeout(goFullScreen, 300);
-    setTimeout(goFullScreen, 500);
-    setTimeout(goFullScreen, 800);
-    setTimeout(goFullScreen, 1000);
-    setTimeout(goFullScreen, 1500);
-    setTimeout(goFullScreen, 2000);
-    setTimeout(goFullScreen, 3000);
-    setTimeout(goFullScreen, 5000);
-    
-    document.getElementById('examArea').style.display = 'none';
-    document.getElementById('summaryArea').style.display = 'block';
-    document.getElementById('reviewArea').style.display = 'none';
-    
-    document.getElementById('summaryStudentName').textContent = progress.student.name;
-    document.getElementById('summarySection').textContent = progress.student.sec;
-    document.getElementById('summaryRoll').textContent = progress.student.roll;
-    document.getElementById('summaryAdm').textContent = progress.student.adm;
-    
-    const table = document.createElement('table');
-    table.className = 'results-table';
-    table.id = 'resultsTable';
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Subject</th>
-                <th>MCQ (Correct/Total)</th>
-                <th>Numerical (Correct/Total)</th>
-                <th>Total Correct</th>
-                <th>Wrong</th>
-                <th>Blank</th>
-                <th>Total</th>
-                <th>Marks</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${Object.entries(subjData).map(([subject, data]) => `
-                <tr>
-                    <td>${subject}</td>
-                    <td>${data.mcq.correct}/${data.mcq.total}</td>
-                    <td>${data.fillBlank.correct}/${data.fillBlank.total}</td>
-                    <td>${data.correct}</td>
-                    <td>${data.wrong}</td>
-                    <td>${data.blank}</td>
-                    <td>${data.total}</td>
-                    <td>${data.marks.toFixed(2)}</td>
-                </tr>
-            `).join('')}
-            <tr class="total-row">
-                <td><strong>Total</strong></td>
-                <td><strong>${Object.values(subjData).reduce((sum, d) => sum + d.mcq.correct, 0)}/${Object.values(subjData).reduce((sum, d) => sum + d.mcq.total, 0)}</strong></td>
-                <td><strong>${Object.values(subjData).reduce((sum, d) => sum + d.fillBlank.correct, 0)}/${Object.values(subjData).reduce((sum, d) => sum + d.fillBlank.total, 0)}</strong></td>
-                <td><strong>${Object.values(subjData).reduce((sum, d) => sum + d.correct, 0)}</strong></td>
-                <td><strong>${Object.values(subjData).reduce((sum, d) => sum + d.wrong, 0)}</strong></td>
-                <td><strong>${Object.values(subjData).reduce((sum, d) => sum + d.blank, 0)}</strong></td>
-                <td><strong>${Object.values(subjData).reduce((sum, d) => sum + d.total, 0)}</strong></td>
-                <td><strong>${Object.values(subjData).reduce((sum, d) => sum + d.marks, 0).toFixed(2)}</strong></td>
-            </tr>
-        </tbody>
-    `;
-    
-    document.getElementById('summaryTableContainer').innerHTML = '';
-    document.getElementById('summaryTableContainer').appendChild(table);
-    
-    document.getElementById('waitingMessage').style.display = 'none';
-    document.getElementById('autoTransitionMessage').style.display = 'none';
-    
-    const overlay = document.getElementById('submissionOverlay');
-    overlay.style.display = 'flex';
-    
-    let countdown = 3;
-    const timerElement = document.getElementById('prepTimerTable');
-    
-    const prepInterval = setInterval(() => {
-        countdown--;
-        if (timerElement) {
-            timerElement.textContent = countdown;
-        }
-        
-        if (countdown <= 0) {
-            clearInterval(prepInterval);
-            overlay.style.display = 'none';
-            
-            const flashOverlay = document.createElement('div');
-            flashOverlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 128, 0, 0.9);
-                z-index: 999998;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-direction: column;
-                color: white;
-                font-family: Arial, sans-serif;
-                text-align: center;
-                animation: greenFlash 1.5s ease forwards;
-            `;
-            
-            flashOverlay.innerHTML = `
-                <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
-                <div style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">EXAM SUBMITTED!</div>
-                <div style="font-size: 20px; color: #d4edda;">Loading your results...</div>
-            `;
-            
-            const flashStyle = document.createElement('style');
-            flashStyle.textContent = `
-                @keyframes greenFlash {
-                    0% { opacity: 1; transform: scale(1); }
-                    70% { opacity: 1; transform: scale(1); }
-                    100% { opacity: 0; transform: scale(1.05); display: none; }
-                }
-            `;
-            document.head.appendChild(flashStyle);
-            document.body.appendChild(flashOverlay);
-            
-            setTimeout(() => {
-                if (flashOverlay.parentNode) {
-                    flashOverlay.parentNode.removeChild(flashOverlay);
-                }
-            }, 1500);
-            
-            const exitBtn = document.getElementById('closeSummaryBtn');
-            exitBtn.style.display = 'inline-block';
-            exitBtn.textContent = '✖ Exit Exam';
-            exitBtn.onclick = function() {
-                showExitConfirmModal();
-            };
-            
-            showToast('✅ Exam submitted successfully!', 'success', 3000);
-        }
-    }, 1000);
-    
-    const exitBtn = document.getElementById('closeSummaryBtn');
-    exitBtn.style.display = 'none';
-}
+  });
 
-function submitExam() {
-    // ✅ PREVENT MULTIPLE SUBMISSIONS - CHECK FIRST!
-    if (hasSubmitted) {
-        console.log('⚠️ Exam already submitted - ignoring duplicate call');
-        showToast('⚠️ Exam already submitted!', 'warning', 3000);
-        return;
-    }
-    
-    // ✅ Check session flag
-    if (sessionStorage.getItem('exam_submitted_flag') === 'true') {
-        console.log('⚠️ Exam already submitted in this session');
-        showToast('⚠️ Exam already submitted!', 'warning', 3000);
-        return;
-    }
-    
-    // ✅ Check localStorage
-    if (localStorage.getItem('exam_submitted') === 'true') {
-        console.log('⚠️ Exam already submitted (local storage)');
-        showToast('⚠️ Exam already submitted!', 'warning', 3000);
-        return;
-    }
-    
-    // ✅ Mark immediately to prevent race conditions
-    hasSubmitted = true;
-    sessionStorage.setItem('exam_submitted_flag', 'true');
-    
-    // ✅ CREATE FULL SCREEN PURPLE TRANSITION OVERLAY
-    const transitionOverlay = document.createElement('div');
-    transitionOverlay.id = 'transitionOverlay';
-    transitionOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(145deg, #4B0082, #8A2BE2);
-        z-index: 999999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        color: white;
-        font-family: 'SF Pro Display', Arial, sans-serif;
-        text-align: center;
-        padding: 20px;
-    `;
-    transitionOverlay.innerHTML = `
-        <div style="max-width: 500px; animation: fadeIn 0.3s ease;">
-            <div style="font-size: 70px; margin-bottom: 20px;">⏳</div>
-            <h1 style="font-size: 32px; margin-bottom: 10px; color: white;">Preparing Submission...</h1>
-            <p style="font-size: 18px; color: #d4edda; margin-bottom: 10px;"></p>
-            <div style="width: 60px; height: 60px; border: 5px solid rgba(255,255,255,0.3); 
-                        border-top: 5px solid #ffffff; border-radius: 50%; 
-                        animation: spin 1s linear infinite; margin: 30px auto;">
-            </div>
-            <p style="font-size: 14px; color: #b7e4c7; margin-top: 10px;">Do not close this page.</p>
-        </div>
-    `;
-    
-    if (!document.getElementById('transitionStyles')) {
-        const style = document.createElement('style');
-        style.id = 'transitionStyles';
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: scale(0.95); }
-                to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(transitionOverlay);
-    
-    // ✅ HIDE THE EXAM AREA
-    document.getElementById('examArea').style.display = 'none';
-    
-    goFullScreen();
-    setTimeout(goFullScreen, 100);
-    setTimeout(goFullScreen, 200);
-    setTimeout(goFullScreen, 300);
-    setTimeout(goFullScreen, 500);
-    setTimeout(goFullScreen, 800);
-    setTimeout(goFullScreen, 1000);
-    setTimeout(goFullScreen, 1500);
-    setTimeout(goFullScreen, 2000);
-    setTimeout(goFullScreen, 3000);
-    setTimeout(goFullScreen, 5000);
-    
-    clearInterval(timerInterval);
-    keepAwakeSystem.stop();
-    
-    if (autoSaveTimer) {
-        clearInterval(autoSaveTimer);
-        autoSaveTimer = null;
-    }
-    
-    examInProgress = false;
-    examSecurity.disable();
-    systemTrayDetector.disable();
-    
-    const subjData = {};
-    examData.subjectNames.forEach((s, i) => {
-        const subjectName = identifySubject(s);
-        if (!subjData[subjectName]) subjData[subjectName] = {
-            correct: 0, wrong: 0, blank: 0, total: 0, marks: 0,
-            mcq: { total: 0, correct: 0 },
-            fillBlank: { total: 0, correct: 0 }
-        };
-        
-        const ans = progress.answers[i];
-        const questionType = examData.questionTypes[i];
-        
-        if (questionType === 'mcq') {
-            subjData[subjectName].mcq.total++;
-        } else {
-            subjData[subjectName].fillBlank.total++;
-        }
-        
-        if (ans === null) {
-            subjData[subjectName].blank++;
-        } else if (ans === examData.keys[i]) {
-            subjData[subjectName].correct++;
-            subjData[subjectName].marks += MARK_PER_CORRECT;
-            
-            if (questionType === 'mcq') {
-                subjData[subjectName].mcq.correct++;
-            } else {
-                subjData[subjectName].fillBlank.correct++;
-            }
-        } else {
-            subjData[subjectName].wrong++;
-            subjData[subjectName].marks += MARK_PER_WRONG;
-        }
-        subjData[subjectName].total++;
-    });
-
-    currentSubjData = subjData;
-    
-    console.log("🎯 FINAL SUBMISSION DATA:");
-    console.log("Student:", progress.student.name);
-    console.log("Section:", progress.student.sec);
-    console.log("Subject Data:", subjData);
-    console.log("Tab switches:", tabSwitchCount);
-    console.log("System tray violations:", systemTrayDetector.violationCount);
-
-    const answersData = captureAllAnswersData();
-    
-    // ✅ CALL THE NEW SUBMIT FUNCTION
-    submitToGoogleForms(answersData);
+   // Summary is shown from showGreenSubmitScreen after submission
 }
 function identifySubject(subjectName) {
     return subjectName; 
