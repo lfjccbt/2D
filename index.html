@@ -3235,7 +3235,6 @@ function showViolationSubmitScreen(message) {
 // ============================================================
 
 function showGreenSubmitScreen(fullUrl, answersData) {
-    // Remove any existing overlay
     const existing = document.getElementById('greenSubmitOverlay');
     if (existing) existing.remove();
     
@@ -3244,7 +3243,6 @@ function showGreenSubmitScreen(fullUrl, answersData) {
         purpleOverlay.parentNode.removeChild(purpleOverlay);
     }
     
-    // Create green screen overlay
     const overlay = document.createElement('div');
     overlay.id = 'greenSubmitOverlay';
     overlay.style.cssText = `
@@ -3280,12 +3278,6 @@ function showGreenSubmitScreen(fullUrl, answersData) {
             <div id="submissionStatus" style="font-size: 20px; color: #ffd700; margin: 20px 0; min-height: 40px; font-weight: bold;">
                 ⏳ Submitting your answers...
             </div>
-            <div id="submissionError" style="font-size: 16px; margin: 10px 0; display: none;">
-                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; color: #856404;">
-                    ⚠️ Submission is taking longer than expected.<br>
-                    Your answers are saved. Please wait or try again.
-                </div>
-            </div>
             <div style="margin-top: 20px; font-size: 14px; color: #b7e4c7;">
                 ⚠️ Do not close this page.
             </div>
@@ -3295,228 +3287,74 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     document.body.appendChild(overlay);
     
     const status = document.getElementById('submissionStatus');
-    const errorDiv = document.getElementById('submissionError');
     
-    let submitted = false;
-    let attempts = 0;
-    const maxAttempts = 3;
-    let retryTimeout = null;
-    let img = null;
+    // ✅ SAVE LOCALLY FIRST (BACKUP)
+    saveSubmissionLocally(answersData);
     
-    // ✅ SAVE DATA IMMEDIATELY (before trying to submit)
-    function saveData() {
-        try {
-            saveSubmissionLocally(answersData);
-            saveExamProgress();
-            localStorage.setItem('submission_pending', 'true');
-            localStorage.setItem('pending_student', JSON.stringify({
-                name: answersData.student.name,
-                roll: answersData.student.roll,
-                adm: answersData.student.adm
-            }));
-            console.log('💾 Data saved for recovery');
-        } catch(e) {
-            console.error('Save error:', e);
+    // ✅ METHOD 1: window.open (MOST RELIABLE)
+    const win = window.open(fullUrl, '_blank');
+    
+    // ✅ METHOD 2: Hidden form (BACKUP - works even if popup blocked)
+    try {
+        const urlParts = fullUrl.split('?');
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = urlParts[0];
+        form.style.display = 'none';
+        
+        const params = new URLSearchParams(urlParts[1] || '');
+        for (const [key, value] of params.entries()) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            form.appendChild(input);
         }
+        document.body.appendChild(form);
+        setTimeout(() => form.submit(), 200);
+        setTimeout(() => {
+            if (form.parentNode) form.parentNode.removeChild(form);
+        }, 1000);
+    } catch(e) {
+        console.log('Form backup failed:', e);
     }
     
-    function clearRecoveryData() {
+    if (status) {
+        status.innerHTML = '📤 Sending data to Google Forms...';
+        status.style.color = '#ffd700';
+    }
+    
+    // ✅ AUTO-CLOSE AFTER 3 SECONDS
+    setTimeout(() => {
+        if (win && !win.closed) {
+            win.close();
+            console.log('✅ Form closed after 3 seconds');
+        }
+        
+        // ✅ CLEAR HISTORY
         try {
-            localStorage.removeItem('submission_pending');
-            localStorage.removeItem('pending_student');
-            localStorage.removeItem('lfjc_exam_progress_v2');
+            window.history.replaceState(null, '', window.location.href);
+            window.history.pushState(null, '', window.location.href);
+            console.log('✅ History cleared');
         } catch(e) {}
-    }
-    
-    // ✅ SAVE NOW
-    saveData();
-    
-    function submitViaImageBeacon() {
-        attempts++;
         
-        if (img && img.parentNode) {
-            img.parentNode.removeChild(img);
-            img = null;
+        if (status) {
+            status.innerHTML = '✅ Submission sent! Loading results...';
+            status.style.color = '#90EE90';
         }
         
-        img = new Image();
-        img.style.cssText = 'display:none; width:0; height:0;';
+        setTimeout(() => {
+            overlay.remove();
+            showSummaryInterface(currentSubjData);
+            localStorage.removeItem('hasViolations');
+            clearSavedExam();
+            showToast('✅ Exam submitted successfully!', 'success', 3000);
+        }, 1000);
         
-        let completed = false;
-        
-        img.onload = function() {
-            if (completed) return;
-            completed = true;
-            
-            if (!submitted) {
-                submitted = true;
-                console.log('✅ Form submitted successfully!');
-                clearRecoveryData();
-                
-                if (status) {
-                    status.innerHTML = '✅ Data sent successfully! Loading results...';
-                    status.style.color = '#90EE90';
-                }
-                if (errorDiv) errorDiv.style.display = 'none';
-                
-                setTimeout(function() {
-                    try {
-                        if (img && img.parentNode) img.parentNode.removeChild(img);
-                        overlay.remove();
-                        showSummaryInterface(currentSubjData);
-                        localStorage.removeItem('hasViolations');
-                        clearSavedExam();
-                        showToast('✅ Exam submitted successfully!', 'success', 3000);
-                    } catch(e) {
-                        console.error('Error showing results:', e);
-                    }
-                }, 1500);
-            }
-        };
-        
-        img.onerror = function() {
-            if (completed) return;
-            completed = true;
-            
-            if (!submitted) {
-                if (attempts < maxAttempts) {
-                    console.log(`⚠️ Attempt ${attempts} failed, retrying...`);
-                    if (status) {
-                        status.innerHTML = `⏳ Retrying... (Attempt ${attempts + 1}/${maxAttempts})`;
-                        status.style.color = '#ffd700';
-                    }
-                    if (errorDiv) errorDiv.style.display = 'none';
-                    
-                    if (img && img.parentNode) img.parentNode.removeChild(img);
-                    img = null;
-                    
-                    retryTimeout = setTimeout(function() {
-                        submitViaImageBeacon();
-                    }, 2000);
-                    
-                } else {
-                    console.error('❌ All submission attempts failed. Data saved locally.');
-                    
-                    if (status) {
-                        status.innerHTML = '⚠️ Submission pending. Your answers are saved.';
-                        status.style.color = '#ff6b6b';
-                    }
-                    if (errorDiv) {
-                        errorDiv.style.display = 'block';
-                        errorDiv.innerHTML = `
-                            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; color: #856404;">
-                                <strong>📌 Your answers are saved!</strong><br><br>
-                                <strong>Option 1:</strong> Click below to retry<br>
-                                <button id="retryNowBtn" style="
-                                    padding: 10px 25px;
-                                    font-size: 16px;
-                                    font-weight: bold;
-                                    background: #4B0082;
-                                    color: white;
-                                    border: none;
-                                    border-radius: 8px;
-                                    cursor: pointer;
-                                    margin: 10px 0;
-                                ">🔄 Retry Now</button>
-                                <br><br>
-                                <strong>Option 2:</strong> Close and resume later<br>
-                                <button id="resumeLaterBtn" style="
-                                    padding: 10px 25px;
-                                    font-size: 16px;
-                                    font-weight: bold;
-                                    background: #dc3545;
-                                    color: white;
-                                    border: none;
-                                    border-radius: 8px;
-                                    cursor: pointer;
-                                    margin: 5px 0;
-                                ">📂 Close & Resume Later</button>
-                                <br><br>
-                                <span style="font-size: 14px; color: #856404;">
-                                    💾 Your data is saved. You can close this page safely.
-                                </span>
-                            </div>
-                        `;
-                    }
-                    
-                    setTimeout(function() {
-                        const retryBtn = document.getElementById('retryNowBtn');
-                        if (retryBtn) {
-                            retryBtn.onclick = function() {
-                                this.disabled = true;
-                                this.textContent = '⏳ Retrying...';
-                                if (status) {
-                                    status.innerHTML = '⏳ Retrying submission...';
-                                    status.style.color = '#ffd700';
-                                }
-                                if (errorDiv) errorDiv.style.display = 'none';
-                                submitted = false;
-                                attempts = 0;
-                                if (retryTimeout) clearTimeout(retryTimeout);
-                                submitViaImageBeacon();
-                            };
-                        }
-                        
-                        const resumeBtn = document.getElementById('resumeLaterBtn');
-                        if (resumeBtn) {
-                            resumeBtn.onclick = function() {
-                                if (status) {
-                                    status.innerHTML = '✅ Data saved. You can close this page.';
-                                    status.style.color = '#90EE90';
-                                }
-                                if (errorDiv) {
-                                    errorDiv.innerHTML = `
-                                        <div style="background: #d4edda; padding: 20px; border-radius: 8px; color: #155724;">
-                                            ✅ Your answers are saved!<br><br>
-                                            <strong>Next steps:</strong><br>
-                                            1. Close this page<br>
-                                            2. Re-open the exam<br>
-                                            3. Click "Continue Exam"<br>
-                                            4. Your progress will be restored
-                                        </div>
-                                    `;
-                                }
-                                setTimeout(function() {
-                                    window.removeEventListener('beforeunload', preventClose);
-                                }, 1000);
-                            };
-                        }
-                    }, 100);
-                }
-            }
-        };
-        
-        // ✅ TIMEOUT - Prevents getting stuck!
-        const timeoutId = setTimeout(function() {
-            if (!completed && !submitted) {
-                console.log('⏳ Image loading timeout, triggering onerror');
-                if (img) {
-                    img.onerror(new Event('timeout'));
-                }
-            }
-        }, 8000);
-        
-        const originalOnload = img.onload;
-        img.onload = function() {
-            clearTimeout(timeoutId);
-            originalOnload.call(this);
-        };
-        
-        // ✅ START - This sends the data!
-        img.src = fullUrl;
-        document.body.appendChild(img);
-        
-        if (status && attempts === 1) {
-            status.innerHTML = '⏳ Sending data to Google Forms...';
-            status.style.color = '#ffd700';
-        }
-    }
-    
-    // ✅ START
-    submitViaImageBeacon();
+    }, 3000);
     
     function preventClose(e) {
-        if (document.getElementById('greenSubmitOverlay') && !submitted) {
+        if (document.getElementById('greenSubmitOverlay')) {
             e.preventDefault();
             e.returnValue = 'Your exam is being submitted. Please wait.';
             return e.returnValue;
@@ -3529,7 +3367,6 @@ function showGreenSubmitScreen(fullUrl, answersData) {
         if (!document.getElementById('greenSubmitOverlay')) {
             window.removeEventListener('beforeunload', preventClose);
             observer.disconnect();
-            if (retryTimeout) clearTimeout(retryTimeout);
         }
     });
     observer.observe(document.body, { childList: true });
