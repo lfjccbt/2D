@@ -3235,6 +3235,7 @@ function showViolationSubmitScreen(message) {
 // ============================================================
 
 function showGreenSubmitScreen(fullUrl, answersData) {
+    // Remove any existing overlay
     const existing = document.getElementById('greenSubmitOverlay');
     if (existing) existing.remove();
     
@@ -3243,6 +3244,7 @@ function showGreenSubmitScreen(fullUrl, answersData) {
         purpleOverlay.parentNode.removeChild(purpleOverlay);
     }
     
+    // Create green screen overlay with SUBMIT button
     const overlay = document.createElement('div');
     overlay.id = 'greenSubmitOverlay';
     overlay.style.cssText = `
@@ -3267,91 +3269,94 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     overlay.innerHTML = `
         <div style="max-width: 600px; width: 100%; animation: fadeIn 0.3s ease;">
             <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
-            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px;">SUBMITTING EXAM...</div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px;">EXAM READY TO SUBMIT</div>
             <div style="font-size: 18px; margin-bottom: 10px; color: #d4edda;">
-                Please wait while your exam is being submitted.
+                Your exam is ready to submit.
             </div>
             <div style="font-size: 16px; margin-bottom: 10px; color: #b7e4c7;">
                 <strong>Student:</strong> ${answersData.student.name}<br>
                 <strong>Roll:</strong> ${answersData.student.roll}
             </div>
-            <div id="submissionStatus" style="font-size: 20px; color: #ffd700; margin: 20px 0; min-height: 40px; font-weight: bold;">
-                ⏳ Submitting your answers...
+            <div id="submissionStatus" style="font-size: 16px; color: #ffd700; margin: 15px 0; min-height: 30px;">
+                Click the button below to submit.
             </div>
+            <button id="greenSubmitBtn" style="
+                padding: 20px 60px;
+                font-size: 28px;
+                font-weight: bold;
+                background: #ffffff;
+                color: #006400;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
+                animation: pulse 1.5s infinite;
+            ">📤 SUBMIT NOW</button>
             <div style="margin-top: 20px; font-size: 14px; color: #b7e4c7;">
-                ⚠️ Do not close this page.
+                ⚠️ Do not close this page until submission is complete.
             </div>
         </div>
     `;
     
     document.body.appendChild(overlay);
     
-    const status = document.getElementById('submissionStatus');
-    
-    // ✅ SAVE LOCALLY FIRST (BACKUP)
-    saveSubmissionLocally(answersData);
-    
-    // ✅ METHOD 1: window.open (MOST RELIABLE)
-    const win = window.open(fullUrl, '_blank');
-    
-    // ✅ METHOD 2: Hidden form (BACKUP - works even if popup blocked)
-    try {
-        const urlParts = fullUrl.split('?');
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = urlParts[0];
-        form.style.display = 'none';
-        
-        const params = new URLSearchParams(urlParts[1] || '');
-        for (const [key, value] of params.entries()) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = value;
-            form.appendChild(input);
-        }
-        document.body.appendChild(form);
-        setTimeout(() => form.submit(), 200);
-        setTimeout(() => {
-            if (form.parentNode) form.parentNode.removeChild(form);
-        }, 1000);
-    } catch(e) {
-        console.log('Form backup failed:', e);
+    // Add click handler for SUBMIT button
+    const submitBtn = document.getElementById('greenSubmitBtn');
+    if (submitBtn) {
+        submitBtn.onclick = function() {
+            // Disable button
+            this.disabled = true;
+            this.textContent = '⏳ SUBMITTING...';
+            this.style.background = '#cccccc';
+            this.style.color = '#666666';
+            this.style.animation = 'none';
+            
+            const status = document.getElementById('submissionStatus');
+            if (status) {
+                status.innerHTML = '⏳ Sending your answers to Google Forms... Please wait.';
+                status.style.color = '#ffd700';
+            }
+            
+            // ✅ SEND DATA VIA FETCH WITH no-cors (NO HISTORY, NO MODIFICATION!)
+            try {
+                const formData = new URLSearchParams(fullUrl.split('?')[1]);
+                fetch(fullUrl.split('?')[0], {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                }).then(() => {
+                    console.log('✅ Data sent to Google Forms via fetch (no history!)');
+                }).catch(() => {
+                    console.log('⚠️ Fetch failed, trying backup...');
+                });
+            } catch(e) {
+                console.log('Fetch error:', e);
+            }
+            
+            // ✅ Also send via Image Beacon (backup - no history)
+            try {
+                const img = new Image();
+                img.style.cssText = 'display:none; width:0; height:0;';
+                img.src = fullUrl;
+                document.body.appendChild(img);
+            } catch(e) {}
+            
+            if (status) {
+                status.innerHTML = '✅ Data sent! Loading results...';
+                status.style.color = '#90EE90';
+            }
+            
+            // ✅ Show results after 3 seconds
+            setTimeout(() => {
+                overlay.remove();
+                showSummaryInterface(currentSubjData);
+                saveSubmissionLocally(answersData);
+                localStorage.removeItem('hasViolations');
+                clearSavedExam();
+                showToast('✅ Exam submitted successfully!', 'success', 3000);
+            }, 3000);
+        };
     }
-    
-    if (status) {
-        status.innerHTML = '📤 Sending data to Google Forms...';
-        status.style.color = '#ffd700';
-    }
-    
-    // ✅ AUTO-CLOSE AFTER 3 SECONDS
-    setTimeout(() => {
-        if (win && !win.closed) {
-            win.close();
-            console.log('✅ Form closed after 3 seconds');
-        }
-        
-        // ✅ CLEAR HISTORY
-        try {
-            window.history.replaceState(null, '', window.location.href);
-            window.history.pushState(null, '', window.location.href);
-            console.log('✅ History cleared');
-        } catch(e) {}
-        
-        if (status) {
-            status.innerHTML = '✅ Submission sent! Loading results...';
-            status.style.color = '#90EE90';
-        }
-        
-        setTimeout(() => {
-            overlay.remove();
-            showSummaryInterface(currentSubjData);
-            localStorage.removeItem('hasViolations');
-            clearSavedExam();
-            showToast('✅ Exam submitted successfully!', 'success', 3000);
-        }, 1000);
-        
-    }, 3000);
     
     function preventClose(e) {
         if (document.getElementById('greenSubmitOverlay')) {
