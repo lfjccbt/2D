@@ -3460,18 +3460,49 @@ function submitWithWindowOpen(answersData) {
             
             const fullUrl = FORM_URL + '?' + params.toString();
             
-            // ✅ Show GREEN SUBMIT SCREEN (instead of Google Form)
+            // Show GREEN SUBMIT SCREEN
             showGreenSubmitScreen(fullUrl, answersData);
+            
+            // ✅✅✅ ADD THESE TWO LINES - THIS FIXES EVERYTHING!
+            // Open Google Form in new tab
+            const win = window.open(fullUrl, '_blank');
+            
+            // Auto-close after 3 seconds (student can't modify)
+            setTimeout(() => {
+                if (win && !win.closed) {
+                    win.close();
+                    console.log('✅ Google Form closed after 3 seconds');
+                }
+            }, 3000);
+            
+            console.log('✅ Form submitted to Google Forms and auto-closed!');
             
             // Save locally as backup
             saveSubmissionLocally(answersData);
             localStorage.removeItem('hasViolations');
             clearSavedExam();
             
+            // Show results after 4 seconds
+            setTimeout(() => {
+                const overlay = document.getElementById('greenSubmitOverlay');
+                if (overlay) overlay.remove();
+                showSummaryInterface(currentSubjData);
+                showToast('✅ Exam submitted successfully!', 'success', 3000);
+            }, 4000);
+            
             resolve(true);
             
         } catch (error) {
             console.error('Submission error:', error);
+            
+            // Fallback - still show results
+            setTimeout(() => {
+                const overlay = document.getElementById('greenSubmitOverlay');
+                if (overlay) overlay.remove();
+                showSummaryInterface(currentSubjData);
+                showToast('⚠️ Exam completed. Please contact admin if data not received.', 'warning', 5000);
+            }, 1000);
+            
             resolve(false);
         }
     });
