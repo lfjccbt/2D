@@ -3230,21 +3230,22 @@ function showViolationSubmitScreen(message) {
     }
 }
 
- // ============================================================
-// GREEN SUBMIT SCREEN - NO HISTORY ENTRY
+// ============================================================
+// GREEN SUBMIT SCREEN - NO HISTORY ENTRY (FIXED)
 // ============================================================
 
 function showGreenSubmitScreen(fullUrl, answersData) {
-    // Remove existing overlay
+    // Remove any existing overlay
     const existing = document.getElementById('greenSubmitOverlay');
     if (existing) existing.remove();
     
+    // ✅ REMOVE THE PURPLE TRANSITION OVERLAY
     const purpleOverlay = document.getElementById('transitionOverlay');
     if (purpleOverlay && purpleOverlay.parentNode) {
         purpleOverlay.parentNode.removeChild(purpleOverlay);
     }
     
-    // Create overlay
+    // Create full screen overlay - IMMEDIATELY FULL GREEN WITH SUBMIT BUTTON
     const overlay = document.createElement('div');
     overlay.id = 'greenSubmitOverlay';
     overlay.style.cssText = `
@@ -3267,55 +3268,68 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     `;
     
     overlay.innerHTML = `
-        <div style="max-width: 600px; width: 100%;">
+        <div style="max-width: 600px; width: 100%; animation: fadeIn 0.3s ease;">
             <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
-            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px;">SUBMITTING EXAM...</div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px;">EXAM SUBMITTED</div>
             <div style="font-size: 18px; margin-bottom: 10px; color: #d4edda;">
-                Your exam is being submitted.
+                Your exam has been successfully submitted!
             </div>
             <div style="font-size: 16px; margin-bottom: 10px; color: #b7e4c7;">
                 <strong>Student:</strong> ${answersData.student.name}<br>
                 <strong>Roll:</strong> ${answersData.student.roll}
             </div>
             <div id="submissionStatus" style="font-size: 16px; color: #ffd700; margin: 15px 0; min-height: 30px;">
-                ⏳ Please wait...
+                ⏳ Submitting... Please wait.
             </div>
             <div style="margin-top: 20px; font-size: 14px; color: #b7e4c7;">
-                ⚠️ Do not close this page.
+                ✅ Your answers have been recorded.
             </div>
         </div>
     `;
+    
+    // Add animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    `;
+    document.head.appendChild(style);
     
     document.body.appendChild(overlay);
     
     const status = document.getElementById('submissionStatus');
     
-    // ✅ METHOD 1: window.open (WORKS 100% with Google Forms)
-    const win = window.open(fullUrl, '_blank');
+    // ✅ FIX: Use Image Beacon - NO HISTORY, NO MODIFICATION!
+    const img = document.createElement('img');
+    img.style.cssText = 'display:none; width:0; height:0;';
+    img.src = fullUrl;
+    document.body.appendChild(img);
     
-    // ✅ Auto-close after 3 seconds (student can't modify)
-    setTimeout(() => {
-        if (win && !win.closed) {
-            win.close();
-            console.log('✅ Google Form closed after 3 seconds');
-        }
-    }, 3000);
+    console.log('✅ Form submitted via image beacon (no history, no modification!)');
     
     if (status) {
-        status.innerHTML = '✅ Submission sent!';
+        status.innerHTML = '✅ Submission sent! Loading results...';
         status.style.color = '#90EE90';
     }
     
-    // Show results after 4 seconds
+    // Show results after 3 seconds
     setTimeout(() => {
+        if (img.parentNode) img.parentNode.removeChild(img);
         overlay.remove();
         showSummaryInterface(currentSubjData);
         saveSubmissionLocally(answersData);
         localStorage.removeItem('hasViolations');
         clearSavedExam();
         showToast('✅ Exam submitted successfully!', 'success', 3000);
-    }, 4000);
+    }, 3000);
     
+    // Prevent closing the page during submission
     function preventClose(e) {
         if (document.getElementById('greenSubmitOverlay')) {
             e.preventDefault();
@@ -3326,6 +3340,7 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     
     window.addEventListener('beforeunload', preventClose);
     
+    // Remove the listener when overlay is removed
     const observer = new MutationObserver(function() {
         if (!document.getElementById('greenSubmitOverlay')) {
             window.removeEventListener('beforeunload', preventClose);
