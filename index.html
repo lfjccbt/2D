@@ -3290,49 +3290,31 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     
     const status = document.getElementById('submissionStatus');
     
-    // ✅ METHOD 1: Hidden form with POST (NO HISTORY, student can't see)
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = fullUrl.split('?')[0];
-    form.style.display = 'none';
-    form.target = 'hidden-frame';
+    // ✅ METHOD 1: window.open (WORKS 100% with Google Forms)
+    const win = window.open(fullUrl, '_blank');
     
-    // Parse URL parameters and add as hidden inputs
-    const params = new URLSearchParams(fullUrl.split('?')[1]);
-    for (const [key, value] of params.entries()) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-    }
-    
-    // Create hidden iframe (only for form target, not visible)
-    const iframe = document.createElement('iframe');
-    iframe.name = 'hidden-frame';
-    iframe.style.cssText = 'display:none; width:0; height:0; border:none;';
-    document.body.appendChild(iframe);
-    document.body.appendChild(form);
-    
-    // Submit the form
-    form.submit();
+    // ✅ Auto-close after 3 seconds (student can't modify)
+    setTimeout(() => {
+        if (win && !win.closed) {
+            win.close();
+            console.log('✅ Google Form closed after 3 seconds');
+        }
+    }, 3000);
     
     if (status) {
         status.innerHTML = '✅ Submission sent!';
         status.style.color = '#90EE90';
     }
     
-    // Clean up and show results
+    // Show results after 4 seconds
     setTimeout(() => {
-        if (form.parentNode) form.parentNode.removeChild(form);
-        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
         overlay.remove();
         showSummaryInterface(currentSubjData);
         saveSubmissionLocally(answersData);
         localStorage.removeItem('hasViolations');
         clearSavedExam();
         showToast('✅ Exam submitted successfully!', 'success', 3000);
-    }, 3000);
+    }, 4000);
     
     function preventClose(e) {
         if (document.getElementById('greenSubmitOverlay')) {
