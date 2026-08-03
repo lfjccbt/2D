@@ -7781,7 +7781,7 @@ console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "
     position: fixed;
     bottom: 80px;
     right: 10px;
-    background: #dc3545;
+    background:#4B0082;
     color: white;
     padding: 12px 20px;
     border: none;
@@ -7792,7 +7792,7 @@ console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "
     z-index: 999999;
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 ">
-    🔒 Teacher Access
+    🔒 ADMIN ACCESS
 </button>
 
 <!-- ===== TEACHER PANEL (In-Interface) ===== -->
@@ -7811,7 +7811,7 @@ console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "
     max-width: 90%;
     border: 3px solid #4B0082;
 ">
-    <h2 style="color: #4B0082; margin-top: 0;">🔒 Teacher Access</h2>
+    <h2 style="color: #4B0082; margin-top: 0;">🔒 ADMIN ACCESS</h2>
     
     <div id="panelContent">
         <!-- Step 1: Password -->
@@ -8114,7 +8114,7 @@ function showResultWithDelete(count, filterDate, allData) {
         ⚠️ <strong>${count}</strong> students missing for <strong>${dateLabel}</strong>!<br>
         CSV downloaded successfully.
         <br><br>
-        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 30px;">
             <button onclick="deleteData('${filterDate || ''}')" style="
                 background: #dc3545;
                 color: white;
