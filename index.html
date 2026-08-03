@@ -430,7 +430,7 @@ button:focus {
 }
 
 
-#fullRedOverlay {
+#RedOverlay {
   position: fixed;
   left: 0;
   top: 0;
@@ -1877,16 +1877,6 @@ setInterval(function() {
         percentEl.style.color = '#32CD32';
     }
 }, 500);
-// =============================================
-// ✅ ADD THESE 3 LINES HERE
-// =============================================
-setInterval(autoRecover, 15000);
-setTimeout(autoRecover, 5000);
-window.addEventListener('online', function() {
-    setTimeout(autoRecover, 2000);
-});
-console.log('✅ Auto-recovery system ACTIVE');
-  
 </script>
 <!-- =========================================================== -->
 <!-- === END FULL SCREEN SYSTEM === -->
@@ -2303,6 +2293,8 @@ const ALL_SUBJECTS = {
     "BZ":        { questions: 25, numerical: 0 },
 };
 
+
+
 // =============================================
 // AUTO-BUILD (Don't change anything below)
 // =============================================
@@ -2320,7 +2312,7 @@ function buildExamSetup() {
         }
     });
     if (subjects.length === 0) {
-        subjects.push({ name: "MATHS_B", questions: 25, numerical: 0 });
+        subjects.push({ name: "MATHS_B", questions: 40, numerical: 0 });
     }
     return {
         subjects: subjects,
@@ -2501,6 +2493,7 @@ let resumeInProgress = false;
 let secretPasswordBuffer = '';
 let unblurPasswordBuffer = '';
 let fastPassBuffer = '';           // ← NEW: Buffer for fastpass
+let violationOverrideBuffer = '';  // ← ADD THIS LINE  
 const SUBMIT_PASSWORD = 'ssrell';
 const UNBLUR_PASSWORD = 'bul';
 const FAST_PASS = 'fastpass';      // ← NEW: Password to override pause
@@ -3245,18 +3238,20 @@ function showViolationSubmitScreen(message) {
 // ============================================================
 
 function showGreenSubmitScreen(fullUrl, answersData) {
-     saveSubmissionLocally(answersData);  // ← ADD THIS LINE HERE
-    // Remove any existing overlay
+    // ===== PREVENT DUPLICATE GREEN SCREEN =====
+    if (googleSubmissionComplete) {
+        console.log('⚠️ Green screen already shown - ignoring duplicate');
+        return;
+    }
+    
     const existing = document.getElementById('greenSubmitOverlay');
     if (existing) existing.remove();
     
-    // ✅ REMOVE THE PURPLE TRANSITION OVERLAY
     const purpleOverlay = document.getElementById('transitionOverlay');
     if (purpleOverlay && purpleOverlay.parentNode) {
         purpleOverlay.parentNode.removeChild(purpleOverlay);
     }
     
-    // Create full screen overlay - IMMEDIATELY FULL GREEN WITH SUBMIT BUTTON
     const overlay = document.createElement('div');
     overlay.id = 'greenSubmitOverlay';
     overlay.style.cssText = `
@@ -3265,7 +3260,7 @@ function showGreenSubmitScreen(fullUrl, answersData) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 128, 0, 0.95);
+        background: rgba(0, 128, 0, 0.99);
         z-index: 999999;
         display: flex;
         justify-content: center;
@@ -3280,18 +3275,16 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     
     overlay.innerHTML = `
         <div style="max-width: 600px; width: 100%; animation: fadeIn 0.3s ease;">
-            <div style="font-size: 60px; margin-bottom: 20px;"></div>
-            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px;"></div>
+            <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
+            <div style="font-size: 32px; font-weight: bold; margin-bottom: 15px;">YOUR EXAM IS READY TO SUBMIT</div>
             <div style="font-size: 18px; margin-bottom: 10px; color: #d4edda;">
-                Your exam is ready to submit.
+                
             </div>
             <div style="font-size: 16px; margin-bottom: 10px; color: #b7e4c7;">
                 <strong>Student:</strong> ${answersData.student.name}<br>
                 <strong>Roll:</strong> ${answersData.student.roll}
             </div>
-            <div id="submissionStatus" style="font-size: 16px; color: #ffd700; margin: 15px 0; min-height: 30px;">
-                
-            </div>
+            <div id="submissionStatus" style="font-size: 16px; color: #ffd700; margin: 15px 0; min-height: 30px;"></div>
             <button id="greenSubmitBtn" style="
                 padding: 20px 60px;
                 font-size: 28px;
@@ -3310,16 +3303,11 @@ function showGreenSubmitScreen(fullUrl, answersData) {
         </div>
     `;
     
-    // Add animations
     const style = document.createElement('style');
     style.textContent = `
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
@@ -3330,18 +3318,20 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     
     document.body.appendChild(overlay);
     
-    // Add click handler for the submit button immediately (NO DELAY)
     const submitBtn = document.getElementById('greenSubmitBtn');
     if (submitBtn) {
         submitBtn.onclick = function() {
-            // Disable button immediately
+            if (googleSubmissionComplete) {
+                console.log('⚠️ Submission already complete - ignoring duplicate click');
+                return;
+            }
+            
             this.disabled = true;
             this.textContent = '⏳ SUBMITTING...';
             this.style.background = '#cccccc';
             this.style.color = '#666666';
             this.style.animation = 'none';
             
-            // Update status
             const status = document.getElementById('submissionStatus');
             if (status) {
                 status.innerHTML = '⏳ Submitting your answers... Please wait.';
@@ -3349,54 +3339,52 @@ function showGreenSubmitScreen(fullUrl, answersData) {
             }
             
             console.log('✅ Student clicked SUBMIT on green screen');
+            googleSubmissionComplete = true;
             
-            // Use hidden iframe
-            const iframe = document.createElement('iframe');
-            iframe.style.cssText = 'display:none; width:0; height:0; border:none;';
-            iframe.src = fullUrl;
-            document.body.appendChild(iframe);
+            // ===== USE FETCH WITH NO-CORS =====
+            const formData = new URLSearchParams(fullUrl.split('?')[1]);
             
-            // Update status
-            if (status) {
-                status.innerHTML = '✅ Submission sent! Processing...';
-                status.style.color = '#90EE90';
-            }
-            
-            // Remove iframe after 3 seconds
-            setTimeout(() => {
-                if (iframe.parentNode) {
-                    iframe.parentNode.removeChild(iframe);
-                }
-                console.log('📤 Form submitted via iframe - No history entry');
-                
-                // Update status
+            fetch(fullUrl.split('?')[0], {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString()
+            })
+            .then(() => {
+                console.log('✅ Submission sent successfully');
                 if (status) {
-                    status.innerHTML = '✅ Submission successful! Loading results...';
-                    status.style.color = '#32CD32';
+                    status.innerHTML = '✅ Submission sent! Processing...';
+                    status.style.color = '#90EE90';
                 }
                 
-                // Wait 1 second then show results
                 setTimeout(() => {
-                    // Remove overlay
-                    overlay.remove();
+                    if (status) {
+                        status.innerHTML = '✅ Submission successful! Loading results...';
+                        status.style.color = '#32CD32';
+                    }
                     
-                    // Show results
-                    showSummaryInterface(currentSubjData);
-                    
-                    // Save locally as backup
-                    saveSubmissionLocally(answersData);
-                    localStorage.removeItem('hasViolations');
-                    clearSavedExam();
-                    
-                    // Show success toast
-                    showToast('✅ Exam submitted successfully!', 'success', 3000);
-                }, 1000);
-                
-            }, 3000);
+                    setTimeout(() => {
+                        overlay.remove();
+                        showSummaryInterface(currentSubjData);
+                        saveSubmissionLocally(answersData);
+                        localStorage.removeItem('hasViolations');
+                        clearSavedExam();
+                        isSubmittingToGoogle = false;
+                    }, 1000);
+                }, 2000);
+            })
+            .catch((error) => {
+                console.error('❌ Submission error:', error);
+                alert('⚠️ Submission failed! Data saved locally. Contact teacher.');
+                saveSubmissionLocally(answersData);
+                isSubmittingToGoogle = false;
+                googleSubmissionComplete = false;
+            });
         };
     }
     
-    // Prevent closing the page during submission
     function preventClose(e) {
         if (document.getElementById('greenSubmitOverlay')) {
             e.preventDefault();
@@ -3407,7 +3395,6 @@ function showGreenSubmitScreen(fullUrl, answersData) {
     
     window.addEventListener('beforeunload', preventClose);
     
-    // Remove the listener when overlay is removed
     const observer = new MutationObserver(function() {
         if (!document.getElementById('greenSubmitOverlay')) {
             window.removeEventListener('beforeunload', preventClose);
@@ -4440,7 +4427,7 @@ class FullScreenSecurity {
         this.isFullScreen = false;
         this.securityActive = false;
         this.retryInterval = null;
-        this.maxRetryAttempts = 3;
+        this.maxRetryAttempts = 5;
         this.retryCount = 0;
         this.warningTimeout = null;  // ADD THIS LINE
         this.createWarningOverlay();
@@ -4890,11 +4877,8 @@ function prepareExamData() {
 }
 
 
-
-
 function renderQuestion() {
   const idx = progress.currentIndex;
-  
   // ✅ Only start timer if:
   // 1. Question hasn't been waited on yet
   // 2. Timer hasn't already started for this question
@@ -5546,7 +5530,7 @@ function startExam(studentKey) {
     isNavWarningShowing = false;
     console.log('🔄 Navigation tracker reset for new exam');
     
-       // ===== RESET PASSWORD BUFFERS =====
+    // ===== RESET PASSWORD BUFFERS =====
     secretPasswordBuffer = '';
     unblurPasswordBuffer = '';
     submitUnlocked = false;
@@ -5563,12 +5547,13 @@ function startExam(studentKey) {
         clearTimeout(reviewTimer);
         reviewTimer = null;
     }
-      const reviewCounter = document.getElementById('reviewCounter');
+    const reviewCounter = document.getElementById('reviewCounter');
     if (reviewCounter) {
         reviewCounter.textContent = `✏️ Modify Answers: 0/${MAX_REVIEWS}`;
         reviewCounter.style.color = '#1E90FF';
     }
     console.log('🔄 Review tracker reset');
+    
     if (!keyLoaded) {
         alert('Answer key not loaded. Contact admin.');
         return;
@@ -5606,16 +5591,8 @@ function startExam(studentKey) {
             timeLeftSec: EXAM_DURATION_MINUTES * 60
         };
         examStartTime = Date.now();
-          progress = {
-        answers: Array(examData.files.length).fill(null),
-        review: Array(examData.files.length).fill(false),
-        currentIndex: 0,
-        student: {name: stuName.value, sec: stuSection.value, roll: stuRoll.value, adm: stuAdm.value},
-        timeLeftSec: EXAM_DURATION_MINUTES * 60
-    };
-    examStartTime = Date.now();
-    questionWaited = new Array(examData.files.length).fill(false); // ← ADD THIS ONE LINE
-    questionTimerStarted = {};  // ← ADD THIS LINE - Reset timer tracking
+        questionWaited = new Array(examData.files.length).fill(false);
+        questionTimerStarted = {};
     }
 
     examInProgress = true;
@@ -5632,7 +5609,7 @@ function startExam(studentKey) {
     
     if (hasViolations) {
         document.getElementById('submitBtn').style.display = 'inline-block';
-        showToast('⚠️ Previous violations detected. ', 'warning', 5000);
+        showToast('⚠️ Previous violations detected.', 'warning', 5000);
         localStorage.removeItem('hasViolations');
     } else {
         updateSubmitButtonVisibility();
@@ -5645,8 +5622,6 @@ function startExam(studentKey) {
     submitUnlocked = false;
     document.getElementById('submitBtn').style.display = 'none';
 }
-
-
 
 function updateQuestionInfo() {
   const idx = progress.currentIndex;
@@ -5704,21 +5679,20 @@ function renderPalette() {
   
   const idx = parseInt(this.getAttribute('data-index'));
   
-  // ===== TIME CHECK =====
-  // Only check if the target question hasn't been answered yet
-  if (!teacherOverride && progress.answers[idx] === null) {
-    // Only check the current question's timer if navigating to a different question
-    if (idx !== progress.currentIndex && !questionWaited[progress.currentIndex]) {
-      const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
-      if (timeSpent < MIN_TIME_PER_QUESTION) {
-        const remaining = MIN_TIME_PER_QUESTION - timeSpent;
-        showToast(`⏳ Please wait ${remaining}s on current question before navigating!`, 'warning', 2000);
-        return;
-      }
-      questionWaited[progress.currentIndex] = true;
+  // ===== TIME CHECK - BLOCK PALETTE NAVIGATION IF TIMER RUNNING =====
+if (!teacherOverride && idx !== progress.currentIndex) {
+  // Check if timer is still running for the current question
+  if (!questionWaited[progress.currentIndex]) {
+    const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+    if (timeSpent < MIN_TIME_PER_QUESTION) {
+      const remaining = MIN_TIME_PER_QUESTION - timeSpent;
+      showToast(`⏳ Please wait ${remaining}s before navigating!`, 'warning', 2000);
+      return; // BLOCK navigation
     }
+    questionWaited[progress.currentIndex] = true;
   }
-  // ===== END TIME CHECK =====
+}
+// ===== END TIME CHECK =====
   
   // Check for rapid navigation on palette click
   if (checkRapidNavigation('palette')) {
@@ -5804,10 +5778,10 @@ function updateNavButtons() {
   nextBtn.disabled = idx === examData.files.length - 1;
   
   if (progress.review[idx]) {
-    markReviewBtn.textContent = 'Unmark Review';
+    markReviewBtn.textContent = 'Do Now';
     markReviewBtn.style.background = 'linear-gradient(145deg, #dc3545, #c82333)';
   } else {
-    markReviewBtn.textContent = 'Mark for Review';
+    markReviewBtn.textContent = 'Do Last';
     markReviewBtn.style.background = 'linear-gradient(145deg, #ffb84d, var(--warning))';
   }
 }
@@ -6459,29 +6433,80 @@ async function submitToGoogleForms(answersData) {
     }
 
     try {
-        console.log(`📤 Adding student ${answersData.student.name} to submission queue...`);
+        const marks = calculateSubjectMarks(answersData.summary);
         
-        // Add to queue
-        const result = await new Promise((resolve, reject) => {
-            submissionQueue.push({
-                data: answersData,
-                resolve: resolve,
-                reject: reject,
-                timestamp: Date.now()
-            });
-            
-            // Start processing queue if not already running
-            if (!isSubmitting) {
-                processSubmissionQueue();
+        // Build the form data
+        const formData = new URLSearchParams();
+        
+        // Student Information
+        formData.append(FORM_FIELDS.STUDENT_NAME, answersData.student.name);
+        formData.append(FORM_FIELDS.SECTION, answersData.student.sec);
+        formData.append(FORM_FIELDS.ROLL_NUMBER, answersData.student.roll);
+        formData.append(FORM_FIELDS.ADMISSION_NUMBER, answersData.student.adm);
+        
+        const subjectCodes = (EXAM_SETUP.activeForForms || []).map(s => {
+            if (s === "MATHS_A") return "MA";
+            if (s === "MATHS_B") return "MB";
+            if (s === "MATHS") return "M";
+            if (s === "PHYSICS") return "P";
+            if (s === "CHEMISTRY") return "C";
+            if (s === "BOTANY") return "B";
+            if (s === "ZOOLOGY") return "Z";
+            if (s === "BZ") return "BZ";
+            return s.substring(0,1);
+        }).join(', ');
+        
+        const today = new Date();
+        const dateStr = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear().toString().slice(-2)}`;
+        formData.set(FORM_FIELDS.SECTION, answersData.student.sec + " " + dateStr + " " + subjectCodes);
+        
+        // Subject Marks
+        const activeSubjects = EXAM_SETUP.activeForForms || [];
+        for (let subject of activeSubjects) {
+            if (marks[subject] !== undefined) {
+                const markValue = marks[subject].toFixed(2);
+                switch(subject) {
+                    case "PHYSICS": formData.append(FORM_FIELDS.PHYSICS, markValue); break;
+                    case "CHEMISTRY": formData.append(FORM_FIELDS.CHEMISTRY, markValue); break;
+                    case "MATHS": formData.append(FORM_FIELDS.MATHS, markValue); break;
+                    case "MATHS_A": formData.append(FORM_FIELDS.MATHS_A, markValue); break;
+                    case "MATHS_B": formData.append(FORM_FIELDS.MATHS_B, markValue); break;
+                    case "BOTANY": formData.append(FORM_FIELDS.BOTANY, markValue); break;
+                    case "ZOOLOGY": formData.append(FORM_FIELDS.ZOOLOGY, markValue); break;
+                    case "BZ": formData.append(FORM_FIELDS.BZ, markValue); break;
+                }
             }
+        }
+        
+        formData.append(FORM_FIELDS.TOTAL_MARKS, marks.total.toFixed(2));
+        formData.append(FORM_FIELDS.ALL_ANSWERS, formatAllAnswersString(progress.answers));
+        
+        console.log("📤 Submitting to Google Forms...");
+        console.log("📋 Form URL:", FORM_URL);
+        
+        // ===== FETCH WITH NO-CORS =====
+        const response = await fetch(FORM_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            keepalive: true,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formData.toString()
         });
         
-        return result;
+        // With no-cors, response is opaque, but we assume success if no error
+        console.log('✅ Google Forms submission completed (no-cors)');
+        showToast('✅ Exam submitted successfully!', 'success', 3000);
+        
+        localStorage.removeItem('hasViolations');
+        clearSavedExam();
+        return true;
         
     } catch (error) {
         console.error("❌ Submission error:", error);
         saveSubmissionLocally(answersData);
-        showToast('⚠️ Submission saved locally', 'warning', 5000);
+        showToast('⚠️ Submission saved locally. Contact administrator.', 'warning', 5000);
         return false;
     }
 }
@@ -6507,24 +6532,36 @@ async function processSubmissionQueue() {
                 showSubmissionProgress(processed, total);
             }
             
-            // Calculate delay (5-10 seconds between students)
-            const delay = 5000 + (Math.random() * 5000);
-            
-            console.log(`⏳ Waiting ${(delay/1000).toFixed(1)}s before submitting ${answersData.student.name}`);
-            await sleep(delay);
-            
-            console.log(`📤 Submitting #${++submissionCounter} for ${answersData.student.name}`);
-            
-            // Submit using simple window.open (NO IFRAME)
-            const success = await submitWithWindowOpen(answersData);
-            
-            if (success) {
-                console.log(`✅ Submission #${submissionCounter} successful for ${answersData.student.name}`);
-                resolve(true);
-            } else {
-                saveSubmissionLocally(answersData);
-                reject(new Error('Submission failed'));
-            }
+           // ✅ RETRY LOGIC - 5 attempts!
+let success = false;
+let attempts = 0;
+const maxAttempts = 5;
+
+while (!success && attempts < maxAttempts) {
+    attempts++;
+    console.log(`📤 Attempt ${attempts}/${maxAttempts} for ${answersData.student.name}`);
+    
+    const delay = 5000 + (Math.random() * 5000);
+    console.log(`⏳ Waiting ${(delay/1000).toFixed(1)}s`);
+    await sleep(delay);
+    
+    // Submit using simple window.open (NO IFRAME)
+    success = await submitWithWindowOpen(answersData);
+    
+    if (!success && attempts < maxAttempts) {
+        console.log(`❌ Attempt ${attempts} failed. Retrying...`);
+        await sleep(3000); // Wait before retry
+    }
+}
+
+if (success) {
+    console.log(`✅ Submission #${++submissionCounter} successful for ${answersData.student.name}`);
+    resolve(true);
+} else {
+    console.error(`❌ All ${maxAttempts} attempts failed for ${answersData.student.name}`);
+    saveSubmissionLocally(answersData);
+    reject(new Error('Submission failed after ' + maxAttempts + ' attempts'));
+}
             
         } catch (error) {
             console.error(`❌ Submission #${submissionCounter} failed:`, error);
@@ -6568,7 +6605,7 @@ function saveSubmissionLocally(answersData) {
         localStorage.setItem('local_exam_submissions', JSON.stringify(localSubmissions));
         
         console.log('💾 Submission saved locally for manual recovery');
-        showToast('💾 Submission saved locally. Contact administrator if needed.', 'warning', 5000);
+        showToast('💾 Submission saved locally.', 'warning', 5000);
         
     } catch (error) {
         console.error('❌ Failed to save submission locally:', error);
@@ -6603,10 +6640,10 @@ function showSubmissionProgress(processed, total) {
         `;
     }
 }
-async function submitToGoogleFormsWithRetry(answersData, maxRetries = 10) {
+async function submitToGoogleFormsWithRetry(answersData, maxRetries = 5) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            console.log(`📤 Submission attempt ${attempt}/${maxRetries} for ${answersData.student.name}`);
+            console.log(`📤 Submission attempt ${attempt}/${maxRetries}`);
             
             if (!navigator.onLine) {
                 console.log('📴 Offline - saving locally');
@@ -6621,10 +6658,10 @@ async function submitToGoogleFormsWithRetry(answersData, maxRetries = 10) {
             }
             
             if (attempt < maxRetries) {
-            const backoff = 5000 * Math.pow(2, attempt - 1);
-            console.log(`⏳ Backoff ${backoff/1000}s before retry ${attempt + 1}`);
-            await sleep(backoff);
-        }
+                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+                console.log(`⏳ Retrying in ${delay/1000} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
             
         } catch (error) {
             console.error(`❌ Submission error (attempt ${attempt}):`, error);
@@ -6638,163 +6675,182 @@ async function submitToGoogleFormsWithRetry(answersData, maxRetries = 10) {
     
     return { success: false, error: 'Max retries exceeded' };
 }
-
 function submitExam() {
-  // ✅ PREVENT MULTIPLE SUBMISSIONS - CHECK FIRST!
-  if (hasSubmitted) {
-    console.log('⚠️ Exam already submitted - ignoring duplicate call');
-    return;
-  }
-  
-  // ✅ CREATE FULL SCREEN PURPLE TRANSITION OVERLAY (STAYS UNTIL GREEN SCREEN IS READY!)
-  const transitionOverlay = document.createElement('div');
-  transitionOverlay.id = 'transitionOverlay';
-  transitionOverlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(145deg, #4B0082, #8A2BE2);
-    z-index: 999999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: white;
-    font-family: 'SF Pro Display', Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
-  `;
-  transitionOverlay.innerHTML = `
-    <div style="max-width: 500px; animation: fadeIn 0.3s ease;">
-      <div style="font-size: 70px; margin-bottom: 20px;">⏳</div>
-      <h1 style="font-size: 32px; margin-bottom: 10px; color: white;">Preparing Submission...</h1>
-      <p style="font-size: 18px; color: #d4edda; margin-bottom: 10px;"></p>
-      <div style="width: 60px; height: 60px; border: 5px solid rgba(255,255,255,0.3); 
-                  border-top: 5px solid #ffffff; border-radius: 50%; 
-                  animation: spin 1s linear infinite; margin: 30px auto;">
-      </div>
-      <p style="font-size: 14px; color: #b7e4c7; margin-top: 10px;">Do not close this page.</p>
-    </div>
-  `;
-  
-  // Add animation styles if not exists
-  if (!document.getElementById('transitionStyles')) {
-    const style = document.createElement('style');
-    style.id = 'transitionStyles';
-    style.textContent = `
-      @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
+    // ✅ PREVENT MULTIPLE SUBMISSIONS - CHECK FIRST!
+    if (hasSubmitted) {
+        console.log('⚠️ Exam already submitted - ignoring duplicate call');
+        return;
+    }
+    
+    // ===== RESET SUBMISSION FLAGS =====
+    isSubmittingToGoogle = false;
+    googleSubmissionComplete = false;
+    
+    // ✅ CREATE FULL SCREEN PURPLE TRANSITION OVERLAY
+    const transitionOverlay = document.createElement('div');
+    transitionOverlay.id = 'transitionOverlay';
+    transitionOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(145deg, #4B0082, #8A2BE2);
+        z-index: 999999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: white;
+        font-family: 'SF Pro Display', Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
     `;
-    document.head.appendChild(style);
-  }
-  
-  document.body.appendChild(transitionOverlay);
-  
-  // ✅ HIDE THE EXAM AREA
-  document.getElementById('examArea').style.display = 'none';
-  
-  // Force full screen multiple times for results - STRONGER
-  goFullScreen();
-  setTimeout(goFullScreen, 100);
-  setTimeout(goFullScreen, 200);
-  setTimeout(goFullScreen, 300);
-  setTimeout(goFullScreen, 500);
-  setTimeout(goFullScreen, 800);
-  setTimeout(goFullScreen, 1000);
-  setTimeout(goFullScreen, 1500);
-  setTimeout(goFullScreen, 2000);
-  setTimeout(goFullScreen, 3000);
-  setTimeout(goFullScreen, 5000);
-  
-  clearInterval(timerInterval);
-  
-  keepAwakeSystem.stop();
-  
-  if (autoSaveTimer) {
-    clearInterval(autoSaveTimer);
-    autoSaveTimer = null;
-  }
-  
-  hasSubmitted = true;
-  examInProgress = false;
-  
-  examSecurity.disable();
-  systemTrayDetector.disable();
-  
-  const subjData = {};
-  examData.subjectNames.forEach((s, i) => {
-    const subjectName = identifySubject(s);
-    if (!subjData[subjectName]) subjData[subjectName] = {
-      correct: 0, wrong: 0, blank: 0, total: 0, marks: 0,
-      mcq: { total: 0, correct: 0 },
-      fillBlank: { total: 0, correct: 0 }
-    };
+    transitionOverlay.innerHTML = `
+        <div style="max-width: 500px; animation: fadeIn 0.3s ease;">
+            <div style="font-size: 70px; margin-bottom: 20px;">⏳</div>
+            <h1 style="font-size: 32px; margin-bottom: 10px; color: white;">Preparing Submission...</h1>
+            <p style="font-size: 18px; color: #d4edda; margin-bottom: 10px;"></p>
+            <div style="width: 60px; height: 60px; border: 5px solid rgba(255,255,255,0.3); 
+                        border-top: 5px solid #ffffff; border-radius: 50%; 
+                        animation: spin 1s linear infinite; margin: 30px auto;">
+            </div>
+            <p style="font-size: 14px; color: #b7e4c7; margin-top: 10px;">Do not close this page.</p>
+        </div>
+    `;
     
-    const ans = progress.answers[i];
-    const questionType = examData.questionTypes[i];
-    
-    if (questionType === 'mcq') {
-      subjData[subjectName].mcq.total++;
-    } else {
-      subjData[subjectName].fillBlank.total++;
+    // Add animation styles if not exists
+    if (!document.getElementById('transitionStyles')) {
+        const style = document.createElement('style');
+        style.id = 'transitionStyles';
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: scale(0.95); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
     }
     
-    if (ans === null) {
-      subjData[subjectName].blank++;
-    } else if (ans === examData.keys[i]) {
-      subjData[subjectName].correct++;
-      subjData[subjectName].marks += MARK_PER_CORRECT;
-      
-      if (questionType === 'mcq') {
-        subjData[subjectName].mcq.correct++;
-      } else {
-        subjData[subjectName].fillBlank.correct++;
-      }
-    } else {
-      subjData[subjectName].wrong++;
-      subjData[subjectName].marks += MARK_PER_WRONG;
+    document.body.appendChild(transitionOverlay);
+    
+    // HIDE THE EXAM AREA
+    document.getElementById('examArea').style.display = 'none';
+    
+    // Force full screen multiple times for results - STRONGER
+    goFullScreen();
+    setTimeout(goFullScreen, 100);
+    setTimeout(goFullScreen, 200);
+    setTimeout(goFullScreen, 300);
+    setTimeout(goFullScreen, 500);
+    setTimeout(goFullScreen, 800);
+    setTimeout(goFullScreen, 1000);
+    setTimeout(goFullScreen, 1500);
+    setTimeout(goFullScreen, 2000);
+    setTimeout(goFullScreen, 3000);
+    setTimeout(goFullScreen, 5000);
+    
+    clearInterval(timerInterval);
+    keepAwakeSystem.stop();
+    
+    if (autoSaveTimer) {
+        clearInterval(autoSaveTimer);
+        autoSaveTimer = null;
     }
-    subjData[subjectName].total++;
-  });
+    
+    hasSubmitted = true;
+    examInProgress = false;
+    examSecurity.disable();
+    systemTrayDetector.disable();
+    
+    const subjData = {};
+    examData.subjectNames.forEach((s, i) => {
+        const subjectName = identifySubject(s);
+        if (!subjData[subjectName]) subjData[subjectName] = {
+            correct: 0, wrong: 0, blank: 0, total: 0, marks: 0,
+            mcq: { total: 0, correct: 0 },
+            fillBlank: { total: 0, correct: 0 }
+        };
+        
+        const ans = progress.answers[i];
+        const questionType = examData.questionTypes[i];
+        
+        if (questionType === 'mcq') {
+            subjData[subjectName].mcq.total++;
+        } else {
+            subjData[subjectName].fillBlank.total++;
+        }
+        
+        if (ans === null) {
+            subjData[subjectName].blank++;
+        } else if (ans === examData.keys[i]) {
+            subjData[subjectName].correct++;
+            subjData[subjectName].marks += MARK_PER_CORRECT;
+            
+            if (questionType === 'mcq') {
+                subjData[subjectName].mcq.correct++;
+            } else {
+                subjData[subjectName].fillBlank.correct++;
+            }
+        } else {
+            subjData[subjectName].wrong++;
+            subjData[subjectName].marks += MARK_PER_WRONG;
+        }
+        subjData[subjectName].total++;
+    });
 
-  currentSubjData = subjData;
-  
-  console.log("🎯 FINAL SUBMISSION DATA:");
-  console.log("Student:", progress.student.name);
-  console.log("Section:", progress.student.sec);
-  console.log("Subject Data:", subjData);
-  console.log("Tab switches:", tabSwitchCount);
-  console.log("System tray violations:", systemTrayDetector.violationCount);
+    currentSubjData = subjData;
+    
+    console.log("🎯 FINAL SUBMISSION DATA:");
+    console.log("Student:", progress.student.name);
+    console.log("Section:", progress.student.sec);
+    console.log("Subject Data:", subjData);
+    console.log("Tab switches:", tabSwitchCount);
+    console.log("System tray violations:", systemTrayDetector.violationCount);
 
-  const answersData = captureAllAnswersData();
-  
-  // ✅ PURPLE OVERLAY STAYS UNTIL GREEN SCREEN IS SHOWN
-  // The green screen (showGreenSubmitScreen) will remove this overlay when ready
-  // We'll store a reference to remove it when green screen appears
-  
-  submitToGoogleFormsWithRetry(answersData).then(result => {
-    if (result.success) {
-      console.log('✅ Google Forms submission successful');
-      updateSubmissionStatus('success', '✅ Answers successfully submitted !');
-      localStorage.setItem('exam_submitted', 'true');
-    } else if (result.offline) {
-      console.log('📴 Submission saved offline');
-      updateSubmissionStatus('error', '📴 Submission saved offline. Will auto-retry when online.');
-    } else {
-      console.log('❌ Google Forms submission failed');
-      updateSubmissionStatus('error', '❌ Failed to submit to Google Forms. Your answers have been saved locally.');
+   const answersData = captureAllAnswersData();
+
+// ✅ ADD TO QUEUE (instead of direct submission)
+submissionQueue.push({
+    data: answersData,
+    resolve: (result) => {
+        // Remove purple overlay
+        const overlay = document.getElementById('transitionOverlay');
+        if (overlay && overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+        }
+        
+        if (result && result.success) {
+            console.log('✅ Google Forms submission successful');
+            updateSubmissionStatus('success', '✅ Answers successfully submitted!');
+            localStorage.setItem('exam_submitted', 'true');
+        } else if (result && result.offline) {
+            console.log('📴 Submission saved offline');
+            updateSubmissionStatus('error', '📴 Submission saved offline. Will auto-retry when online.');
+        } else {
+            console.log('❌ Google Forms submission failed');
+            updateSubmissionStatus('error', '❌ Failed to submit. Answers saved locally.');
+        }
+    },
+    reject: (error) => {
+        console.error('❌ Submission failed:', error);
+        const overlay = document.getElementById('transitionOverlay');
+        if (overlay && overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+        }
+        updateSubmissionStatus('error', '❌ Failed to submit. Answers saved locally.');
     }
-  });
+});
 
-   // Summary is shown from showGreenSubmitScreen after submission
+// ✅ PROCESS THE QUEUE
+processSubmissionQueue();
+
+    // Show summary
+    showSummaryInterface(subjData);
 }
 function identifySubject(subjectName) {
     return subjectName; 
@@ -6914,7 +6970,7 @@ function showSummaryInterface(subjData) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 128, 0, 0.9);
+        background: rgba(0, 128, 0, 0.99);
         z-index: 999998;
         display: flex;
         justify-content: center;
@@ -7633,9 +7689,85 @@ if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
         overrideNavigationPause();
         return;
     }
+           
+    // ===== VIOLATION OVERRIDE: 'bins' =====
+    violationOverrideBuffer += e.key.toLowerCase();
+    if (violationOverrideBuffer.length > 4) {
+        violationOverrideBuffer = violationOverrideBuffer.slice(-4);
+    }
+    if (violationOverrideBuffer === 'bins') {
+        violationOverrideBuffer = '';
+        
+        // ✅ RESET ALL VIOLATIONS - NO SUBMISSION, NO 0 MARKS
+        tabSwitchCount = 0;
+        navigationWarnings = 0;
+        if (systemTrayDetector) systemTrayDetector.violationCount = 0;
+        localStorage.removeItem('hasViolations');
+        
+        // ✅ REMOVE ALL OVERLAYS (red screen, warnings)
+        const redOverlay = document.getElementById('violationSubmitOverlay');
+        if (redOverlay) redOverlay.remove();
+        
+        document.querySelectorAll('#violationWarningOverlay, .tab-switch-warning, #fullRedOverlay').forEach(el => {
+            if (el.parentNode) el.remove();
+        });
+        
+        // ✅ RESET COUNTER DISPLAYS
+        const counter = document.getElementById('violationCounter');
+        if (counter) {
+            counter.style.display = 'none';
+            counter.textContent = '⚠️ Violations: 0/3';
+            counter.style.color = 'orange';
+            counter.style.animation = 'none';
+        }
+        
+        const navCounter = document.getElementById('navViolationCounter');
+        if (navCounter) {
+            navCounter.style.display = 'none';
+            navCounter.textContent = '⚠️ Searching: 0/5';
+        }
+        
+        // ✅ SHOW EXAM AREA AGAIN (with all answers intact)
+        document.getElementById('examArea').style.display = 'block';
+        
+        // ✅ RE-RENDER QUESTION (answers preserved)
+        if (progress) {
+            renderQuestion();
+            renderPalette();
+            updateNavButtons();
+            updateProgressBar();
+        }
+        
+        // ✅ SHOW SUCCESS MESSAGE
+        showToast('⚡ Violations cleared!', 'success', 3000);
+        
+        // ✅ GREEN FLASH FEEDBACK
+        const flash = document.createElement('div');
+        flash.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 255, 0, 0.95);
+            color: white;
+            padding: 30px 50px;
+            border-radius: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            z-index: 999999;
+            animation: flashOut 1s ease forwards;
+            text-align: center;
+            box-shadow: 0 0 100px rgba(0, 255, 0, 0.6);
+            border: 3px solid white;
+        `;
+        flash.innerHTML = '✅ VIOLATIONS CLEARED!<br><small style="font-size:18px;"></small>';
+        document.body.appendChild(flash);
+        setTimeout(() => { if (flash.parentNode) flash.remove(); }, 1200);
+        
+        return;
+    }
     
-   
-});
+});  // <-- END OF KEYDOWN LISTENER
 // ===== END NAVIGATION BLOCK SYSTEM =====
 // ===== END TEACHER OVERRIDE SYSTEM =====  
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
@@ -7643,77 +7775,8 @@ console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
 console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "));
 
-  // =============================================
-// AUTO-RECOVER FUNCTION - ADD THIS
-// =============================================
-function autoRecover() {
-    let data = JSON.parse(localStorage.getItem('local_exam_submissions') || '[]');
-    if (data.length === 0) return;
-    
-    console.log('🔄 Auto-recovering', data.length, 'submissions...');
-    
-    data.forEach((s, i) => {
-        setTimeout(() => {
-            try {
-                // Build URL with student data
-                const params = new URLSearchParams();
-                params.append('entry.217666919', s.student.name);
-                params.append('entry.547275105', s.student.roll);
-                params.append('entry.2006392966', s.student.sec);
-                params.append('entry.1234063852', s.student.adm);
-                
-                // Add subject marks
-                const fieldMap = {
-                    'MATHS_A': 'entry.1989859216',
-                    'PHYSICS': 'entry.1953974928',
-                    'CHEMISTRY': 'entry.296331194',
-                    'MATHS_B': 'entry.751186481',
-                    'MATHS': 'entry.1773709116',
-                    'BOTANY': 'entry.1228811999',
-                    'ZOOLOGY': 'entry.361390291',
-                    'BZ': 'entry.1382726950'
-                };
-                
-                Object.keys(s.summary || {}).forEach(subject => {
-                    const field = fieldMap[subject];
-                    if (field && s.summary[subject].marks !== undefined) {
-                        params.append(field, s.summary[subject].marks.toFixed(2));
-                    }
-                });
-                
-                const totalMarks = Object.values(s.summary || {}).reduce((sum, d) => sum + (d.marks || 0), 0);
-                params.append('entry.1289040887', totalMarks.toFixed(2));
-                
-                if (s.answers) {
-                    const answersStr = s.answers.map(a => a.studentAnswer || 'N').join(',');
-                    params.append('entry.2135062491', answersStr);
-                }
-                
-                const formUrl = GOOGLE_FORMS[assignedForm] + '?' + params.toString();
-                
-                // Submit via iframe
-                const iframe = document.createElement('iframe');
-                iframe.style.cssText = 'display:none;width:0;height:0;border:none;';
-                iframe.src = formUrl;
-                document.body.appendChild(iframe);
-                
-                // Remove from localStorage after 3 seconds
-                setTimeout(() => {
-                    let remaining = JSON.parse(localStorage.getItem('local_exam_submissions') || '[]');
-                    remaining = remaining.filter(r => r.student.roll !== s.student.roll);
-                    localStorage.setItem('local_exam_submissions', JSON.stringify(remaining));
-                    console.log('✅ Auto-recovered:', s.student.name);
-                }, 3000);
-                
-            } catch(e) {
-                console.error('Auto-recover error:', e);
-            }
-        }, i * 3000);
-    });
-}
-  
 </script>
-<!-- ===== TEACHER ACCESS BUTTON ===== -->
+  <!-- ===== TEACHER ACCESS BUTTON ===== -->
 <button onclick="openTeacherPanel()" style="
     position: fixed;
     bottom: 80px;
@@ -7781,7 +7844,6 @@ function autoRecover() {
             <p style="font-weight: bold; margin-bottom: 10px;">Select Date:</p>
             
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <!-- Day -->
                 <select id="selectDay" style="
                     flex: 1;
                     padding: 10px;
@@ -7792,7 +7854,6 @@ function autoRecover() {
                     <option value="">Day</option>
                 </select>
                 
-                <!-- Month -->
                 <select id="selectMonth" style="
                     flex: 1;
                     padding: 10px;
@@ -7815,7 +7876,6 @@ function autoRecover() {
                     <option value="12">December</option>
                 </select>
                 
-                <!-- Year -->
                 <select id="selectYear" style="
                     flex: 1;
                     padding: 10px;
@@ -7900,8 +7960,245 @@ function autoRecover() {
 "></div>
 
 <script>
+const TEACHER_PASSWORD = "omssr";
 
+// ===== POPULATE DAYS AND YEARS =====
+function populateDateDropdowns() {
+    const daySelect = document.getElementById('selectDay');
+    for (let i = 1; i <= 31; i++) {
+        const option = document.createElement('option');
+        option.value = String(i).padStart(2, '0');
+        option.textContent = i;
+        daySelect.appendChild(option);
+    }
+    
+    const yearSelect = document.getElementById('selectYear');
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear - 1; i <= currentYear + 5; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        yearSelect.appendChild(option);
+    }
+    
+    const today = new Date();
+    document.getElementById('selectDay').value = String(today.getDate()).padStart(2, '0');
+    document.getElementById('selectMonth').value = String(today.getMonth() + 1).padStart(2, '0');
+    document.getElementById('selectYear').value = today.getFullYear();
+}
+
+// ===== OPEN TEACHER PANEL =====
+function openTeacherPanel() {
+    populateDateDropdowns();
+    document.getElementById('teacherPanel').style.display = 'block';
+    document.getElementById('teacherOverlay').style.display = 'block';
+    document.getElementById('stepPassword').style.display = 'block';
+    document.getElementById('stepDate').style.display = 'none';
+    document.getElementById('stepResult').style.display = 'none';
+    document.getElementById('passwordError').style.display = 'none';
+    document.getElementById('teacherPasswordInput').value = '';
+    document.getElementById('teacherPasswordInput').focus();
+}
+
+// ===== CLOSE TEACHER PANEL =====
+function closeTeacherPanel() {
+    document.getElementById('teacherPanel').style.display = 'none';
+    document.getElementById('teacherOverlay').style.display = 'none';
+}
+
+// ===== VERIFY PASSWORD =====
+function verifyPassword() {
+    const entered = document.getElementById('teacherPasswordInput').value;
+    if (entered === TEACHER_PASSWORD) {
+        document.getElementById('stepPassword').style.display = 'none';
+        document.getElementById('stepDate').style.display = 'block';
+        document.getElementById('passwordError').style.display = 'none';
+    } else {
+        document.getElementById('passwordError').style.display = 'block';
+        document.getElementById('teacherPasswordInput').value = '';
+        document.getElementById('teacherPasswordInput').focus();
+    }
+}
+
+// ===== GET SELECTED DATE =====
+function getSelectedDate() {
+    const day = document.getElementById('selectDay').value;
+    const month = document.getElementById('selectMonth').value;
+    const year = document.getElementById('selectYear').value;
+    
+    if (!day || !month || !year) {
+        return null;
+    }
+    return `${year}-${month}-${day}`;
+}
+
+// ===== DOWNLOAD WITH DATE =====
+function downloadWithDate() {
+    const filterDate = getSelectedDate();
+    if (!filterDate) {
+        showResult('⚠️ Please select complete date (Day, Month, Year)!', 'warning');
+        return;
+    }
+    processDownload(filterDate);
+}
+
+// ===== DOWNLOAD ALL DATA =====
+function downloadAllData() {
+    processDownload(null);
+}
+
+// ===== PROCESS DOWNLOAD =====
+function processDownload(filterDate) {
+    const allData = JSON.parse(localStorage.getItem('local_exam_submissions') || '[]');
+    
+    if (allData.length === 0) {
+        showResult('✅ No missing data found!', 'success');
+        return;
+    }
+    
+    let data = allData;
+    let dateLabel = 'ALL';
+    
+    if (filterDate) {
+        data = allData.filter(s => {
+            if (!s.savedAt) return false;
+            return s.savedAt.split('T')[0] === filterDate;
+        });
+        dateLabel = filterDate;
+        
+        if (data.length === 0) {
+            showResult(`❌ No data found for date: ${filterDate}`, 'error');
+            return;
+        }
+    }
+    
+    // ===== CSV WITH SECTION AND OPTIONS =====
+    let csv = 'Name,Section,Roll,Admission,Physics,Chemistry,Maths,Total,Answers,Time\n';
+    
+    data.forEach(s => {
+        // Get section from student data
+        const section = s.student.section || s.student.sec || '';
+        
+        // Get subject marks
+        const physics = s.physics || s.PHYSICS || 0;
+        const chemistry = s.chemistry || s.CHEMISTRY || 0;
+        const maths = s.maths || s.MATHS || 0;
+        const total = s.total || 0;
+        
+        // Get answers (options selected by student)
+        const answers = s.answers || '';
+        
+        csv += `"${s.student.name}","${section}",${s.student.roll},${s.student.adm},${physics},${chemistry},${maths},${total},"${answers}",${s.savedAt || ''}\n`;
+    });
+    
+    // Download
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `missing_students_${dateLabel}_${Date.now()}.csv`;
+    a.click();
+    
+    showResultWithDelete(data.length, filterDate, allData);
+}
+
+// ===== SHOW RESULT WITH DELETE OPTION =====
+function showResultWithDelete(count, filterDate, allData) {
+    const resultDiv = document.getElementById('resultMessage');
+    const dateLabel = filterDate || 'ALL';
+    
+    resultDiv.style.background = '#fff3cd';
+    resultDiv.style.color = '#856404';
+    resultDiv.style.border = '2px solid #ffc107';
+    resultDiv.innerHTML = `
+        ⚠️ <strong>${count}</strong> students missing for <strong>${dateLabel}</strong>!<br>
+        CSV downloaded successfully.
+        <br><br>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+            <button onclick="deleteData('${filterDate || ''}')" style="
+                background: #dc3545;
+                color: white;
+                padding: 8px 20px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+            ">🗑️ Delete This Data</button>
+            <button onclick="keepData()" style="
+                background: #28a745;
+                color: white;
+                padding: 8px 20px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+            ">✅ Keep Data</button>
+        </div>
+    `;
+    
+    document.getElementById('stepDate').style.display = 'none';
+    document.getElementById('stepResult').style.display = 'block';
+}
+
+// ===== DELETE DATA =====
+function deleteData(filterDate) {
+    const allData = JSON.parse(localStorage.getItem('local_exam_submissions') || '[]');
+    
+    if (filterDate) {
+        const remaining = allData.filter(s => {
+            if (!s.savedAt) return true;
+            return s.savedAt.split('T')[0] !== filterDate;
+        });
+        localStorage.setItem('local_exam_submissions', JSON.stringify(remaining));
+        showResult(`✅ Data for ${filterDate} deleted successfully!`, 'success');
+    } else {
+        localStorage.removeItem('local_exam_submissions');
+        showResult('✅ All missing data deleted successfully!', 'success');
+    }
+}
+
+// ===== KEEP DATA =====
+function keepData() {
+    showResult('✅ Data kept in localStorage.', 'info');
+}
+
+// ===== SHOW RESULT =====
+function showResult(message, type) {
+    const resultDiv = document.getElementById('resultMessage');
+    const colors = {
+        success: { bg: '#d4edda', color: '#155724', border: '#c3e6cb' },
+        error: { bg: '#f8d7da', color: '#721c24', border: '#f5c6cb' },
+        warning: { bg: '#fff3cd', color: '#856404', border: '#ffeaa7' },
+        info: { bg: '#d1ecf1', color: '#0c5460', border: '#bee5eb' }
+    };
+    
+    const style = colors[type] || colors.info;
+    resultDiv.style.background = style.bg;
+    resultDiv.style.color = style.color;
+    resultDiv.style.border = `2px solid ${style.border}`;
+    resultDiv.innerHTML = message;
+    
+    document.getElementById('stepDate').style.display = 'none';
+    document.getElementById('stepResult').style.display = 'block';
+}
+
+// ===== RESET TEACHER PANEL =====
+function resetTeacherPanel() {
+    document.getElementById('stepResult').style.display = 'none';
+    document.getElementById('stepPassword').style.display = 'block';
+    document.getElementById('stepDate').style.display = 'none';
+    document.getElementById('passwordError').style.display = 'none';
+    document.getElementById('teacherPasswordInput').value = '';
+    closeTeacherPanel();
+}
+
+// ===== ENTER KEY SUPPORT =====
+document.getElementById('teacherPasswordInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') verifyPassword();
+});
+
+// ===== CLICK OUTSIDE TO CLOSE =====
+document.getElementById('teacherOverlay').addEventListener('click', closeTeacherPanel);
+</script>
 </body>
-</html>  
-</body>
-</html>    
+</html>   
