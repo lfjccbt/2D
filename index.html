@@ -7713,5 +7713,59 @@ function autoRecover() {
 }
   
 </script>
+<!-- ===== TEACHER ACCESS BUTTON ===== -->
+<button onclick="promptPassword()" style="
+    position: fixed;
+    bottom: 80px;
+    right: 10px;
+    background: #dc3545;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 999999;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+">
+    🔒 Admin Access
+</button>
+
+<script>
+const TEACHER_PASSWORD = "teacher123";
+
+function promptPassword() {
+    const entered = prompt("Enter Teacher Password:");
+    if (entered === null) return;
+    if (entered === TEACHER_PASSWORD) {
+        downloadMissing();
+    } else {
+        alert("❌ Incorrect password!");
+    }
+}
+
+function downloadMissing() {
+    const data = JSON.parse(localStorage.getItem('local_exam_submissions') || '[]');
+    if (data.length === 0) {
+        alert('✅ No missing data! All students submitted successfully.');
+        return;
+    }
+    let csv = 'Name,Roll,Admission,Physics,Chemistry,Maths,Total,Answers,Time\n';
+    data.forEach(s => {
+        csv += `"${s.student.name}",${s.student.roll},${s.student.adm},${s.physics||0},${s.chemistry||0},${s.maths||0},${s.total||0},"${s.answers||''}",${s.savedAt||''}\n`;
+    });
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `missing_students_${Date.now()}.csv`;
+    a.click();
+    alert(`⚠️ ${data.length} students missing! CSV downloaded.`);
+}
+</script>
+
+</body>
+</html>  
 </body>
 </html>    
