@@ -7779,9 +7779,9 @@ console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "
   <!-- ===== TEACHER ACCESS BUTTON ===== -->
 <button onclick="openTeacherPanel()" style="
     position: fixed;
-    bottom: 80px;
+    bottom: 150px;
     right: 10px;
-    background:#4B0082;
+    background:#8b0002;
     color: white;
     padding: 12px 20px;
     border: none;
@@ -8114,7 +8114,7 @@ function showResultWithDelete(count, filterDate, allData) {
         ⚠️ <strong>${count}</strong> students missing for <strong>${dateLabel}</strong>!<br>
         CSV downloaded successfully.
         <br><br>
-        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 50px;">
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
             <button onclick="deleteData('${filterDate || ''}')" style="
                 background: #dc3545;
                 color: white;
