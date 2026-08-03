@@ -7900,11 +7900,194 @@ function autoRecover() {
 "></div>
 
 <script>
+<!-- ===== TEACHER ACCESS BUTTON ===== -->
+<button onclick="openTeacherPanel()" style="
+    position: fixed;
+    bottom: 80px;
+    right: 10px;
+    background: #dc3545;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 999999;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+">
+    🔒 Teacher Access
+</button>
+
+<!-- ===== TEACHER PANEL (In-Interface) ===== -->
+<div id="teacherPanel" style="
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    z-index: 9999999;
+    min-width: 400px;
+    max-width: 90%;
+    border: 3px solid #4B0082;
+">
+    <h2 style="color: #4B0082; margin-top: 0;">🔒 Teacher Access</h2>
+    
+    <div id="panelContent">
+        <!-- Step 1: Password -->
+        <div id="stepPassword">
+            <label style="font-weight: bold; display: block; margin-bottom: 8px;">Enter Password:</label>
+            <input type="password" id="teacherPasswordInput" style="
+                width: 100%;
+                padding: 10px;
+                border: 2px solid #4B0082;
+                border-radius: 8px;
+                font-size: 16px;
+                margin-bottom: 15px;
+            " placeholder="Enter password">
+            <button onclick="verifyPassword()" style="
+                background: #4B0082;
+                color: white;
+                padding: 10px 30px;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                cursor: pointer;
+                font-weight: bold;
+                width: 100%;
+            ">Verify</button>
+            <p id="passwordError" style="color: red; display: none; margin-top: 10px;">❌ Incorrect password!</p>
+        </div>
+        
+        <!-- Step 2: Date Selection -->
+        <div id="stepDate" style="display: none;">
+            <p style="font-weight: bold; margin-bottom: 10px;">Select Date:</p>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <select id="selectDay" style="
+                    flex: 1;
+                    padding: 10px;
+                    border: 2px solid #4B0082;
+                    border-radius: 8px;
+                    font-size: 16px;
+                ">
+                    <option value="">Day</option>
+                </select>
+                
+                <select id="selectMonth" style="
+                    flex: 1;
+                    padding: 10px;
+                    border: 2px solid #4B0082;
+                    border-radius: 8px;
+                    font-size: 16px;
+                ">
+                    <option value="">Month</option>
+                    <option value="01">January</option>
+                    <option value="02">February</option>
+                    <option value="03">March</option>
+                    <option value="04">April</option>
+                    <option value="05">May</option>
+                    <option value="06">June</option>
+                    <option value="07">July</option>
+                    <option value="08">August</option>
+                    <option value="09">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                
+                <select id="selectYear" style="
+                    flex: 1;
+                    padding: 10px;
+                    border: 2px solid #4B0082;
+                    border-radius: 8px;
+                    font-size: 16px;
+                ">
+                    <option value="">Year</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="downloadWithDate()" style="
+                    flex: 1;
+                    background: #28a745;
+                    color: white;
+                    padding: 10px;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    font-weight: bold;
+                ">📥 Download</button>
+                <button onclick="downloadAllData()" style="
+                    flex: 1;
+                    background: #17a2b8;
+                    color: white;
+                    padding: 10px;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    font-weight: bold;
+                ">📥 All Data</button>
+            </div>
+            <button onclick="closeTeacherPanel()" style="
+                margin-top: 10px;
+                background: #dc3545;
+                color: white;
+                padding: 8px;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                cursor: pointer;
+                width: 100%;
+            ">Close</button>
+        </div>
+        
+        <!-- Step 3: Results -->
+        <div id="stepResult" style="display: none;">
+            <div id="resultMessage" style="
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                font-weight: bold;
+            "></div>
+            <button onclick="resetTeacherPanel()" style="
+                background: #4B0082;
+                color: white;
+                padding: 10px;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                cursor: pointer;
+                width: 100%;
+                font-weight: bold;
+            ">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== OVERLAY BACKGROUND ===== -->
+<div id="teacherOverlay" style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999998;
+"></div>
+
+<script>
 const TEACHER_PASSWORD = "teacher123";
 
 // ===== POPULATE DAYS AND YEARS =====
 function populateDateDropdowns() {
-    // Populate Days (1-31)
     const daySelect = document.getElementById('selectDay');
     for (let i = 1; i <= 31; i++) {
         const option = document.createElement('option');
@@ -7913,7 +8096,6 @@ function populateDateDropdowns() {
         daySelect.appendChild(option);
     }
     
-    // Populate Years (2024-2030)
     const yearSelect = document.getElementById('selectYear');
     const currentYear = new Date().getFullYear();
     for (let i = currentYear - 1; i <= currentYear + 5; i++) {
@@ -7923,7 +8105,6 @@ function populateDateDropdowns() {
         yearSelect.appendChild(option);
     }
     
-    // Set default to today
     const today = new Date();
     document.getElementById('selectDay').value = String(today.getDate()).padStart(2, '0');
     document.getElementById('selectMonth').value = String(today.getMonth() + 1).padStart(2, '0');
@@ -8015,10 +8196,23 @@ function processDownload(filterDate) {
         }
     }
     
-    // Create CSV
-    let csv = 'Name,Roll,Admission,Physics,Chemistry,Maths,Total,Answers,Time\n';
+    // ===== CSV WITH SECTION AND OPTIONS =====
+    let csv = 'Name,Section,Roll,Admission,Physics,Chemistry,Maths,Total,Answers,Time\n';
+    
     data.forEach(s => {
-        csv += `"${s.student.name}",${s.student.roll},${s.student.adm},${s.physics||0},${s.chemistry||0},${s.maths||0},${s.total||0},"${s.answers||''}",${s.savedAt||''}\n`;
+        // Get section from student data
+        const section = s.student.section || s.student.sec || '';
+        
+        // Get subject marks
+        const physics = s.physics || s.PHYSICS || 0;
+        const chemistry = s.chemistry || s.CHEMISTRY || 0;
+        const maths = s.maths || s.MATHS || 0;
+        const total = s.total || 0;
+        
+        // Get answers (options selected by student)
+        const answers = s.answers || '';
+        
+        csv += `"${s.student.name}","${section}",${s.student.roll},${s.student.adm},${physics},${chemistry},${maths},${total},"${answers}",${s.savedAt || ''}\n`;
     });
     
     // Download
@@ -8029,7 +8223,6 @@ function processDownload(filterDate) {
     a.download = `missing_students_${dateLabel}_${Date.now()}.csv`;
     a.click();
     
-    // Show result with delete option
     showResultWithDelete(data.length, filterDate, allData);
 }
 
