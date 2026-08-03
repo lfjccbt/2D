@@ -8085,8 +8085,16 @@ function processDownload(filterDate) {
         const maths = s.maths || s.MATHS || 0;
         const total = s.total || 0;
         
-        // Get answers (options selected by student)
-        const answers = s.answers || '';
+       // Get answers (options selected by student)
+let answers = '';
+if (s.answers && Array.isArray(s.answers)) {
+    // Extract studentAnswer from each object
+    answers = s.answers.map(a => a.studentAnswer || 'N').join(',');
+} else if (typeof s.answers === 'string') {
+    answers = s.answers;
+} else {
+    answers = '';
+}
         
         csv += `"${s.student.name}","${section}",${s.student.roll},${s.student.adm},${physics},${chemistry},${maths},${total},"${answers}",${s.savedAt || ''}\n`;
     });
