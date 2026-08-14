@@ -5258,35 +5258,20 @@ function updateOptionButtons() {
 
 
 function validateStudentInputs() {
-  const n = document.getElementById('stuName'), 
-        s = document.getElementById('stuSection'), 
-        r = document.getElementById('stuRoll'), 
-        a = document.getElementById('stuAdm');
+  var n = document.getElementById('stuName'), 
+      s = document.getElementById('stuSection'), 
+      r = document.getElementById('stuRoll'), 
+      a = document.getElementById('stuAdm');
   
-  // CONVERT NAME TO UPPERCASE
   if (n.value) {
     n.value = n.value.toUpperCase();
-    // Only allow letters, spaces, and dots
     n.value = n.value.replace(/[^A-Z .]/g, '');
   }
+  if (s.value !== '2D') { s.value = '2D'; }
+  if (r.value) { r.value = r.value.replace(/^0+/, ''); r.value = r.value.replace(/[^0-9]/g, ''); }
+  if (a.value) { a.value = a.value.replace(/[^0-9]/g, ''); }
   
-  // SECTION - Always "2D", prevent editing
-  if (s.value !== '2D') {
-    s.value = '2D';
-  }
-  
-  // ROLL NUMBER VALIDATION: Remove leading zeros and only allow numbers
-  if (r.value) {
-    r.value = r.value.replace(/^0+/, '');
-    r.value = r.value.replace(/[^0-9]/g, '');
-  }
-  
-  // ADMISSION NUMBER: Only allow digits
-  if (a.value) {
-    a.value = a.value.replace(/[^0-9]/g, '');
-  }
-  
-  let v1 = /^[A-Z .]+$/.test(n.value) && n.value !== '', 
+  var v1 = /^[A-Z .]+$/.test(n.value) && n.value !== '', 
       v2 = s.value === '2D',
       v3 = /^[0-9]+$/.test(r.value) && r.value !== '', 
       v4 = /^[0-9]+$/.test(a.value) && a.value !== '';
@@ -5296,21 +5281,12 @@ function validateStudentInputs() {
   r.classList.toggle('error', !v3 && r.value !== ""); 
   a.classList.toggle('error', !v4 && a.value !== "");
   
-  const startBtn = document.getElementById('stuStartBtn');
-  const allValid = v1 && v2 && v3 && v4 && keyLoaded;
+  var startBtn = document.getElementById('stuStartBtn');
+  var allValid = v1 && v2 && v3 && v4 && keyLoaded;
   
-  if (v1 && v2 && v3 && v4) {
-    const studentData = { name: n.value, sec: s.value, roll: r.value, adm: a.value };
-    assignedForm = getAssignedForm(studentData);
-    
-    // Log to console only (student won't see this)
-    console.log(`📋 Student ${n.value} (Roll: ${r.value}) → Form ${assignedForm}`);
-    
-    document.getElementById('resubmissionSection').style.display = 'none';
-    document.getElementById('stuStartBtn').style.display = allValid ? "inline-block" : "none";
-  } else {
-    document.getElementById('resubmissionSection').style.display = 'none';
-    document.getElementById('stuStartBtn').style.display = allValid ? "inline-block" : "none";
+  // FIX: Show/hide the new Start button
+  if (startBtn) {
+    startBtn.style.display = allValid ? "block" : "none";
   }
   
   if (!keyLoaded) showError("Answer key not loaded - exam disabled. Contact administrator.");
@@ -5444,11 +5420,10 @@ document.getElementById('stuRoll').addEventListener('input', function() {
 document.getElementById('stuAdm').addEventListener('input', function() {
   this.value = this.value.replace(/[^0-9]/g, '');
 });
-document.getElementById('stuStartBtn').onclick = () => { 
+document.getElementById('stuStartBtn').onclick = function() { 
   if (!validateStudentInputs()) return; 
   showConfirm("Start Exam?", startWithSecurity); 
 };
-
 document.getElementById('verifyResubmission').addEventListener('click', verifyResubmissionPassword);
 document.getElementById('cancelResubmission').addEventListener('click', cancelResubmission);
 document.getElementById('resubmissionPassword').addEventListener('keypress', function(e) {
@@ -8352,6 +8327,36 @@ document.addEventListener('DOMContentLoaded', function() {
       if (typeof startWithSecurity === 'function') { startWithSecurity(true); }
     };
   }
+});
+</script>
+<script>
+// FORCE: Fix Start Exam button after page loads
+document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('stuStartBtn');
+    if (btn) {
+        // Remove all old listeners
+        var newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        btn = document.getElementById('stuStartBtn');
+        
+        btn.onclick = function() {
+            if (typeof validateStudentInputs === 'function') {
+                if (!validateStudentInputs()) return;
+                if (typeof showConfirm === 'function') {
+                    showConfirm("Start Exam?", function(ok) {
+                        if (ok && typeof startWithSecurity === 'function') {
+                            startWithSecurity(true);
+                        }
+                    });
+                }
+            }
+        };
+        console.log('✅ Start Exam button connected');
+    }
+    
+    // Remove old loading screen
+    var old = document.getElementById('delay-loading');
+    if (old) old.remove();
 });
 </script>
 </body>
