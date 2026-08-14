@@ -2019,7 +2019,7 @@ setInterval(function() {
 </div>
 
 
-<!-- ===== ACCESS DENIED / MAIN ENTRY SCREEN - PROFESSIONAL ===== -->
+<!-- ===== ACCESS DENIED / MAIN ENTRY SCREEN ===== -->
 <div id="accessDenied" class="access-denied" style="
   display: flex;
   position: fixed;
@@ -2049,76 +2049,31 @@ setInterval(function() {
     position: relative;
     overflow: hidden;
   ">
-    <!-- Professional decorative elements -->
     <div style="position: absolute; top: -200px; right: -150px; width: 500px; height: 500px; border-radius: 50%; background: rgba(255,255,255,0.02); pointer-events: none;"></div>
     <div style="position: absolute; bottom: -200px; left: -150px; width: 500px; height: 500px; border-radius: 50%; background: rgba(255,255,255,0.02); pointer-events: none;"></div>
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(ellipse, rgba(43,108,176,0.15) 0%, transparent 70%); pointer-events: none;"></div>
-    
-    <!-- Top accent line -->
     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #FFD700, #F59E0B, #FFD700);"></div>
     
     <div style="position: relative; z-index: 1; text-align: center; width: 100%; max-width: 400px;">
-      <!-- Logo with gold accent -->
-      <div style="
-        font-size: 56px; 
-        font-weight: 700; 
-        letter-spacing: -1px; 
-        margin-bottom: 2px; 
-        color: #FFFFFF;
-        text-shadow: 0 2px 20px rgba(0,0,0,0.2);
-      ">2D</div>
-      <div style="
-        font-size: 20px; 
-        font-weight: 500; 
-        letter-spacing: 2px; 
-        color: rgba(255,255,255,0.6); 
-        margin-bottom: 30px;
-      ">LFJC ONLINE EXAMINATION</div>
-      
-      <!-- Gold divider -->
+      <div style="font-size: 56px; font-weight: 700; letter-spacing: -1px; margin-bottom: 2px; color: #FFFFFF; text-shadow: 0 2px 20px rgba(0,0,0,0.2);">2D</div>
+      <div style="font-size: 20px; font-weight: 500; letter-spacing: 2px; color: rgba(255,255,255,0.6); margin-bottom: 30px;">LFJC ONLINE EXAMINATION</div>
       <div style="width: 60px; height: 2px; background: #FFD700; margin: 0 auto 25px auto; border-radius: 2px;"></div>
       
-      <!-- Total Questions -->
-      <div style="
-        background: rgba(255,255,255,0.06); 
-        backdrop-filter: blur(20px); 
-        border: 1px solid rgba(255,255,255,0.06); 
-        border-radius: 16px; 
-        padding: 18px 24px; 
-        margin-bottom: 14px;
-      ">
+      <div style="background: rgba(255,255,255,0.06); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 24px; margin-bottom: 14px;">
         <div style="font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35);">Total Questions</div>
         <div style="font-size: 36px; font-weight: 700; color: #FFD700; letter-spacing: -0.5px; margin-top: 2px;" id="totalQuestionsDisplay">Loading...</div>
       </div>
       
-      <!-- Subject Breakdown -->
       <div id="subjectBreakdownDisplay" style="font-size: 14px; color: rgba(255,255,255,0.5); margin: 10px 0 16px 0; line-height: 1.8; font-weight: 400;"></div>
       
-      <!-- Marks - Professional pills -->
       <div style="display: flex; gap: 12px; justify-content: center;">
-        <div style="
-          background: rgba(16,185,129,0.12); 
-          padding: 6px 18px; 
-          border-radius: 20px; 
-          font-size: 13px; 
-          font-weight: 500; 
-          color: #34D399; 
-          border: 1px solid rgba(16,185,129,0.08);
-        " id="correctMarkDisplay">+4 Marks</div>
-        <div style="
-          background: rgba(239,68,68,0.10); 
-          padding: 6px 18px; 
-          border-radius: 20px; 
-          font-size: 13px; 
-          font-weight: 500; 
-          color: #F87171; 
-          border: 1px solid rgba(239,68,68,0.08);
-        " id="wrongMarkDisplay">-1 Mark</div>
+        <div style="background: rgba(16,185,129,0.12); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #34D399; border: 1px solid rgba(16,185,129,0.08);" id="correctMarkDisplay">+4 Marks</div>
+        <div style="background: rgba(239,68,68,0.10); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #F87171; border: 1px solid rgba(239,68,68,0.08);" id="wrongMarkDisplay">-1 Mark</div>
       </div>
     </div>
   </div>
 
-  <!-- ===== RIGHT SIDE - PROFESSIONAL LIGHT ===== -->
+  <!-- ===== RIGHT SIDE - CONTENT AREA ===== -->
   <div style="
     width: 55%;
     height: 100%;
@@ -2132,7 +2087,51 @@ setInterval(function() {
     <div style="max-width: 420px; width: 100%;">
       
       <!-- ============================================ -->
-      <!-- SCREEN 1: WAITING TIMER - Professional -->
+      <!-- SCREEN 1: WELCOME - 2D LFJC -->
+      <!-- ============================================ -->
+      <div id="welcomeScreen" style="
+        background: #FFFFFF;
+        border-radius: 20px;
+        padding: 40px 35px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.02);
+        border: 1px solid rgba(255,255,255,0.5);
+        text-align: center;
+      ">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px auto;">
+          <span style="font-size: 38px;">🎓</span>
+        </div>
+        <div style="font-size: 28px; font-weight: 700; color: #1A202C; margin-bottom: 4px;">Welcome to 2D</div>
+        <div style="font-size: 18px; font-weight: 500; color: #2B6CB0; margin-bottom: 6px;">LFJC ONLINE EXAMINATION</div>
+        <div style="font-size: 14px; color: #718096; margin-bottom: 24px;">Please wait while we prepare your exam</div>
+        
+        <div style="background: #F7FAFC; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; border: 1px solid #E2E8F0;">
+          <div style="font-size: 13px; color: #A0AEC0; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Total Questions</div>
+          <div style="font-size: 28px; font-weight: 700; color: #2B6CB0;" id="welcomeTotalQuestions">Loading...</div>
+        </div>
+        
+        <button id="welcomeContinueBtn" style="
+          width: 100%;
+          padding: 15px 20px;
+          background: linear-gradient(135deg, #2B6CB0, #1A365D);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+          box-shadow: 0 4px 20px rgba(43,108,176,0.25);
+        "
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 30px rgba(43,108,176,0.35)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(43,108,176,0.25)'"
+        >🖥️ Continue</button>
+        
+        <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- SCREEN 2: WAITING TIMER -->
       <!-- ============================================ -->
       <div id="waitingScreen" style="
         background: #FFFFFF;
@@ -2141,54 +2140,26 @@ setInterval(function() {
         box-shadow: 0 10px 40px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.02);
         border: 1px solid rgba(255,255,255,0.5);
         text-align: center;
+        display: none;
       ">
-        <div style="
-          width: 72px; 
-          height: 72px; 
-          border-radius: 50%; 
-          background: linear-gradient(135deg, #EBF5FF, #DBEAFE);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 18px auto;
-        ">
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px auto;">
           <span style="font-size: 32px;">⏳</span>
         </div>
         <div style="font-size: 22px; font-weight: 600; color: #1A202C; margin-bottom: 4px;">Please Wait</div>
         <div style="font-size: 15px; color: #718096; margin-bottom: 22px;">Preparing your examination...</div>
         
-        <div style="
-          font-size: 56px; 
-          font-weight: 700; 
-          color: #2B6CB0; 
-          margin: 8px 0;
-          font-variant-numeric: tabular-nums;
-        " id="delayTimerDisplay">30</div>
+        <div style="font-size: 56px; font-weight: 700; color: #2B6CB0; margin: 8px 0; font-variant-numeric: tabular-nums;" id="delayTimerDisplay">30</div>
         <div style="font-size: 15px; color: #718096; font-weight: 500;">seconds remaining</div>
         
-        <!-- Progress bar -->
-        <div style="
-          width: 100%; 
-          height: 4px; 
-          background: #E2E8F0; 
-          border-radius: 2px; 
-          margin-top: 22px; 
-          overflow: hidden;
-        ">
-          <div id="waitingProgressBar" style="
-            width: 0%; 
-            height: 100%; 
-            background: linear-gradient(90deg, #2B6CB0, #4299E1);
-            border-radius: 2px; 
-            transition: width 0.5s ease;
-          "></div>
+        <div style="width: 100%; height: 4px; background: #E2E8F0; border-radius: 2px; margin-top: 22px; overflow: hidden;">
+          <div id="waitingProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #2B6CB0, #4299E1); border-radius: 2px; transition: width 0.5s ease;"></div>
         </div>
         
         <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
       </div>
 
       <!-- ============================================ -->
-      <!-- SCREEN 2: ACCESS CODE - Professional -->
+      <!-- SCREEN 3: ACCESS CODE -->
       <!-- ============================================ -->
       <div id="passwordScreen" style="
         background: #FFFFFF;
@@ -2198,16 +2169,7 @@ setInterval(function() {
         border: 1px solid rgba(255,255,255,0.5);
         display: none;
       ">
-        <div style="
-          width: 56px; 
-          height: 56px; 
-          border-radius: 50%; 
-          background: linear-gradient(135deg, #EBF5FF, #DBEAFE);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 16px;
-        ">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
           <span style="font-size: 26px;">🔐</span>
         </div>
         <h2 style="font-size: 22px; font-weight: 600; color: #1A202C; margin: 0 0 4px 0;">Access Code</h2>
@@ -2270,22 +2232,11 @@ setInterval(function() {
         onmouseout="this.style.background='#1A202C'; this.style.transform='translateY(0)'"
         >🔓 Verify Access</button>
         
-        <div id="accessError" style="
-          display: none;
-          color: #E53E3E;
-          font-size: 14px;
-          font-weight: 500;
-          margin-top: 14px;
-          padding: 12px 16px;
-          background: #FFF5F5;
-          border-radius: 10px;
-          border: 1px solid #FED7D7;
-          text-align: center;
-        ">❌ Invalid access code. Please try again.</div>
+        <div id="accessError" style="display: none; color: #E53E3E; font-size: 14px; font-weight: 500; margin-top: 14px; padding: 12px 16px; background: #FFF5F5; border-radius: 10px; border: 1px solid #FED7D7; text-align: center;">❌ Invalid access code. Please try again.</div>
       </div>
 
       <!-- ============================================ -->
-      <!-- SCREEN 3: STUDENT DETAILS - Professional -->
+      <!-- SCREEN 4: STUDENT DETAILS -->
       <!-- ============================================ -->
       <div id="studentDetailsScreen" style="
         background: #FFFFFF;
@@ -2295,16 +2246,7 @@ setInterval(function() {
         border: 1px solid rgba(255,255,255,0.5);
         display: none;
       ">
-        <div style="
-          width: 56px; 
-          height: 56px; 
-          border-radius: 50%; 
-          background: linear-gradient(135deg, #EBF5FF, #DBEAFE);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 16px;
-        ">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
           <span style="font-size: 26px;">👤</span>
         </div>
         <h2 style="font-size: 22px; font-weight: 600; color: #1A202C; margin: 0 0 4px 0;">Student Details</h2>
@@ -2312,79 +2254,22 @@ setInterval(function() {
         
         <div style="margin-bottom: 14px;">
           <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 5px;">Full Name</label>
-          <input type="text" id="stuName" style="
-            width: 100%;
-            padding: 13px 16px;
-            font-size: 15px;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-            border: 2px solid #E2E8F0;
-            border-radius: 12px;
-            outline: none;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
-            background: #F7FAFC;
-            color: #1A202C;
-          "
-          placeholder="Enter your full name"
-          onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'"
-          onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
+          <input type="text" id="stuName" style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; transition: all 0.2s ease; box-sizing: border-box; background: #F7FAFC; color: #1A202C;" placeholder="Enter your full name" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
         </div>
 
         <div style="margin-bottom: 14px;">
           <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 5px;">Section</label>
-          <input type="text" id="stuSection" value="2D" readonly style="
-            width: 100%;
-            padding: 13px 16px;
-            font-size: 15px;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-            border: 2px solid #E2E8F0;
-            border-radius: 12px;
-            outline: none;
-            box-sizing: border-box;
-            background: #EDF2F7;
-            color: #718096;
-            cursor: not-allowed;
-          ">
+          <input type="text" id="stuSection" value="2D" readonly style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #EDF2F7; color: #718096; cursor: not-allowed;">
         </div>
 
         <div style="margin-bottom: 14px;">
           <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 5px;">Roll Number</label>
-          <input type="text" id="stuRoll" style="
-            width: 100%;
-            padding: 13px 16px;
-            font-size: 15px;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-            border: 2px solid #E2E8F0;
-            border-radius: 12px;
-            outline: none;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
-            background: #F7FAFC;
-            color: #1A202C;
-          "
-          placeholder="Enter roll number"
-          onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'"
-          onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
+          <input type="text" id="stuRoll" style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; transition: all 0.2s ease; box-sizing: border-box; background: #F7FAFC; color: #1A202C;" placeholder="Enter roll number" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
         </div>
 
         <div style="margin-bottom: 20px;">
           <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 5px;">Admission Number</label>
-          <input type="text" id="stuAdm" style="
-            width: 100%;
-            padding: 13px 16px;
-            font-size: 15px;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-            border: 2px solid #E2E8F0;
-            border-radius: 12px;
-            outline: none;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
-            background: #F7FAFC;
-            color: #1A202C;
-          "
-          placeholder="Enter admission number"
-          onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'"
-          onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
+          <input type="text" id="stuAdm" style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; transition: all 0.2s ease; box-sizing: border-box; background: #F7FAFC; color: #1A202C;" placeholder="Enter admission number" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
         </div>
 
         <button id="stuStartBtn" style="
@@ -2434,14 +2319,12 @@ setInterval(function() {
     flex-direction: column;
     overflow-y: auto;
   }
-  
   #accessDenied > div:first-child {
     width: 100% !important;
     height: auto !important;
     min-height: 220px;
     padding: 30px 20px !important;
   }
-  
   #accessDenied > div:last-child {
     width: 100% !important;
     height: auto !important;
@@ -2453,18 +2336,58 @@ setInterval(function() {
 <script>
 // ===== SCREEN MANAGEMENT =====
 function showScreen(screenId) {
+  document.getElementById('welcomeScreen').style.display = 'none';
   document.getElementById('waitingScreen').style.display = 'none';
   document.getElementById('passwordScreen').style.display = 'none';
   document.getElementById('studentDetailsScreen').style.display = 'none';
   document.getElementById(screenId).style.display = 'block';
 }
 
-// ===== WAITING TIMER =====
-(function() {
+// ===== FULL SCREEN FUNCTION =====
+function goFullScreen() {
+  const elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen().catch(function(err) {
+      console.log('Full screen error:', err);
+    });
+  } else if (elem.webkitRequestFullscreen) {
+    elem.webkitRequestFullscreen();
+  } else if (elem.mozRequestFullScreen) {
+    elem.mozRequestFullScreen();
+  } else if (elem.msRequestFullscreen) {
+    elem.msRequestFullscreen();
+  }
+}
+
+// ===== VARIABLE TO CHECK IF TIMER ALREADY RAN =====
+let timerRan = false;
+
+// ===== SCREEN 1: WELCOME - CONTINUE TO TIMER =====
+document.getElementById('welcomeContinueBtn').addEventListener('click', function() {
+  // FORCE FULL SCREEN
+  goFullScreen();
+  
+  // Only start timer if it hasn't run yet
+  if (!timerRan) {
+    showScreen('waitingScreen');
+    startTimer();
+  } else {
+    showScreen('passwordScreen');
+    setTimeout(() => document.getElementById('accessCode').focus(), 300);
+  }
+});
+
+// ===== SCREEN 2: WAITING TIMER (RUNS ONLY ONCE) =====
+function startTimer() {
+  if (timerRan) {
+    showScreen('passwordScreen');
+    return;
+  }
+  
+  timerRan = true;
+  
   const waitTime = Math.floor(Math.random() * 41) + 5;
   let seconds = waitTime;
-  
-  showScreen('waitingScreen');
   
   const timerDisplay = document.getElementById('delayTimerDisplay');
   const progressBar = document.getElementById('waitingProgressBar');
@@ -2485,9 +2408,9 @@ function showScreen(screenId) {
       setTimeout(() => document.getElementById('accessCode').focus(), 300);
     }
   }, 1000);
-})();
+}
 
-// ===== PASSWORD VERIFICATION =====
+// ===== SCREEN 3: PASSWORD VERIFICATION =====
 document.getElementById('verifyAccess').addEventListener('click', function() {
   const enteredCode = document.getElementById('accessCode').value.trim();
   const errorElement = document.getElementById('accessError');
@@ -2508,6 +2431,20 @@ document.getElementById('verifyAccess').addEventListener('click', function() {
 document.getElementById('accessCode').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') document.getElementById('verifyAccess').click();
 });
+
+// ===== UPDATE WELCOME TOTAL QUESTIONS =====
+setTimeout(function() {
+  const totalEl = document.getElementById('welcomeTotalQuestions');
+  const totalDisplay = document.getElementById('totalQuestionsDisplay');
+  if (totalEl && totalDisplay) {
+    totalEl.textContent = totalDisplay.textContent || 'Loading...';
+  }
+}, 1000);
+
+// ===== FORCE FULL SCREEN ON PAGE LOAD =====
+setTimeout(goFullScreen, 500);
+setTimeout(goFullScreen, 1000);
+setTimeout(goFullScreen, 2000);
 </script>
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
