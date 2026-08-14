@@ -5612,23 +5612,31 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof validateStudentInputs === 'function') validateStudentInputs();
     });
 
-    // Start Exam button
-    var startBtn = document.getElementById('stuStartBtn');
-    if (startBtn) {
-        startBtn.onclick = function() {
-            if (typeof validateStudentInputs === 'function') {
-                if (!validateStudentInputs()) return;
-                if (typeof showConfirm === 'function') {
-                    showConfirm("Start Exam?", function(ok) {
-                        if (ok && typeof startWithSecurity === 'function') {
-                            startWithSecurity(true);
-                        }
-                    });
+   // Start Exam button
+var startBtn = document.getElementById('stuStartBtn');
+if (startBtn) {
+    startBtn.onclick = function() {
+        console.log('✅ Start Exam button clicked');
+        if (typeof validateStudentInputs === 'function') {
+            if (!validateStudentInputs()) return;
+        }
+        // Show confirmation dialog
+        if (typeof showConfirm === 'function') {
+            showConfirm("Start Exam?", function(ok) {
+                if (ok) {
+                    console.log('✅ User confirmed - starting exam');
+                    startWithSecurity(true);
+                } else {
+                    console.log('❌ User cancelled');
                 }
-            }
-        };
-    }
-});
+            });
+        } else {
+            // Fallback - directly start
+            startWithSecurity(true);
+        }
+    };
+    console.log('✅ Start Exam button connected');
+}
 
 document.getElementById('verifyResubmission').addEventListener('click', verifyResubmissionPassword);
 document.getElementById('cancelResubmission').addEventListener('click', cancelResubmission);
@@ -5665,36 +5673,39 @@ function generateStudentId(studentData) {
 function startWithSecurity(ok) {
   if (!ok) return;
   
+  console.log('🚀 Starting exam...');
+  
   // Force full screen
   goFullScreen();
   
   tabSwitchCount = 0;
   lastTabSwitchTime = 0;
-  systemTrayDetector.reset();
+  if (systemTrayDetector) systemTrayDetector.reset();
   
   const stuName = document.getElementById('stuName');
   const stuSection = document.getElementById('stuSection');
   const stuRoll = document.getElementById('stuRoll');
   const stuAdm = document.getElementById('stuAdm');
   
+  // Validate inputs
+  if (!stuName.value.trim() || !stuRoll.value.trim() || !stuAdm.value.trim()) {
+    alert('Please fill all fields');
+    return;
+  }
+  
   const studentKey = `${stuName.value}|${stuSection.value}|${stuRoll.value}|${stuAdm.value}`;
   
-  examSecurity.enable().then(() => {
-    // Add random delay to stagger student starts (0.5-2 seconds)
-    const delay = Math.random() * 1500 + 500;
-    console.log(`⏳ Student ${stuName.value} starting in ${(delay/1000).toFixed(1)} seconds`);
-    setTimeout(() => {
-      startExam(studentKey);
-    }, delay);
-  }).catch(err => {
-    console.error('Failed to enable security:', err);
-    alert('⚠️ Please allow full-screen mode to start the exam.');
-    // Still try to start
-    goFullScreen();
-    setTimeout(() => {
-      startExam(studentKey);
-    }, 500);
-  });
+  // HIDE ACCESS DENIED and SHOW EXAM AREA directly
+  document.getElementById('accessDenied').style.display = 'none';
+  document.getElementById('examArea').style.display = 'block';
+  
+  // Start exam immediately
+  if (typeof startExam === 'function') {
+    startExam(studentKey);
+  } else {
+    console.error('startExam function not found');
+    alert('Error starting exam. Please contact administrator.');
+  }
 }
 function startExam(studentKey) {
     isSummaryShowing = false;
@@ -8478,6 +8489,73 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Student details screen ready');
     console.log('✅ Start Exam button connected');
 });
+</script>
+  <script>
+// ===== FINAL FIX: Force Start Exam button to work =====
+(function() {
+    // Wait for everything to load
+    setTimeout(function() {
+        var btn = document.getElementById('stuStartBtn');
+        if (btn) {
+            console.log('🔧 Found Start Exam button - attaching handler');
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🖱️ Start Exam button clicked');
+                
+                // Get values
+                var name = document.getElementById('stuName').value.trim();
+                var roll = document.getElementById('stuRoll').value.trim();
+                var adm = document.getElementById('stuAdm').value.trim();
+                
+                if (!name) { alert('Please enter your Name'); return; }
+                if (!roll) { alert('Please enter your Roll Number'); return; }
+                if (!adm) { alert('Please enter your Admission Number'); return; }
+                
+                // Show confirm dialog
+                if (confirm('Are you sure you want to start the exam?')) {
+                    console.log('✅ Starting exam for: ' + name);
+                    
+                    // Hide access denied
+                    document.getElementById('accessDenied').style.display = 'none';
+                    document.getElementById('examArea').style.display = 'block';
+                    
+                    // Initialize exam
+                    if (typeof prepareExamData === 'function') prepareExamData();
+                    
+                    // Create progress
+                    if (typeof progress === 'undefined' || progress === null) {
+                        window.progress = {
+                            answers: [],
+                            review: [],
+                            currentIndex: 0,
+                            student: {
+                                name: name,
+                                sec: '2D',
+                                roll: roll,
+                                adm: adm
+                            },
+                            timeLeftSec: 7200
+                        };
+                    }
+                    
+                    // Render exam
+                    if (typeof renderQuestion === 'function') renderQuestion();
+                    if (typeof renderPalette === 'function') renderPalette();
+                    if (typeof startTimer === 'function') startTimer();
+                    if (typeof updateNavButtons === 'function') updateNavButtons();
+                    if (typeof updateProgressBar === 'function') updateProgressBar();
+                    
+                    window.examInProgress = true;
+                    console.log('✅ Exam started successfully!');
+                }
+            };
+            btn.style.display = 'block';
+        } else {
+            console.log('❌ Start Exam button not found');
+        }
+    }, 1000);
+})();
 </script>
 </body>
 </html>   
