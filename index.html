@@ -2019,18 +2019,471 @@ setInterval(function() {
 </div>
 
 
-<div id="accessDenied" class="access-denied">
-  <h1>2D</h1>
- <h1>LFJC ONLINE EXAMINATION</h1>
-    <p style="font-size: 1.2em; margin: 10px 0;" id="totalQuestionsDisplay">Loading...</p>
-    <div id="subjectBreakdownDisplay"></div>
-  <p style="margin: 10px 0; font-weight: bold;" id="correctMarkDisplay">CORRECT ANSWER +4  MARKS</p>  
-  <p style="margin: 5px 0; font-weight: bold;" id="wrongMarkDisplay">WRONG ANSWER -1 MARK</p>
-    <button id="enterFullScreenBtn" class="verify-btn" style="background: #4B0082; color: white; margin-bottom: 15px; width: 300px;">🖥️ Ready </button>
-    <input type="password" id="accessCode" class="access-code-input" placeholder="Enter Access Code">
-    <button id="verifyAccess" class="verify-btn">VERIFY ACCESS</button>
-    <div id="accessError" class="access-error">❌ Invalid access code. Please try again.</div>
+<!-- ===== APPLE-STYLE PASSWORD PAGE - BLUE LEFT + STUDENT FORM ===== -->
+<div id="accessDenied" style="
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #FFFFFF;
+  z-index: 10000;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  overflow-y: auto;
+  overflow-x: hidden;
+">
+
+  <!-- LEFT SIDE - BLUE GRADIENT -->
+  <div style="
+    width: 45%;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #0055CC 0%, #007AFF 50%, #4A9EFF 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 50px;
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  ">
+    <!-- Subtle glow effect -->
+    <div style="
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(255,255,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    "></div>
+    
+    <!-- Decorative circles -->
+    <div style="
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.02);
+      pointer-events: none;
+    "></div>
+    <div style="
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.02);
+      pointer-events: none;
+    "></div>
+    
+    <div style="position: relative; z-index: 1; text-align: center; width: 100%; max-width: 400px;">
+      <!-- Logo -->
+      <div style="
+        font-size: 48px;
+        font-weight: 600;
+        letter-spacing: -1px;
+        margin-bottom: 2px;
+        color: #FFFFFF;
+      ">2D</div>
+      <div style="
+        font-size: 18px;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+        color: rgba(255,255,255,0.7);
+        margin-bottom: 28px;
+      ">LFJC ONLINE EXAMINATION</div>
+      
+      <!-- Total Questions - Glass card -->
+      <div style="
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 0.5px solid rgba(255,255,255,0.1);
+        border-radius: 14px;
+        padding: 16px 24px;
+        margin: 4px 0 8px 0;
+      ">
+        <div style="
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.4);
+        ">Total Questions</div>
+        <div style="
+          font-size: 32px;
+          font-weight: 600;
+          color: #FFFFFF;
+          letter-spacing: -0.5px;
+          margin-top: 2px;
+        " id="totalQuestionsDisplay">Loading...</div>
+      </div>
+      
+      <!-- Subject Breakdown -->
+      <div id="subjectBreakdownDisplay" style="
+        font-size: 14px;
+        color: rgba(255,255,255,0.6);
+        margin: 12px 0 16px 0;
+        line-height: 1.8;
+        font-weight: 400;
+      "></div>
+      
+      <!-- Marks - Apple pill style -->
+      <div style="
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 4px;
+      ">
+        <div style="
+          background: rgba(50,205,50,0.15);
+          padding: 5px 14px;
+          border-radius: 14px;
+          font-size: 12px;
+          font-weight: 500;
+          color: #4CD964;
+          border: 0.5px solid rgba(50,205,50,0.1);
+          letter-spacing: 0.3px;
+        " id="correctMarkDisplay">+4 Marks</div>
+        <div style="
+          background: rgba(255,107,107,0.12);
+          padding: 5px 14px;
+          border-radius: 14px;
+          font-size: 12px;
+          font-weight: 500;
+          color: #FF6B6B;
+          border: 0.5px solid rgba(255,107,107,0.08);
+          letter-spacing: 0.3px;
+        " id="wrongMarkDisplay">-1 Mark</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE - WHITE FORM WITH STUDENT DETAILS -->
+  <div style="
+    width: 55%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 50px;
+    background: #FFFFFF;
+    margin-left: 45%;
+  ">
+    <div style="
+      max-width: 420px;
+      width: 100%;
+    ">
+      <!-- Access Code Section -->
+      <div style="margin-bottom: 32px;">
+        <h2 style="
+          font-size: 24px;
+          font-weight: 600;
+          color: #1D1D1F;
+          letter-spacing: -0.5px;
+          margin: 0 0 4px 0;
+        ">🔐 Access Code</h2>
+        <p style="
+          font-size: 14px;
+          color: #6E6E73;
+          font-weight: 400;
+          margin: 0 0 16px 0;
+        ">Enter the code to begin your exam</p>
+        
+        <!-- Ready Button -->
+        <button id="enterFullScreenBtn" style="
+          width: 100%;
+          padding: 13px 20px;
+          background: #007AFF;
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 15px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          margin-bottom: 12px;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+          letter-spacing: 0.2px;
+        "
+        onmouseover="this.style.background='#0066CC'"
+        onmouseout="this.style.background='#007AFF'"
+        onmousedown="this.style.transform='scale(0.98)'"
+        onmouseup="this.style.transform='scale(1)'"
+        >🖥️ Ready</button>
+        
+        <!-- Access Code Input -->
+        <input type="password" id="accessCode" style="
+          width: 100%;
+          padding: 14px 18px;
+          font-size: 16px;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+          border: 1.5px solid #D2D2D7;
+          border-radius: 12px;
+          outline: none;
+          transition: all 0.15s ease;
+          box-sizing: border-box;
+          background: #FAFAFA;
+          color: #1D1D1F;
+          letter-spacing: 6px;
+          font-weight: 500;
+        "
+        placeholder="Enter Access Code"
+        onfocus="this.style.borderColor='#007AFF'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 3px rgba(0,122,255,0.08)'"
+        onblur="this.style.borderColor='#D2D2D7'; this.style.background='#FAFAFA'; this.style.boxShadow='none'">
+        
+        <div style="
+          font-size: 12px;
+          color: #6E6E73;
+          margin-top: 6px;
+          font-weight: 400;
+        ">Access code provided by your administrator</div>
+      </div>
+
+      <!-- Divider -->
+      <div style="
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+      ">
+        <div style="flex: 1; height: 0.5px; background: #E5E5EA;"></div>
+        <span style="
+          font-size: 12px;
+          color: #6E6E73;
+          font-weight: 500;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+        ">Student Details</span>
+        <div style="flex: 1; height: 0.5px; background: #E5E5EA;"></div>
+      </div>
+
+      <!-- Student Details Form -->
+      <div style="margin-bottom: 24px;">
+        <!-- Name -->
+        <div style="margin-bottom: 16px;">
+          <label style="
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1D1D1F;
+            margin-bottom: 5px;
+            letter-spacing: 0.2px;
+          ">Full Name</label>
+          <input type="text" id="stuName" style="
+            width: 100%;
+            padding: 13px 16px;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            border: 1.5px solid #D2D2D7;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
+            background: #FAFAFA;
+            color: #1D1D1F;
+          "
+          placeholder="Enter your full name"
+          onfocus="this.style.borderColor='#007AFF'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 3px rgba(0,122,255,0.08)'"
+          onblur="this.style.borderColor='#D2D2D7'; this.style.background='#FAFAFA'; this.style.boxShadow='none'">
+        </div>
+
+        <!-- Section -->
+        <div style="margin-bottom: 16px;">
+          <label style="
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1D1D1F;
+            margin-bottom: 5px;
+            letter-spacing: 0.2px;
+          ">Section</label>
+          <input type="text" id="stuSection" value="2D" readonly style="
+            width: 100%;
+            padding: 13px 16px;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            border: 1.5px solid #D2D2D7;
+            border-radius: 12px;
+            outline: none;
+            box-sizing: border-box;
+            background: #F0F0F0;
+            color: #6E6E73;
+            cursor: not-allowed;
+          ">
+        </div>
+
+        <!-- Roll Number -->
+        <div style="margin-bottom: 16px;">
+          <label style="
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1D1D1F;
+            margin-bottom: 5px;
+            letter-spacing: 0.2px;
+          ">Roll Number</label>
+          <input type="text" id="stuRoll" style="
+            width: 100%;
+            padding: 13px 16px;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            border: 1.5px solid #D2D2D7;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
+            background: #FAFAFA;
+            color: #1D1D1F;
+          "
+          placeholder="Enter roll number"
+          onfocus="this.style.borderColor='#007AFF'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 3px rgba(0,122,255,0.08)'"
+          onblur="this.style.borderColor='#D2D2D7'; this.style.background='#FAFAFA'; this.style.boxShadow='none'">
+        </div>
+
+        <!-- Admission Number -->
+        <div style="margin-bottom: 20px;">
+          <label style="
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1D1D1F;
+            margin-bottom: 5px;
+            letter-spacing: 0.2px;
+          ">Admission Number</label>
+          <input type="text" id="stuAdm" style="
+            width: 100%;
+            padding: 13px 16px;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            border: 1.5px solid #D2D2D7;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
+            background: #FAFAFA;
+            color: #1D1D1F;
+          "
+          placeholder="Enter admission number"
+          onfocus="this.style.borderColor='#007AFF'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 3px rgba(0,122,255,0.08)'"
+          onblur="this.style.borderColor='#D2D2D7'; this.style.background='#FAFAFA'; this.style.boxShadow='none'">
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div id="accessError" style="
+        display: none;
+        color: #FF3B30;
+        font-size: 14px;
+        font-weight: 400;
+        margin-bottom: 14px;
+        padding: 12px 16px;
+        background: #FFF5F5;
+        border-radius: 10px;
+        border: 0.5px solid #FFCDCD;
+        text-align: center;
+        animation: appleError 0.4s ease;
+      ">❌ Invalid access code. Please try again.</div>
+
+      <!-- Error Messages Container -->
+      <div id="errorMessages" style="margin-bottom: 14px;"></div>
+
+      <!-- Start Exam Button -->
+      <button id="stuStartBtn" style="
+        width: 100%;
+        padding: 15px 20px;
+        background: #007AFF;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+        letter-spacing: 0.3px;
+        display: none;
+        box-shadow: 0 4px 20px rgba(0,122,255,0.2);
+      "
+      onmouseover="this.style.background='#0066CC'; this.style.boxShadow='0 6px 30px rgba(0,122,255,0.3)'"
+      onmouseout="this.style.background='#007AFF'; this.style.boxShadow='0 4px 20px rgba(0,122,255,0.2)'"
+      onmousedown="this.style.transform='scale(0.98)'"
+      onmouseup="this.style.transform='scale(1)'"
+      >🚀 Start Exam</button>
+      
+      <!-- Footer -->
+      <div style="
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 0.5px solid #E5E5EA;
+        text-align: center;
+      ">
+        <span style="
+          font-size: 12px;
+          color: #6E6E73;
+          font-weight: 400;
+        ">Contact your administrator for access</span>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Apple animations -->
+<style>
+@keyframes appleError {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Apple-style scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D2D2D7;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #AEAEB2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #accessDenied {
+    flex-direction: column;
+  }
+  
+  #accessDenied > div:first-child {
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    position: relative !important;
+    padding: 30px 20px !important;
+    border-radius: 0 0 30px 30px;
+  }
+  
+  #accessDenied > div:last-child {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 30px 20px !important;
+    min-height: auto !important;
+  }
+}
+</style>
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
 <div id="studentEntry" style="display:none;">
