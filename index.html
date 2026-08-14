@@ -2035,7 +2035,7 @@ setInterval(function() {
   margin: 0;
 ">
 
-  <!-- ===== LEFT SIDE - PROFESSIONAL DARK BLUE ===== -->
+  <!-- ===== LEFT SIDE - PROFESSIONAL DARK BLUE (45%) ===== -->
   <div style="
     width: 45%;
     height: 100%;
@@ -2073,7 +2073,7 @@ setInterval(function() {
     </div>
   </div>
 
-  <!-- ===== RIGHT SIDE - CONTENT AREA ===== -->
+  <!-- ===== RIGHT SIDE - CONTENT AREA (55%) ===== -->
   <div style="
     width: 55%;
     height: 100%;
@@ -2087,7 +2087,7 @@ setInterval(function() {
     <div style="max-width: 420px; width: 100%;">
       
       <!-- ============================================ -->
-      <!-- SCREEN 1: WELCOME - 2D LFJC -->
+      <!-- SCREEN 1: WELCOME -->
       <!-- ============================================ -->
       <div id="welcomeScreen" style="
         background: #FFFFFF;
@@ -2347,9 +2347,7 @@ function showScreen(screenId) {
 function goFullScreen() {
   const elem = document.documentElement;
   if (elem.requestFullscreen) {
-    elem.requestFullscreen().catch(function(err) {
-      console.log('Full screen error:', err);
-    });
+    elem.requestFullscreen().catch(function(err) {});
   } else if (elem.webkitRequestFullscreen) {
     elem.webkitRequestFullscreen();
   } else if (elem.mozRequestFullScreen) {
@@ -2359,15 +2357,16 @@ function goFullScreen() {
   }
 }
 
-// ===== VARIABLE TO CHECK IF TIMER ALREADY RAN =====
+// ===== TIMER CONTROL =====
 let timerRan = false;
+let timerInterval = null;
 
-// ===== SCREEN 1: WELCOME - CONTINUE TO TIMER =====
+// ===== WELCOME - CONTINUE =====
 document.getElementById('welcomeContinueBtn').addEventListener('click', function() {
-  // FORCE FULL SCREEN
+  // Force Full Screen
   goFullScreen();
   
-  // Only start timer if it hasn't run yet
+  // Only start timer if not ran yet
   if (!timerRan) {
     showScreen('waitingScreen');
     startTimer();
@@ -2377,7 +2376,7 @@ document.getElementById('welcomeContinueBtn').addEventListener('click', function
   }
 });
 
-// ===== SCREEN 2: WAITING TIMER (RUNS ONLY ONCE) =====
+// ===== START TIMER (RUNS ONCE) =====
 function startTimer() {
   if (timerRan) {
     showScreen('passwordScreen');
@@ -2395,22 +2394,26 @@ function startTimer() {
   if (timerDisplay) timerDisplay.textContent = seconds;
   if (progressBar) progressBar.style.width = '0%';
   
-  const interval = setInterval(() => {
+  timerInterval = setInterval(function() {
     seconds--;
     if (timerDisplay) timerDisplay.textContent = seconds;
     if (progressBar) {
       const progress = ((waitTime - seconds) / waitTime) * 100;
       progressBar.style.width = progress + '%';
     }
+    
     if (seconds <= 0) {
-      clearInterval(interval);
+      clearInterval(timerInterval);
+      timerInterval = null;
       showScreen('passwordScreen');
-      setTimeout(() => document.getElementById('accessCode').focus(), 300);
+      setTimeout(function() {
+        document.getElementById('accessCode').focus();
+      }, 300);
     }
   }, 1000);
 }
 
-// ===== SCREEN 3: PASSWORD VERIFICATION =====
+// ===== PASSWORD VERIFICATION =====
 document.getElementById('verifyAccess').addEventListener('click', function() {
   const enteredCode = document.getElementById('accessCode').value.trim();
   const errorElement = document.getElementById('accessError');
@@ -2419,7 +2422,9 @@ document.getElementById('verifyAccess').addEventListener('click', function() {
     errorElement.style.display = 'none';
     showScreen('studentDetailsScreen');
     document.getElementById('stuStartBtn').style.display = 'block';
-    setTimeout(() => document.getElementById('stuName').focus(), 300);
+    setTimeout(function() {
+      document.getElementById('stuName').focus();
+    }, 300);
   } else {
     errorElement.style.display = 'block';
     errorElement.textContent = '❌ Invalid access code. Please try again.';
@@ -2429,13 +2434,15 @@ document.getElementById('verifyAccess').addEventListener('click', function() {
 });
 
 document.getElementById('accessCode').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') document.getElementById('verifyAccess').click();
+  if (e.key === 'Enter') {
+    document.getElementById('verifyAccess').click();
+  }
 });
 
 // ===== UPDATE WELCOME TOTAL QUESTIONS =====
 setTimeout(function() {
-  const totalEl = document.getElementById('welcomeTotalQuestions');
-  const totalDisplay = document.getElementById('totalQuestionsDisplay');
+  var totalEl = document.getElementById('welcomeTotalQuestions');
+  var totalDisplay = document.getElementById('totalQuestionsDisplay');
   if (totalEl && totalDisplay) {
     totalEl.textContent = totalDisplay.textContent || 'Loading...';
   }
