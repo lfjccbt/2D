@@ -2142,22 +2142,31 @@ setInterval(function() {
 // ===== CONNECT NEW BUTTONS TO ORIGINAL FUNCTIONS =====
 document.addEventListener('DOMContentLoaded', function() {
     // Continue button
-    document.getElementById('welcomeContinueBtn').addEventListener('click', function() {
-        document.getElementById('welcomeScreen').style.display = 'none';
-        document.getElementById('waitingScreen').style.display = 'block';
-        startTimerCountdown();
-    });
+    var continueBtn = document.getElementById('welcomeContinueBtn');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', function() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('waitingScreen').style.display = 'block';
+            startTimerCountdown();
+        });
+    }
     
-    // Verify Access - uses YOUR original verifyAccessCode function
-    document.getElementById('verifyAccess').addEventListener('click', function() {
-        verifyAccessCode();
-    });
+    // Verify Access button
+    var verifyBtn = document.getElementById('verifyAccess');
+    if (verifyBtn) {
+        verifyBtn.addEventListener('click', function() {
+            verifyAccessCodeNew();
+        });
+    }
     
-    document.getElementById('accessCode').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') verifyAccessCode();
-    });
+    var accessCodeInput = document.getElementById('accessCode');
+    if (accessCodeInput) {
+        accessCodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') verifyAccessCodeNew();
+        });
+    }
     
-    // Timer
+    // Timer function
     function startTimerCountdown() {
         var waitTime = Math.floor(Math.random() * 41) + 5;
         var seconds = waitTime;
@@ -2194,17 +2203,25 @@ document.addEventListener('DOMContentLoaded', function() {
     if (old) old.remove();
 });
 
-// ===== OVERRIDE: Show student details after password =====
-var originalVerifyAccess = verifyAccessCode;
-verifyAccessCode = function() {
+// ===== NEW VERIFY ACCESS CODE FUNCTION =====
+function verifyAccessCodeNew() {
     var enteredCode = document.getElementById('accessCode').value.trim();
     var errorElement = document.getElementById('accessError');
+    
     if (enteredCode === 'lfjc2025') {
         errorElement.style.display = 'none';
         document.getElementById('passwordScreen').style.display = 'none';
         document.getElementById('studentDetailsScreen').style.display = 'block';
         document.getElementById('stuStartBtn').style.display = 'block';
-        setTimeout(function() { document.getElementById('stuName').focus(); }, 300);
+        
+        // Set default section
+        document.getElementById('stuSection').value = '2D';
+        
+        setTimeout(function() { 
+            document.getElementById('stuName').focus(); 
+        }, 300);
+        
+        // Call validation
         if (typeof validateStudentInputs === 'function') {
             validateStudentInputs();
         }
@@ -2214,6 +2231,12 @@ verifyAccessCode = function() {
         document.getElementById('accessCode').value = '';
         document.getElementById('accessCode').focus();
     }
+}
+
+// ===== OVERRIDE: Fix the original verifyAccessCode =====
+var originalVerifyAccess = window.verifyAccessCode;
+window.verifyAccessCode = function() {
+    verifyAccessCodeNew();
 };
 </script>
 <header>2D-LFJC ONLINE EXAMINATION</header>
@@ -8425,6 +8448,36 @@ document.getElementById('teacherPasswordInput').addEventListener('keypress', fun
 
 // ===== CLICK OUTSIDE TO CLOSE =====
 document.getElementById('teacherOverlay').addEventListener('click', closeTeacherPanel);
+</script>
+  <script>
+// ===== FORCE: Show student details screen after password =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Make sure student details screen is hidden initially
+    document.getElementById('studentDetailsScreen').style.display = 'none';
+    document.getElementById('passwordScreen').style.display = 'none';
+    document.getElementById('waitingScreen').style.display = 'none';
+    document.getElementById('welcomeScreen').style.display = 'block';
+    
+    // Force Start Exam button click handler
+    var startBtn = document.getElementById('stuStartBtn');
+    if (startBtn) {
+        startBtn.onclick = function() {
+            if (typeof validateStudentInputs === 'function') {
+                if (!validateStudentInputs()) return;
+                if (typeof showConfirm === 'function') {
+                    showConfirm("Start Exam?", function(ok) {
+                        if (ok && typeof startWithSecurity === 'function') {
+                            startWithSecurity(true);
+                        }
+                    });
+                }
+            }
+        };
+    }
+    
+    console.log('✅ Student details screen ready');
+    console.log('✅ Start Exam button connected');
+});
 </script>
 </body>
 </html>   
