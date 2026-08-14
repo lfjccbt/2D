@@ -2019,7 +2019,7 @@ setInterval(function() {
 </div>
 
 
-<!-- ===== ACCESS DENIED / MAIN ENTRY SCREEN ===== -->
+<!-- ===== ACCESS DENIED - LEFT RIGHT LAYOUT ===== -->
 <div id="accessDenied" class="access-denied" style="
   display: flex;
   position: fixed;
@@ -2035,8 +2035,11 @@ setInterval(function() {
   margin: 0;
 ">
 
-  <!-- ===== LEFT SIDE - PROFESSIONAL DARK BLUE (45%) ===== -->
+  <!-- ===== LEFT SIDE - FIXED POSITION (45%) ===== -->
   <div style="
+    position: fixed;
+    left: 0;
+    top: 0;
     width: 45%;
     height: 100%;
     background: linear-gradient(160deg, #0A1628 0%, #1A365D 40%, #2B6CB0 100%);
@@ -2046,25 +2049,21 @@ setInterval(function() {
     align-items: center;
     padding: 50px 40px;
     color: white;
-    position: relative;
+    z-index: 1;
     overflow: hidden;
   ">
-    <div style="position: absolute; top: -200px; right: -150px; width: 500px; height: 500px; border-radius: 50%; background: rgba(255,255,255,0.02); pointer-events: none;"></div>
-    <div style="position: absolute; bottom: -200px; left: -150px; width: 500px; height: 500px; border-radius: 50%; background: rgba(255,255,255,0.02); pointer-events: none;"></div>
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(ellipse, rgba(43,108,176,0.15) 0%, transparent 70%); pointer-events: none;"></div>
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #FFD700, #F59E0B, #FFD700);"></div>
-    
+    <!-- Left side content -->
     <div style="position: relative; z-index: 1; text-align: center; width: 100%; max-width: 400px;">
-      <div style="font-size: 56px; font-weight: 700; letter-spacing: -1px; margin-bottom: 2px; color: #FFFFFF; text-shadow: 0 2px 20px rgba(0,0,0,0.2);">2D</div>
+      <div style="font-size: 56px; font-weight: 700; letter-spacing: -1px; margin-bottom: 2px; color: #FFFFFF;">2D</div>
       <div style="font-size: 20px; font-weight: 500; letter-spacing: 2px; color: rgba(255,255,255,0.6); margin-bottom: 30px;">LFJC ONLINE EXAMINATION</div>
       <div style="width: 60px; height: 2px; background: #FFD700; margin: 0 auto 25px auto; border-radius: 2px;"></div>
       
-      <div style="background: rgba(255,255,255,0.06); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 24px; margin-bottom: 14px;">
+      <div style="background: rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 24px; margin-bottom: 14px;">
         <div style="font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35);">Total Questions</div>
         <div style="font-size: 36px; font-weight: 700; color: #FFD700; letter-spacing: -0.5px; margin-top: 2px;" id="totalQuestionsDisplay">Loading...</div>
       </div>
       
-      <div id="subjectBreakdownDisplay" style="font-size: 14px; color: rgba(255,255,255,0.5); margin: 10px 0 16px 0; line-height: 1.8; font-weight: 400;"></div>
+      <div id="subjectBreakdownDisplay" style="font-size: 14px; color: rgba(255,255,255,0.5); margin: 10px 0 16px 0; line-height: 1.8;"></div>
       
       <div style="display: flex; gap: 12px; justify-content: center;">
         <div style="background: rgba(16,185,129,0.12); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #34D399; border: 1px solid rgba(16,185,129,0.08);" id="correctMarkDisplay">+4 Marks</div>
@@ -2073,8 +2072,11 @@ setInterval(function() {
     </div>
   </div>
 
-  <!-- ===== RIGHT SIDE - CONTENT AREA (55%) ===== -->
+  <!-- ===== RIGHT SIDE - WITH MARGIN LEFT (55%) ===== -->
   <div style="
+    position: absolute;
+    left: 45%;
+    top: 0;
     width: 55%;
     height: 100%;
     display: flex;
@@ -2083,17 +2085,16 @@ setInterval(function() {
     align-items: center;
     padding: 40px 50px;
     background: #F0F2F5;
+    overflow-y: auto;
   ">
     <div style="max-width: 420px; width: 100%;">
       
-      <!-- ============================================ -->
-      <!-- SCREEN 1: WELCOME -->
-      <!-- ============================================ -->
+      <!-- ===== WELCOME SCREEN ===== -->
       <div id="welcomeScreen" style="
         background: #FFFFFF;
         border-radius: 20px;
         padding: 40px 35px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.02);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
         border: 1px solid rgba(255,255,255,0.5);
         text-align: center;
       ">
@@ -2130,14 +2131,12 @@ setInterval(function() {
         <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
       </div>
 
-      <!-- ============================================ -->
-      <!-- SCREEN 2: WAITING TIMER -->
-      <!-- ============================================ -->
+      <!-- ===== WAITING TIMER SCREEN ===== -->
       <div id="waitingScreen" style="
         background: #FFFFFF;
         border-radius: 20px;
         padding: 40px 35px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.02);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
         border: 1px solid rgba(255,255,255,0.5);
         text-align: center;
         display: none;
@@ -2158,14 +2157,12 @@ setInterval(function() {
         <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
       </div>
 
-      <!-- ============================================ -->
-      <!-- SCREEN 3: ACCESS CODE -->
-      <!-- ============================================ -->
+      <!-- ===== PASSWORD SCREEN ===== -->
       <div id="passwordScreen" style="
         background: #FFFFFF;
         border-radius: 20px;
         padding: 32px 35px 28px 35px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.02);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
         border: 1px solid rgba(255,255,255,0.5);
         display: none;
       ">
@@ -2235,14 +2232,12 @@ setInterval(function() {
         <div id="accessError" style="display: none; color: #E53E3E; font-size: 14px; font-weight: 500; margin-top: 14px; padding: 12px 16px; background: #FFF5F5; border-radius: 10px; border: 1px solid #FED7D7; text-align: center;">❌ Invalid access code. Please try again.</div>
       </div>
 
-      <!-- ============================================ -->
-      <!-- SCREEN 4: STUDENT DETAILS -->
-      <!-- ============================================ -->
+      <!-- ===== STUDENT DETAILS SCREEN ===== -->
       <div id="studentDetailsScreen" style="
         background: #FFFFFF;
         border-radius: 20px;
         padding: 32px 35px 28px 35px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.02);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
         border: 1px solid rgba(255,255,255,0.5);
         display: none;
       ">
@@ -2324,11 +2319,14 @@ setInterval(function() {
     height: auto !important;
     min-height: 220px;
     padding: 30px 20px !important;
+    position: relative !important;
   }
   #accessDenied > div:last-child {
     width: 100% !important;
     height: auto !important;
     padding: 20px !important;
+    position: relative !important;
+    left: 0 !important;
   }
 }
 </style>
@@ -2343,9 +2341,9 @@ function showScreen(screenId) {
   document.getElementById(screenId).style.display = 'block';
 }
 
-// ===== FULL SCREEN FUNCTION =====
+// ===== FULL SCREEN =====
 function goFullScreen() {
-  const elem = document.documentElement;
+  var elem = document.documentElement;
   if (elem.requestFullscreen) {
     elem.requestFullscreen().catch(function(err) {});
   } else if (elem.webkitRequestFullscreen) {
@@ -2357,26 +2355,22 @@ function goFullScreen() {
   }
 }
 
-// ===== TIMER CONTROL =====
-let timerRan = false;
-let timerInterval = null;
+// ===== TIMER =====
+var timerRan = false;
+var timerInterval = null;
 
-// ===== WELCOME - CONTINUE =====
 document.getElementById('welcomeContinueBtn').addEventListener('click', function() {
-  // Force Full Screen
   goFullScreen();
   
-  // Only start timer if not ran yet
   if (!timerRan) {
     showScreen('waitingScreen');
     startTimer();
   } else {
     showScreen('passwordScreen');
-    setTimeout(() => document.getElementById('accessCode').focus(), 300);
+    setTimeout(function() { document.getElementById('accessCode').focus(); }, 300);
   }
 });
 
-// ===== START TIMER (RUNS ONCE) =====
 function startTimer() {
   if (timerRan) {
     showScreen('passwordScreen');
@@ -2385,11 +2379,11 @@ function startTimer() {
   
   timerRan = true;
   
-  const waitTime = Math.floor(Math.random() * 41) + 5;
-  let seconds = waitTime;
+  var waitTime = Math.floor(Math.random() * 41) + 5;
+  var seconds = waitTime;
   
-  const timerDisplay = document.getElementById('delayTimerDisplay');
-  const progressBar = document.getElementById('waitingProgressBar');
+  var timerDisplay = document.getElementById('delayTimerDisplay');
+  var progressBar = document.getElementById('waitingProgressBar');
   
   if (timerDisplay) timerDisplay.textContent = seconds;
   if (progressBar) progressBar.style.width = '0%';
@@ -2398,7 +2392,7 @@ function startTimer() {
     seconds--;
     if (timerDisplay) timerDisplay.textContent = seconds;
     if (progressBar) {
-      const progress = ((waitTime - seconds) / waitTime) * 100;
+      var progress = ((waitTime - seconds) / waitTime) * 100;
       progressBar.style.width = progress + '%';
     }
     
@@ -2406,25 +2400,21 @@ function startTimer() {
       clearInterval(timerInterval);
       timerInterval = null;
       showScreen('passwordScreen');
-      setTimeout(function() {
-        document.getElementById('accessCode').focus();
-      }, 300);
+      setTimeout(function() { document.getElementById('accessCode').focus(); }, 300);
     }
   }, 1000);
 }
 
-// ===== PASSWORD VERIFICATION =====
+// ===== PASSWORD =====
 document.getElementById('verifyAccess').addEventListener('click', function() {
-  const enteredCode = document.getElementById('accessCode').value.trim();
-  const errorElement = document.getElementById('accessError');
+  var enteredCode = document.getElementById('accessCode').value.trim();
+  var errorElement = document.getElementById('accessError');
   
   if (enteredCode === 'lfjc2025') {
     errorElement.style.display = 'none';
     showScreen('studentDetailsScreen');
     document.getElementById('stuStartBtn').style.display = 'block';
-    setTimeout(function() {
-      document.getElementById('stuName').focus();
-    }, 300);
+    setTimeout(function() { document.getElementById('stuName').focus(); }, 300);
   } else {
     errorElement.style.display = 'block';
     errorElement.textContent = '❌ Invalid access code. Please try again.';
@@ -2439,7 +2429,7 @@ document.getElementById('accessCode').addEventListener('keypress', function(e) {
   }
 });
 
-// ===== UPDATE WELCOME TOTAL QUESTIONS =====
+// ===== UPDATE TOTAL QUESTIONS =====
 setTimeout(function() {
   var totalEl = document.getElementById('welcomeTotalQuestions');
   var totalDisplay = document.getElementById('totalQuestionsDisplay');
@@ -2448,7 +2438,7 @@ setTimeout(function() {
   }
 }, 1000);
 
-// ===== FORCE FULL SCREEN ON PAGE LOAD =====
+// ===== FORCE FULL SCREEN =====
 setTimeout(goFullScreen, 500);
 setTimeout(goFullScreen, 1000);
 setTimeout(goFullScreen, 2000);
