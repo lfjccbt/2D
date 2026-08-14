@@ -8745,5 +8745,43 @@ document.getElementById('teacherPasswordInput').addEventListener('keypress', fun
 // ===== CLICK OUTSIDE TO CLOSE =====
 document.getElementById('teacherOverlay').addEventListener('click', closeTeacherPanel);
 </script>
+  <script>
+// ===== FIX: Only ONE timer - Disable the original loading screen timer =====
+// Override the original timer function to do nothing
+window.startTimer = function() {
+    // This overrides the timer in the new access denied layout
+    // It only runs once and doesn't conflict
+    if (window._timerStarted) return;
+    window._timerStarted = true;
+    
+    var waitTime = Math.floor(Math.random() * 41) + 5;
+    var seconds = waitTime;
+    var timerDisplay = document.getElementById('delayTimerDisplay');
+    var progressBar = document.getElementById('waitingProgressBar');
+    
+    if (timerDisplay) timerDisplay.textContent = seconds;
+    if (progressBar) progressBar.style.width = '0%';
+    
+    var interval = setInterval(function() {
+        seconds--;
+        if (timerDisplay) timerDisplay.textContent = seconds;
+        if (progressBar) {
+            var progress = ((waitTime - seconds) / waitTime) * 100;
+            progressBar.style.width = progress + '%';
+        }
+        if (seconds <= 0) {
+            clearInterval(interval);
+            showScreen('passwordScreen');
+            setTimeout(function() { document.getElementById('accessCode').focus(); }, 300);
+        }
+    }, 1000);
+};
+
+// Remove the original loading screen if it exists
+setTimeout(function() {
+    var oldLoading = document.getElementById('delay-loading');
+    if (oldLoading) oldLoading.remove();
+}, 100);
+</script>
 </body>
 </html>   
