@@ -2035,7 +2035,7 @@ setInterval(function() {
   margin: 0;
 ">
 
-  <!-- ===== LEFT SIDE - FIXED POSITION (45%) ===== -->
+  <!-- LEFT SIDE -->
   <div style="
     position: fixed;
     left: 0;
@@ -2052,7 +2052,6 @@ setInterval(function() {
     z-index: 1;
     overflow: hidden;
   ">
-    <!-- Left side content -->
     <div style="position: relative; z-index: 1; text-align: center; width: 100%; max-width: 400px;">
       <div style="font-size: 56px; font-weight: 700; letter-spacing: -1px; margin-bottom: 2px; color: #FFFFFF;">2D</div>
       <div style="font-size: 20px; font-weight: 500; letter-spacing: 2px; color: rgba(255,255,255,0.6); margin-bottom: 30px;">LFJC ONLINE EXAMINATION</div>
@@ -2072,7 +2071,7 @@ setInterval(function() {
     </div>
   </div>
 
-  <!-- ===== RIGHT SIDE - WITH MARGIN LEFT (55%) ===== -->
+  <!-- RIGHT SIDE -->
   <div style="
     position: absolute;
     left: 45%;
@@ -2089,7 +2088,7 @@ setInterval(function() {
   ">
     <div style="max-width: 420px; width: 100%;">
       
-      <!-- ===== WELCOME SCREEN ===== -->
+      <!-- WELCOME SCREEN -->
       <div id="welcomeScreen" style="
         background: #FFFFFF;
         border-radius: 20px;
@@ -2131,7 +2130,7 @@ setInterval(function() {
         <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
       </div>
 
-      <!-- ===== WAITING TIMER SCREEN ===== -->
+      <!-- WAITING TIMER SCREEN -->
       <div id="waitingScreen" style="
         background: #FFFFFF;
         border-radius: 20px;
@@ -2157,7 +2156,7 @@ setInterval(function() {
         <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
       </div>
 
-      <!-- ===== PASSWORD SCREEN ===== -->
+      <!-- PASSWORD SCREEN -->
       <div id="passwordScreen" style="
         background: #FFFFFF;
         border-radius: 20px;
@@ -2232,7 +2231,7 @@ setInterval(function() {
         <div id="accessError" style="display: none; color: #E53E3E; font-size: 14px; font-weight: 500; margin-top: 14px; padding: 12px 16px; background: #FFF5F5; border-radius: 10px; border: 1px solid #FED7D7; text-align: center;">❌ Invalid access code. Please try again.</div>
       </div>
 
-      <!-- ===== STUDENT DETAILS SCREEN ===== -->
+      <!-- STUDENT DETAILS SCREEN -->
       <div id="studentDetailsScreen" style="
         background: #FFFFFF;
         border-radius: 20px;
@@ -2413,7 +2412,13 @@ document.getElementById('verifyAccess').addEventListener('click', function() {
   if (enteredCode === 'lfjc2025') {
     errorElement.style.display = 'none';
     showScreen('studentDetailsScreen');
-    document.getElementById('stuStartBtn').style.display = 'block';
+    
+    // SHOW THE START BUTTON - IMPORTANT!
+    var startBtn = document.getElementById('stuStartBtn');
+    if (startBtn) {
+      startBtn.style.display = 'block';
+    }
+    
     setTimeout(function() { document.getElementById('stuName').focus(); }, 300);
   } else {
     errorElement.style.display = 'block';
@@ -2442,6 +2447,61 @@ setTimeout(function() {
 setTimeout(goFullScreen, 500);
 setTimeout(goFullScreen, 1000);
 setTimeout(goFullScreen, 2000);
+
+// ===== FIX: Connect Start Exam button to original logic =====
+document.addEventListener('DOMContentLoaded', function() {
+  var startBtn = document.getElementById('stuStartBtn');
+  
+  if (startBtn) {
+    startBtn.onclick = function() {
+      // Check if validation function exists
+      if (typeof validateStudentInputs === 'function') {
+        if (!validateStudentInputs()) return;
+        if (typeof showConfirm === 'function') {
+          showConfirm("Start Exam?", function(ok) {
+            if (ok && typeof startWithSecurity === 'function') {
+              startWithSecurity(true);
+            }
+          });
+        } else if (typeof startWithSecurity === 'function') {
+          startWithSecurity(true);
+        }
+      } else {
+        alert('Please wait for the system to fully load.');
+      }
+    };
+  }
+  
+  // Enter key on student fields
+  ['stuName', 'stuRoll', 'stuAdm'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          var btn = document.getElementById('stuStartBtn');
+          if (btn && btn.style.display !== 'none') {
+            btn.click();
+          }
+        }
+      });
+    }
+  });
+});
+
+// ===== FIX: Show start button when details are valid =====
+var originalValidate = window.validateStudentInputs;
+if (originalValidate) {
+  window.validateStudentInputs = function() {
+    var result = originalValidate.call(this);
+    var startBtn = document.getElementById('stuStartBtn');
+    if (startBtn && result && typeof keyLoaded !== 'undefined' && keyLoaded) {
+      startBtn.style.display = 'block';
+    } else if (startBtn) {
+      startBtn.style.display = 'none';
+    }
+    return result;
+  };
+}
 </script>
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
