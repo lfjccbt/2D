@@ -8783,5 +8783,29 @@ setTimeout(function() {
     if (oldLoading) oldLoading.remove();
 }, 100);
 </script>
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Connect the new Start Exam button
+    var btn = document.getElementById('stuStartBtn');
+    if (btn) {
+        btn.onclick = function() {
+            if (typeof validateStudentInputs === 'function') {
+                if (!validateStudentInputs()) return;
+                if (typeof showConfirm === 'function') {
+                    showConfirm("Start Exam?", function(ok) {
+                        if (ok && typeof startWithSecurity === 'function') {
+                            startWithSecurity(true);
+                        }
+                    });
+                }
+            }
+        };
+    }
+    
+    // Remove old loading screen
+    var old = document.getElementById('delay-loading');
+    if (old) old.remove();
+});
+</script>
 </body>
 </html>   
