@@ -5695,11 +5695,20 @@ function startWithSecurity(ok) {
   
   const studentKey = `${stuName.value}|${stuSection.value}|${stuRoll.value}|${stuAdm.value}`;
   
-  // HIDE ACCESS DENIED and SHOW EXAM AREA directly
+  // FIRST: Prepare exam data (this populates examData)
+  if (typeof prepareExamData === 'function') {
+    prepareExamData();
+  } else {
+    console.error('prepareExamData function not found');
+    alert('Error preparing exam. Please contact administrator.');
+    return;
+  }
+  
+  // SECOND: HIDE ACCESS DENIED and SHOW EXAM AREA
   document.getElementById('accessDenied').style.display = 'none';
   document.getElementById('examArea').style.display = 'block';
   
-  // Start exam immediately
+  // THIRD: Start exam with the student key
   if (typeof startExam === 'function') {
     startExam(studentKey);
   } else {
@@ -5759,7 +5768,20 @@ function startExam(studentKey) {
     const stuAdm = document.getElementById('stuAdm');
 
     localStorage.setItem(studentKey, Date.now());
-    prepareExamData();
+    
+    // ===== IMPORTANT: Make sure examData is ready =====
+    if (!examData || examData.files.length === 0) {
+        console.log('⚠️ examData is empty, calling prepareExamData again...');
+        if (typeof prepareExamData === 'function') {
+            prepareExamData();
+        }
+    }
+    
+    // Check if examData is still empty
+    if (!examData || examData.files.length === 0) {
+        alert('Error: No questions loaded. Please contact administrator.');
+        return;
+    }
     
     if (window.pendingRecoveryData) {
         progress = window.pendingRecoveryData.progress;
@@ -5788,6 +5810,8 @@ function startExam(studentKey) {
     
     document.getElementById('studentEntry').style.display = "none";
     document.getElementById('examArea').style.display = "block";
+    
+    // ===== Render the exam =====
     renderQuestion(); 
     renderPalette(); 
     startTimer(); 
@@ -5808,6 +5832,8 @@ function startExam(studentKey) {
     secretUnlocked = false;
     submitUnlocked = false;
     document.getElementById('submitBtn').style.display = 'none';
+    
+    console.log('✅ Exam started with ' + examData.files.length + ' questions');
 }
 
 function updateQuestionInfo() {
@@ -8555,6 +8581,44 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('❌ Start Exam button not found');
         }
     }, 1000);
+})();
+</script>
+  <script>
+// ===== EMERGENCY FIX: Force exam to render =====
+(function() {
+    // Override renderQuestion to add debug logging
+    var originalRender = window.renderQuestion;
+    if (originalRender) {
+        window.renderQuestion = function() {
+            console.log('🔧 renderQuestion called, examData.files.length =', examData ? examData.files.length : 'undefined');
+            if (!examData || examData.files.length === 0) {
+                console.log('⚠️ examData is empty! Trying to fix...');
+                if (typeof prepareExamData === 'function') {
+                    prepareExamData();
+                }
+                if (!examData || examData.files.length === 0) {
+                    document.getElementById('questionContainer').innerHTML = '<div style="padding:50px;color:red;font-size:20px;">⚠️ No questions loaded. Please contact administrator.</div>';
+                    return;
+                }
+            }
+            originalRender.call(this);
+        };
+    }
+    
+    // Override renderPalette
+    var originalPalette = window.renderPalette;
+    if (originalPalette) {
+        window.renderPalette = function() {
+            console.log('🔧 renderPalette called, examData.files.length =', examData ? examData.files.length : 'undefined');
+            if (!examData || examData.files.length === 0) {
+                console.log('⚠️ examData is empty for palette!');
+                return;
+            }
+            originalPalette.call(this);
+        };
+    }
+    
+    console.log('✅ Emergency fixes applied');
 })();
 </script>
 </body>
