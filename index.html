@@ -1882,112 +1882,7 @@ setInterval(function() {
 <!-- === END FULL SCREEN SYSTEM === -->
 <!-- =========================================================== -->
 <!-- =========================================================== -->
-<!-- === PROFESSIONAL LOADING SCREEN WITH COUNTDOWN & WELCOME === -->
-<!-- =========================================================== -->
-<script>
-    (function() {
-        // Random delay between 5 and 45 seconds
-        const waitTime = Math.floor(Math.random() * 41) + 5;
-        console.log(`⏳ Delay: ${waitTime} seconds`);
 
-        // Create the loading screen overlay
-        const loading = document.createElement('div');
-        loading.id = 'delay-loading';
-        loading.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(145deg, #E6E6FA, #af82ba);
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-            z-index: 999999; font-family: 'SF Pro Display', Arial, sans-serif; 
-            color: #4B0082; text-align: center; padding: 20px;
-        `;
-        loading.innerHTML = `
-            <div style="max-width: 500px;">
-                <h1 style="font-size: 4.8em; margin-bottom: 10px; color: #4B0082;">2D</h1>
-                <h1 style="font-size: 2.8em; margin-bottom: 10px; color: #4B0082;">🎓 Welcome to LFJC ONLINE EXAMINATION</h1>
-                <p style="font-size: 1.2em; color: #5a2d82; margin-bottom: 30px;">Please wait while we prepare your exam...</p>
-                
-                <!-- Spinner -->
-                <div style="width: 60px; height: 60px; border: 5px solid #f3f3f3; 
-                            border-top: 5px solid #4B0082; border-radius: 50%; 
-                            animation: spin 1s linear infinite; margin: 20px auto;">
-                </div>
-                
-                <!-- Countdown Timer -->
-                <p style="font-size: 1.5em; font-weight: bold; margin-top: 20px;">
-                    ⏳ <span id="delay-timer">${waitTime}</span> seconds remaining
-                </p>
-                <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Do not refresh the page</p>
-                
-                <!-- Full Screen Button on Loading Screen -->
-                <button id="loadingFullScreenBtn" style="
-                    background: #4B0082; 
-                    color: white; 
-                    padding: 15px 40px; 
-                    font-size: 18px; 
-                    border-radius: 10px; 
-                    border: none; 
-                    cursor: pointer; 
-                    margin-top: 20px;
-                    font-weight: bold;
-                    box-shadow: 0 4px 15px rgba(75,0,130,0.3);
-                ">🖥️ CLICK TO CONTINUE </button>
-            </div>
-        `;
-        document.body.appendChild(loading);
-
-        // Add spin animation
-        const style = document.createElement('style');
-        style.textContent = `@keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }`;
-        document.head.appendChild(style);
-
-        // Countdown timer
-        let seconds = waitTime;
-        const timer = document.getElementById('delay-timer');
-        const interval = setInterval(() => {
-            seconds--;
-            if (timer) timer.textContent = seconds;
-            if (seconds <= 0) clearInterval(interval);
-        }, 1000);
-
-        // Full Screen Button on Loading Screen
-        document.getElementById('loadingFullScreenBtn').addEventListener('click', function() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().then(function() {
-                    this.textContent = '✅ Just Wait ';
-                    this.style.background = '#32CD32';
-                }.bind(this)).catch(function() {
-                    alert('Please click "Allow" to enable full screen mode.');
-                });
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            } else if (elem.mozRequestFullScreen) {
-                elem.mozRequestFullScreen();
-            } else if (elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
-            }
-        });
-
-        // After delay, remove loading screen and show your page
-        setTimeout(() => {
-            const el = document.getElementById('delay-loading');
-            if (el) el.remove();
-            console.log('✅ Delay complete. Your exam page is now visible.');
-            
-            // Force full screen after loading screen
-            setTimeout(goFullScreen, 100);
-            setTimeout(goFullScreen, 500);
-            setTimeout(goFullScreen, 1000);
-            
-        }, waitTime * 1000);
-    })();
-</script>
-<!-- =========================================================== -->
-<!-- === END LOADING SCREEN                                    === -->
-<!-- =========================================================== -->
 
 <div id="powerLossRecoveryOverlay">
   <div id="powerLossRecoveryBox">
@@ -2020,280 +1915,102 @@ setInterval(function() {
 
 
 <!-- ===== ACCESS DENIED - LEFT RIGHT LAYOUT ===== -->
-<div id="accessDenied" class="access-denied" style="
-  display: flex;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #F0F2F5;
-  z-index: 10000;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
-  overflow: hidden;
-  padding: 0;
-  margin: 0;
-">
+<div id="accessDenied" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#F0F2F5;z-index:10000;font-family:'SF Pro Display',sans-serif;overflow:hidden;padding:0;margin:0;">
 
-  <!-- LEFT SIDE -->
-  <div style="
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 45%;
-    height: 100%;
-    background: linear-gradient(160deg, #0A1628 0%, #1A365D 40%, #2B6CB0 100%);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 50px 40px;
-    color: white;
-    z-index: 1;
-    overflow: hidden;
-  ">
-    <div style="position: relative; z-index: 1; text-align: center; width: 100%; max-width: 400px;">
-      <div style="font-size: 56px; font-weight: 700; letter-spacing: -1px; margin-bottom: 2px; color: #FFFFFF;">2D</div>
-      <div style="font-size: 20px; font-weight: 500; letter-spacing: 2px; color: rgba(255,255,255,0.6); margin-bottom: 30px;">LFJC ONLINE EXAMINATION</div>
-      <div style="width: 60px; height: 2px; background: #FFD700; margin: 0 auto 25px auto; border-radius: 2px;"></div>
-      
-      <div style="background: rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 24px; margin-bottom: 14px;">
-        <div style="font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35);">Total Questions</div>
-        <div style="font-size: 36px; font-weight: 700; color: #FFD700; letter-spacing: -0.5px; margin-top: 2px;" id="totalQuestionsDisplay">Loading...</div>
-      </div>
-      
-      <div id="subjectBreakdownDisplay" style="font-size: 14px; color: rgba(255,255,255,0.5); margin: 10px 0 16px 0; line-height: 1.8;"></div>
-      
-      <div style="display: flex; gap: 12px; justify-content: center;">
-        <div style="background: rgba(16,185,129,0.12); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #34D399; border: 1px solid rgba(16,185,129,0.08);" id="correctMarkDisplay">+4 Marks</div>
-        <div style="background: rgba(239,68,68,0.10); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #F87171; border: 1px solid rgba(239,68,68,0.08);" id="wrongMarkDisplay">-1 Mark</div>
-      </div>
+<div style="position:fixed;left:0;top:0;width:45%;height:100%;background:linear-gradient(160deg,#0A1628 0%,#1A365D 40%,#2B6CB0 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:50px 40px;color:white;z-index:1;">
+  <div style="text-align:center;width:100%;max-width:400px;">
+    <div style="font-size:56px;font-weight:700;color:#FFFFFF;">2D</div>
+    <div style="font-size:20px;font-weight:500;color:rgba(255,255,255,0.6);margin-bottom:30px;">LFJC ONLINE EXAMINATION</div>
+    <div style="width:60px;height:2px;background:#FFD700;margin:0 auto 25px auto;"></div>
+    <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:18px 24px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);">Total Questions</div>
+      <div style="font-size:36px;font-weight:700;color:#FFD700;margin-top:2px;" id="totalQuestionsDisplay">Loading...</div>
+    </div>
+    <div id="subjectBreakdownDisplay" style="font-size:14px;color:rgba(255,255,255,0.5);margin:10px 0 16px 0;line-height:1.8;"></div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <div style="background:rgba(16,185,129,0.12);padding:6px 18px;border-radius:20px;font-size:13px;font-weight:500;color:#34D399;border:1px solid rgba(16,185,129,0.08);" id="correctMarkDisplay">+4 Marks</div>
+      <div style="background:rgba(239,68,68,0.10);padding:6px 18px;border-radius:20px;font-size:13px;font-weight:500;color:#F87171;border:1px solid rgba(239,68,68,0.08);" id="wrongMarkDisplay">-1 Mark</div>
     </div>
   </div>
+</div>
 
-  <!-- RIGHT SIDE -->
-  <div style="
-    position: absolute;
-    left: 45%;
-    top: 0;
-    width: 55%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 50px;
-    background: #F0F2F5;
-    overflow-y: auto;
-  ">
-    <div style="max-width: 420px; width: 100%;">
+<div style="position:absolute;left:45%;top:0;width:55%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px 50px;background:#F0F2F5;overflow-y:auto;">
+  <div style="max-width:420px;width:100%;">
+    
+    <div id="welcomeScreen" style="background:#FFFFFF;border-radius:20px;padding:40px 35px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid rgba(255,255,255,0.5);text-align:center;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);display:flex;align-items:center;justify-content:center;margin:0 auto 18px auto;">
+        <span style="font-size:38px;">🎓</span>
+      </div>
+      <div style="font-size:28px;font-weight:700;color:#1A202C;margin-bottom:4px;">Welcome to 2D</div>
+      <div style="font-size:18px;font-weight:500;color:#2B6CB0;margin-bottom:6px;">LFJC ONLINE EXAMINATION</div>
+      <div style="font-size:14px;color:#718096;margin-bottom:24px;">Please wait while we prepare your exam</div>
+      <div style="background:#F7FAFC;border-radius:12px;padding:16px 20px;margin-bottom:20px;border:1px solid #E2E8F0;">
+        <div style="font-size:13px;color:#A0AEC0;font-weight:500;letter-spacing:1px;text-transform:uppercase;">Total Questions</div>
+        <div style="font-size:28px;font-weight:700;color:#2B6CB0;" id="welcomeTotalQuestions">Loading...</div>
+      </div>
+      <button id="welcomeContinueBtn" style="width:100%;padding:15px 20px;background:linear-gradient(135deg,#2B6CB0,#1A365D);color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:'SF Pro Display',sans-serif;box-shadow:0 4px 20px rgba(43,108,176,0.25);">🖥️ Continue</button>
+      <div style="font-size:12px;color:#A0AEC0;margin-top:14px;">Please do not refresh the page</div>
+    </div>
+
+    <div id="waitingScreen" style="background:#FFFFFF;border-radius:20px;padding:40px 35px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid rgba(255,255,255,0.5);text-align:center;display:none;">
+      <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);display:flex;align-items:center;justify-content:center;margin:0 auto 18px auto;">
+        <span style="font-size:32px;">⏳</span>
+      </div>
+      <div style="font-size:22px;font-weight:600;color:#1A202C;margin-bottom:4px;">Please Wait</div>
+      <div style="font-size:15px;color:#718096;margin-bottom:22px;">Preparing your examination...</div>
+      <div style="font-size:56px;font-weight:700;color:#2B6CB0;margin:8px 0;font-variant-numeric:tabular-nums;" id="delayTimerDisplay">30</div>
+      <div style="font-size:15px;color:#718096;font-weight:500;">seconds remaining</div>
+      <div style="width:100%;height:4px;background:#E2E8F0;border-radius:2px;margin-top:22px;overflow:hidden;">
+        <div id="waitingProgressBar" style="width:0%;height:100%;background:linear-gradient(90deg,#2B6CB0,#4299E1);border-radius:2px;transition:width 0.5s ease;"></div>
+      </div>
+      <div style="font-size:12px;color:#A0AEC0;margin-top:14px;">Please do not refresh the page</div>
+    </div>
+
+    <div id="passwordScreen" style="background:#FFFFFF;border-radius:20px;padding:32px 35px 28px 35px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid rgba(255,255,255,0.5);display:none;">
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+        <span style="font-size:26px;">🔐</span>
+      </div>
+      <h2 style="font-size:22px;font-weight:600;color:#1A202C;margin:0 0 4px 0;">Access Code</h2>
+      <p style="font-size:14px;color:#718096;margin:0 0 20px 0;">Enter your secure access code</p>
+      <button id="enterFullScreenBtn" style="width:100%;padding:14px 20px;background:#2B6CB0;color:white;border:none;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:14px;font-family:'SF Pro Display',sans-serif;">🖥️ Enter Full Screen</button>
+      <input type="password" id="accessCode" style="width:100%;padding:14px 18px;font-size:16px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#F7FAFC;color:#1A202C;letter-spacing:6px;font-weight:500;" placeholder="Enter Access Code">
+      <div style="font-size:12px;color:#A0AEC0;margin-top:8px;">Contact administrator for access code</div>
+      <button id="verifyAccess" style="width:100%;padding:14px 20px;background:#1A202C;color:white;border:none;border-radius:12px;font-size:16px;font-weight:500;cursor:pointer;font-family:'SF Pro Display',sans-serif;margin-top:16px;">🔓 Verify Access</button>
+      <div id="accessError" style="display:none;color:#E53E3E;font-size:14px;font-weight:500;margin-top:14px;padding:12px 16px;background:#FFF5F5;border-radius:10px;border:1px solid #FED7D7;text-align:center;">❌ Invalid access code. Please try again.</div>
+    </div>
+
+    <div id="studentDetailsScreen" style="background:#FFFFFF;border-radius:20px;padding:32px 35px 28px 35px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid rgba(255,255,255,0.5);display:none;">
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+        <span style="font-size:26px;">👤</span>
+      </div>
+      <h2 style="font-size:22px;font-weight:600;color:#1A202C;margin:0 0 4px 0;">Student Details</h2>
+      <p style="font-size:14px;color:#718096;margin:0 0 20px 0;">Please verify your identity</p>
       
-      <!-- WELCOME SCREEN -->
-      <div id="welcomeScreen" style="
-        background: #FFFFFF;
-        border-radius: 20px;
-        padding: 40px 35px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
-        border: 1px solid rgba(255,255,255,0.5);
-        text-align: center;
-      ">
-        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px auto;">
-          <span style="font-size: 38px;">🎓</span>
-        </div>
-        <div style="font-size: 28px; font-weight: 700; color: #1A202C; margin-bottom: 4px;">Welcome to 2D</div>
-        <div style="font-size: 18px; font-weight: 500; color: #2B6CB0; margin-bottom: 6px;">LFJC ONLINE EXAMINATION</div>
-        <div style="font-size: 14px; color: #718096; margin-bottom: 24px;">Please wait while we prepare your exam</div>
-        
-        <div style="background: #F7FAFC; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; border: 1px solid #E2E8F0;">
-          <div style="font-size: 13px; color: #A0AEC0; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Total Questions</div>
-          <div style="font-size: 28px; font-weight: 700; color: #2B6CB0;" id="welcomeTotalQuestions">Loading...</div>
-        </div>
-        
-        <button id="welcomeContinueBtn" style="
-          width: 100%;
-          padding: 15px 20px;
-          background: linear-gradient(135deg, #2B6CB0, #1A365D);
-          color: white;
-          border: none;
-          border-radius: 12px;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-          box-shadow: 0 4px 20px rgba(43,108,176,0.25);
-        "
-        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 30px rgba(43,108,176,0.35)'"
-        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(43,108,176,0.25)'"
-        >🖥️ Continue</button>
-        
-        <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:13px;font-weight:500;color:#4A5568;margin-bottom:5px;">Full Name</label>
+        <input type="text" id="stuName" style="width:100%;padding:13px 16px;font-size:15px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#F7FAFC;color:#1A202C;" placeholder="Enter your full name">
       </div>
-
-      <!-- WAITING TIMER SCREEN -->
-      <div id="waitingScreen" style="
-        background: #FFFFFF;
-        border-radius: 20px;
-        padding: 40px 35px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
-        border: 1px solid rgba(255,255,255,0.5);
-        text-align: center;
-        display: none;
-      ">
-        <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px auto;">
-          <span style="font-size: 32px;">⏳</span>
-        </div>
-        <div style="font-size: 22px; font-weight: 600; color: #1A202C; margin-bottom: 4px;">Please Wait</div>
-        <div style="font-size: 15px; color: #718096; margin-bottom: 22px;">Preparing your examination...</div>
-        
-        <div style="font-size: 56px; font-weight: 700; color: #2B6CB0; margin: 8px 0; font-variant-numeric: tabular-nums;" id="delayTimerDisplay">30</div>
-        <div style="font-size: 15px; color: #718096; font-weight: 500;">seconds remaining</div>
-        
-        <div style="width: 100%; height: 4px; background: #E2E8F0; border-radius: 2px; margin-top: 22px; overflow: hidden;">
-          <div id="waitingProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #2B6CB0, #4299E1); border-radius: 2px; transition: width 0.5s ease;"></div>
-        </div>
-        
-        <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:13px;font-weight:500;color:#4A5568;margin-bottom:5px;">Section</label>
+        <input type="text" id="stuSection" value="2D" readonly style="width:100%;padding:13px 16px;font-size:15px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#EDF2F7;color:#718096;cursor:not-allowed;">
       </div>
-
-      <!-- PASSWORD SCREEN -->
-      <div id="passwordScreen" style="
-        background: #FFFFFF;
-        border-radius: 20px;
-        padding: 32px 35px 28px 35px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
-        border: 1px solid rgba(255,255,255,0.5);
-        display: none;
-      ">
-        <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-          <span style="font-size: 26px;">🔐</span>
-        </div>
-        <h2 style="font-size: 22px; font-weight: 600; color: #1A202C; margin: 0 0 4px 0;">Access Code</h2>
-        <p style="font-size: 14px; color: #718096; margin: 0 0 20px 0;">Enter your secure access code</p>
-        
-        <button id="enterFullScreenBtn" style="
-          width: 100%;
-          padding: 14px 20px;
-          background: #2B6CB0;
-          color: white;
-          border: none;
-          border-radius: 12px;
-          font-size: 15px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          margin-bottom: 14px;
-          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-        "
-        onmouseover="this.style.background='#1A365D'; this.style.transform='translateY(-1px)'"
-        onmouseout="this.style.background='#2B6CB0'; this.style.transform='translateY(0)'"
-        >🖥️ Enter Full Screen</button>
-        
-        <input type="password" id="accessCode" style="
-          width: 100%;
-          padding: 14px 18px;
-          font-size: 16px;
-          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-          border: 2px solid #E2E8F0;
-          border-radius: 12px;
-          outline: none;
-          transition: all 0.2s ease;
-          box-sizing: border-box;
-          background: #F7FAFC;
-          color: #1A202C;
-          letter-spacing: 6px;
-          font-weight: 500;
-        "
-        placeholder="Enter Access Code"
-        onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'"
-        onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
-        
-        <div style="font-size: 12px; color: #A0AEC0; margin-top: 8px;">Contact administrator for access code</div>
-        
-        <button id="verifyAccess" style="
-          width: 100%;
-          padding: 14px 20px;
-          background: #1A202C;
-          color: white;
-          border: none;
-          border-radius: 12px;
-          font-size: 16px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-          margin-top: 16px;
-        "
-        onmouseover="this.style.background='#2D3748'; this.style.transform='translateY(-1px)'"
-        onmouseout="this.style.background='#1A202C'; this.style.transform='translateY(0)'"
-        >🔓 Verify Access</button>
-        
-        <div id="accessError" style="display: none; color: #E53E3E; font-size: 14px; font-weight: 500; margin-top: 14px; padding: 12px 16px; background: #FFF5F5; border-radius: 10px; border: 1px solid #FED7D7; text-align: center;">❌ Invalid access code. Please try again.</div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:13px;font-weight:500;color:#4A5568;margin-bottom:5px;">Roll Number</label>
+        <input type="text" id="stuRoll" style="width:100%;padding:13px 16px;font-size:15px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#F7FAFC;color:#1A202C;" placeholder="Enter roll number">
       </div>
-
-      <!-- STUDENT DETAILS SCREEN -->
-      <div id="studentDetailsScreen" style="
-        background: #FFFFFF;
-        border-radius: 20px;
-        padding: 32px 35px 28px 35px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
-        border: 1px solid rgba(255,255,255,0.5);
-        display: none;
-      ">
-        <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-          <span style="font-size: 26px;">👤</span>
-        </div>
-        <h2 style="font-size: 22px; font-weight: 600; color: #1A202C; margin: 0 0 4px 0;">Student Details</h2>
-        <p style="font-size: 14px; color: #718096; margin: 0 0 20px 0;">Please verify your identity</p>
-        
-        <div style="margin-bottom: 14px;">
-          <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 5px;">Full Name</label>
-          <input type="text" id="stuName" style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; transition: all 0.2s ease; box-sizing: border-box; background: #F7FAFC; color: #1A202C;" placeholder="Enter your full name" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
-        </div>
-
-        <div style="margin-bottom: 14px;">
-          <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 5px;">Section</label>
-          <input type="text" id="stuSection" value="2D" readonly style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #EDF2F7; color: #718096; cursor: not-allowed;">
-        </div>
-
-        <div style="margin-bottom: 14px;">
-          <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 5px;">Roll Number</label>
-          <input type="text" id="stuRoll" style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; transition: all 0.2s ease; box-sizing: border-box; background: #F7FAFC; color: #1A202C;" placeholder="Enter roll number" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 5px;">Admission Number</label>
-          <input type="text" id="stuAdm" style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; transition: all 0.2s ease; box-sizing: border-box; background: #F7FAFC; color: #1A202C;" placeholder="Enter admission number" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
-        </div>
-
-        <button id="stuStartBtn" style="
-          width: 100%;
-          padding: 15px 20px;
-          background: linear-gradient(135deg, #2B6CB0, #1A365D);
-          color: white;
-          border: none;
-          border-radius: 12px;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-          display: none;
-          box-shadow: 0 4px 20px rgba(43,108,176,0.25);
-        "
-        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 30px rgba(43,108,176,0.35)'"
-        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(43,108,176,0.25)'"
-        >🚀 Start Exam</button>
-        
-        <div id="errorMessages" style="margin-top: 12px;"></div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:13px;font-weight:500;color:#4A5568;margin-bottom:5px;">Admission Number</label>
+        <input type="text" id="stuAdm" style="width:100%;padding:13px 16px;font-size:15px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#F7FAFC;color:#1A202C;" placeholder="Enter admission number">
       </div>
-      
-      <!-- Footer -->
-      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #E2E8F0; text-align: center;">
-        <span style="font-size: 12px; color: #A0AEC0; font-weight: 400;">© LFJC 2026 | All Rights Reserved</span>
-      </div>
+      <button id="stuStartBtn" style="width:100%;padding:15px 20px;background:linear-gradient(135deg,#2B6CB0,#1A365D);color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:'SF Pro Display',sans-serif;display:none;box-shadow:0 4px 20px rgba(43,108,176,0.25);">🚀 Start Exam</button>
+      <div id="errorMessages" style="margin-top:12px;"></div>
+    </div>
+    
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #E2E8F0;text-align:center;">
+      <span style="font-size:12px;color:#A0AEC0;font-weight:400;">© LFJC 2026 | All Rights Reserved</span>
     </div>
   </div>
+</div>
 </div>
 
 <style>
@@ -2302,207 +2019,13 @@ setInterval(function() {
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
 }
-
-#accessError.show {
-  display: block !important;
-  animation: appleError 0.4s ease;
-}
-
-@media (max-width: 768px) {
-  #accessDenied {
-    flex-direction: column;
-    overflow-y: auto;
-  }
-  #accessDenied > div:first-child {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 220px;
-    padding: 30px 20px !important;
-    position: relative !important;
-  }
-  #accessDenied > div:last-child {
-    width: 100% !important;
-    height: auto !important;
-    padding: 20px !important;
-    position: relative !important;
-    left: 0 !important;
-  }
+#accessError.show { display:block !important; animation:appleError 0.4s ease; }
+@media (max-width:768px) {
+  #accessDenied { flex-direction:column; overflow-y:auto; }
+  #accessDenied > div:first-child { width:100% !important; height:auto !important; min-height:220px; padding:30px 20px !important; position:relative !important; }
+  #accessDenied > div:last-child { width:100% !important; height:auto !important; padding:20px !important; position:relative !important; left:0 !important; }
 }
 </style>
-
-<script>
-// ===== SCREEN MANAGEMENT =====
-function showScreen(screenId) {
-  document.getElementById('welcomeScreen').style.display = 'none';
-  document.getElementById('waitingScreen').style.display = 'none';
-  document.getElementById('passwordScreen').style.display = 'none';
-  document.getElementById('studentDetailsScreen').style.display = 'none';
-  document.getElementById(screenId).style.display = 'block';
-}
-
-// ===== FULL SCREEN =====
-function goFullScreen() {
-  var elem = document.documentElement;
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen().catch(function(err) {});
-  } else if (elem.webkitRequestFullscreen) {
-    elem.webkitRequestFullscreen();
-  } else if (elem.mozRequestFullScreen) {
-    elem.mozRequestFullScreen();
-  } else if (elem.msRequestFullscreen) {
-    elem.msRequestFullscreen();
-  }
-}
-
-// ===== TIMER =====
-var timerRan = false;
-var timerInterval = null;
-
-document.getElementById('welcomeContinueBtn').addEventListener('click', function() {
-  goFullScreen();
-  
-  if (!timerRan) {
-    showScreen('waitingScreen');
-    startTimer();
-  } else {
-    showScreen('passwordScreen');
-    setTimeout(function() { document.getElementById('accessCode').focus(); }, 300);
-  }
-});
-
-function startTimer() {
-  if (timerRan) {
-    showScreen('passwordScreen');
-    return;
-  }
-  
-  timerRan = true;
-  
-  var waitTime = Math.floor(Math.random() * 41) + 5;
-  var seconds = waitTime;
-  
-  var timerDisplay = document.getElementById('delayTimerDisplay');
-  var progressBar = document.getElementById('waitingProgressBar');
-  
-  if (timerDisplay) timerDisplay.textContent = seconds;
-  if (progressBar) progressBar.style.width = '0%';
-  
-  timerInterval = setInterval(function() {
-    seconds--;
-    if (timerDisplay) timerDisplay.textContent = seconds;
-    if (progressBar) {
-      var progress = ((waitTime - seconds) / waitTime) * 100;
-      progressBar.style.width = progress + '%';
-    }
-    
-    if (seconds <= 0) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      showScreen('passwordScreen');
-      setTimeout(function() { document.getElementById('accessCode').focus(); }, 300);
-    }
-  }, 1000);
-}
-
-// ===== PASSWORD =====
-document.getElementById('verifyAccess').addEventListener('click', function() {
-  var enteredCode = document.getElementById('accessCode').value.trim();
-  var errorElement = document.getElementById('accessError');
-  
-  if (enteredCode === 'lfjc2025') {
-    errorElement.style.display = 'none';
-    showScreen('studentDetailsScreen');
-    
-    // SHOW THE START BUTTON - IMPORTANT!
-    var startBtn = document.getElementById('stuStartBtn');
-    if (startBtn) {
-      startBtn.style.display = 'block';
-    }
-    
-    setTimeout(function() { document.getElementById('stuName').focus(); }, 300);
-  } else {
-    errorElement.style.display = 'block';
-    errorElement.textContent = '❌ Invalid access code. Please try again.';
-    document.getElementById('accessCode').value = '';
-    document.getElementById('accessCode').focus();
-  }
-});
-
-document.getElementById('accessCode').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') {
-    document.getElementById('verifyAccess').click();
-  }
-});
-
-// ===== UPDATE TOTAL QUESTIONS =====
-setTimeout(function() {
-  var totalEl = document.getElementById('welcomeTotalQuestions');
-  var totalDisplay = document.getElementById('totalQuestionsDisplay');
-  if (totalEl && totalDisplay) {
-    totalEl.textContent = totalDisplay.textContent || 'Loading...';
-  }
-}, 1000);
-
-// ===== FORCE FULL SCREEN =====
-setTimeout(goFullScreen, 500);
-setTimeout(goFullScreen, 1000);
-setTimeout(goFullScreen, 2000);
-
-// ===== FIX: Connect Start Exam button to original logic =====
-document.addEventListener('DOMContentLoaded', function() {
-  var startBtn = document.getElementById('stuStartBtn');
-  
-  if (startBtn) {
-    startBtn.onclick = function() {
-      // Check if validation function exists
-      if (typeof validateStudentInputs === 'function') {
-        if (!validateStudentInputs()) return;
-        if (typeof showConfirm === 'function') {
-          showConfirm("Start Exam?", function(ok) {
-            if (ok && typeof startWithSecurity === 'function') {
-              startWithSecurity(true);
-            }
-          });
-        } else if (typeof startWithSecurity === 'function') {
-          startWithSecurity(true);
-        }
-      } else {
-        alert('Please wait for the system to fully load.');
-      }
-    };
-  }
-  
-  // Enter key on student fields
-  ['stuName', 'stuRoll', 'stuAdm'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          var btn = document.getElementById('stuStartBtn');
-          if (btn && btn.style.display !== 'none') {
-            btn.click();
-          }
-        }
-      });
-    }
-  });
-});
-
-// ===== FIX: Show start button when details are valid =====
-var originalValidate = window.validateStudentInputs;
-if (originalValidate) {
-  window.validateStudentInputs = function() {
-    var result = originalValidate.call(this);
-    var startBtn = document.getElementById('stuStartBtn');
-    if (startBtn && result && typeof keyLoaded !== 'undefined' && keyLoaded) {
-      startBtn.style.display = 'block';
-    } else if (startBtn) {
-      startBtn.style.display = 'none';
-    }
-    return result;
-  };
-}
-</script>
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
 <div id="studentEntry" style="display:none;">
@@ -8746,65 +8269,89 @@ document.getElementById('teacherPasswordInput').addEventListener('keypress', fun
 document.getElementById('teacherOverlay').addEventListener('click', closeTeacherPanel);
 </script>
   <script>
-// ===== FIX: Only ONE timer - Disable the original loading screen timer =====
-// Override the original timer function to do nothing
-window.startTimer = function() {
-    // This overrides the timer in the new access denied layout
-    // It only runs once and doesn't conflict
-    if (window._timerStarted) return;
-    window._timerStarted = true;
-    
-    var waitTime = Math.floor(Math.random() * 41) + 5;
-    var seconds = waitTime;
-    var timerDisplay = document.getElementById('delayTimerDisplay');
-    var progressBar = document.getElementById('waitingProgressBar');
-    
-    if (timerDisplay) timerDisplay.textContent = seconds;
-    if (progressBar) progressBar.style.width = '0%';
-    
-    var interval = setInterval(function() {
-        seconds--;
-        if (timerDisplay) timerDisplay.textContent = seconds;
-        if (progressBar) {
-            var progress = ((waitTime - seconds) / waitTime) * 100;
-            progressBar.style.width = progress + '%';
-        }
-        if (seconds <= 0) {
-            clearInterval(interval);
-            showScreen('passwordScreen');
-            setTimeout(function() { document.getElementById('accessCode').focus(); }, 300);
-        }
-    }, 1000);
-};
+// ===== CONNECT START EXAM BUTTON & SCREEN MANAGEMENT =====
+function showScreen(screenId) {
+  var screens = ['welcomeScreen','waitingScreen','passwordScreen','studentDetailsScreen'];
+  screens.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = (id === screenId) ? 'block' : 'none';
+  });
+}
 
-// Remove the original loading screen if it exists
-setTimeout(function() {
-    var oldLoading = document.getElementById('delay-loading');
-    if (oldLoading) oldLoading.remove();
-}, 100);
-</script>
-  <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Connect the new Start Exam button
-    var btn = document.getElementById('stuStartBtn');
-    if (btn) {
-        btn.onclick = function() {
-            if (typeof validateStudentInputs === 'function') {
-                if (!validateStudentInputs()) return;
-                if (typeof showConfirm === 'function') {
-                    showConfirm("Start Exam?", function(ok) {
-                        if (ok && typeof startWithSecurity === 'function') {
-                            startWithSecurity(true);
-                        }
-                    });
-                }
-            }
-        };
+var timerRan = false;
+var timerInterval = null;
+
+document.getElementById('welcomeContinueBtn').addEventListener('click', function() {
+  goFullScreen();
+  if (!timerRan) {
+    showScreen('waitingScreen');
+    startTimer();
+  } else {
+    showScreen('passwordScreen');
+    setTimeout(function() { document.getElementById('accessCode').focus(); }, 300);
+  }
+});
+
+function startTimer() {
+  if (timerRan) { showScreen('passwordScreen'); return; }
+  timerRan = true;
+  var waitTime = Math.floor(Math.random() * 41) + 5;
+  var seconds = waitTime;
+  var timerDisplay = document.getElementById('delayTimerDisplay');
+  var progressBar = document.getElementById('waitingProgressBar');
+  if (timerDisplay) timerDisplay.textContent = seconds;
+  if (progressBar) progressBar.style.width = '0%';
+  timerInterval = setInterval(function() {
+    seconds--;
+    if (timerDisplay) timerDisplay.textContent = seconds;
+    if (progressBar) { progressBar.style.width = ((waitTime - seconds) / waitTime * 100) + '%'; }
+    if (seconds <= 0) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      showScreen('passwordScreen');
+      setTimeout(function() { document.getElementById('accessCode').focus(); }, 300);
     }
-    
-    // Remove old loading screen
-    var old = document.getElementById('delay-loading');
-    if (old) old.remove();
+  }, 1000);
+}
+
+document.getElementById('verifyAccess').addEventListener('click', function() {
+  var enteredCode = document.getElementById('accessCode').value.trim();
+  var errorElement = document.getElementById('accessError');
+  if (enteredCode === 'lfjc2025') {
+    errorElement.style.display = 'none';
+    showScreen('studentDetailsScreen');
+    document.getElementById('stuStartBtn').style.display = 'block';
+    setTimeout(function() { document.getElementById('stuName').focus(); }, 300);
+  } else {
+    errorElement.style.display = 'block';
+    errorElement.textContent = '❌ Invalid access code. Please try again.';
+    document.getElementById('accessCode').value = '';
+    document.getElementById('accessCode').focus();
+  }
+});
+
+document.getElementById('accessCode').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') document.getElementById('verifyAccess').click();
+});
+
+setTimeout(function() {
+  var totalEl = document.getElementById('welcomeTotalQuestions');
+  var totalDisplay = document.getElementById('totalQuestionsDisplay');
+  if (totalEl && totalDisplay) totalEl.textContent = totalDisplay.textContent || 'Loading...';
+}, 1000);
+
+// ===== CONNECT START EXAM BUTTON =====
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('stuStartBtn');
+  if (btn) {
+    btn.onclick = function() {
+      var name = document.getElementById('stuName').value.trim();
+      var roll = document.getElementById('stuRoll').value.trim();
+      var adm = document.getElementById('stuAdm').value.trim();
+      if (!name || !roll || !adm) { alert('Please fill all fields'); return; }
+      if (typeof startWithSecurity === 'function') { startWithSecurity(true); }
+    };
+  }
 });
 </script>
 </body>
