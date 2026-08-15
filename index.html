@@ -2019,7 +2019,6 @@ setInterval(function() {
 </div>
 
 
-<!-- ===== ACCESS DENIED - LEFT RIGHT LAYOUT ===== -->
 <div id="accessDenied" style="
   display: flex;
   position: fixed;
@@ -2052,23 +2051,23 @@ setInterval(function() {
     z-index: 1;
   ">
     <div style="text-align: center; max-width: 400px;">
-      <div style="font-size: 56px; font-weight: 700; color: #FFFFFF;">2D</div>
-      <div style="font-size: 18px; letter-spacing: 2px; color: rgba(255,255,255,0.5); margin-bottom: 30px;">LFJC ONLINE EXAMINATION</div>
-      <div style="width: 60px; height: 2px; background: #FFD700; margin: 0 auto 28px auto;"></div>
+      <div style="font-size: 72px; font-weight: 700; color: #FFFFFF;">2D</div>
+      <div style="font-size: 20px; letter-spacing: 3px; color: rgba(255,255,255,0.5); margin: 10px 0 30px 0;">LFJC ONLINE EXAMINATION</div>
+      <div style="width: 60px; height: 2px; background: #FFD700; margin: 0 auto 30px auto;"></div>
       
       <div style="background: rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 24px; border: 1px solid rgba(255,255,255,0.05);">
         <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35);">Total Questions</div>
-        <div style="font-size: 36px; font-weight: 700; color: #FFD700;" id="totalQuestionsDisplay">Loading...</div>
+        <div style="font-size: 40px; font-weight: 700; color: #FFD700;" id="totalQuestionsDisplay">Loading...</div>
       </div>
       
-      <div id="subjectBreakdownDisplay" style="font-size: 13px; color: rgba(255,255,255,0.45); margin: 12px 0 18px 0; line-height: 1.8;"></div>
+      <div id="subjectBreakdownDisplay" style="font-size: 13px; color: rgba(255,255,255,0.45); margin: 15px 0 20px 0; line-height: 1.8;"></div>
       
       <div style="display: flex; gap: 12px; justify-content: center;">
         <div style="background: rgba(16,185,129,0.12); padding: 6px 18px; border-radius: 20px; font-size: 13px; color: #34D399; border: 1px solid rgba(16,185,129,0.08);" id="correctMarkDisplay">+4 Marks</div>
         <div style="background: rgba(239,68,68,0.10); padding: 6px 18px; border-radius: 20px; font-size: 13px; color: #F87171; border: 1px solid rgba(239,68,68,0.08);" id="wrongMarkDisplay">-1 Mark</div>
       </div>
       
-      <div style="margin-top: 35px; font-size: 11px; color: rgba(255,255,255,0.15);">© LFJC 2026</div>
+      <div style="margin-top: 40px; font-size: 11px; color: rgba(255,255,255,0.15);">© LFJC 2026</div>
     </div>
   </div>
 
@@ -2089,7 +2088,7 @@ setInterval(function() {
   ">
     <div style="max-width: 420px; width: 100%;">
       
-      <!-- WELCOME -->
+      <!-- WELCOME CARD -->
       <div id="welcomeScreen" style="background: #FFFFFF; border-radius: 20px; padding: 40px 35px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); text-align: center;">
         <div style="width: 76px; height: 76px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
           <span style="font-size: 36px;">🎓</span>
@@ -2108,7 +2107,7 @@ setInterval(function() {
         <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
       </div>
 
-      <!-- WAITING -->
+      <!-- WAITING SCREEN -->
       <div id="waitingScreen" style="background: #FFFFFF; border-radius: 20px; padding: 40px 35px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); text-align: center; display: none;">
         <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
           <span style="font-size: 32px;">⏳</span>
@@ -2126,7 +2125,7 @@ setInterval(function() {
         <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
       </div>
 
-      <!-- PASSWORD -->
+      <!-- PASSWORD SCREEN -->
       <div id="passwordScreen" style="background: #FFFFFF; border-radius: 20px; padding: 32px 35px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); display: none;">
         <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
           <span style="font-size: 26px;">🔐</span>
@@ -2136,7 +2135,7 @@ setInterval(function() {
         
         <button id="enterFullScreenBtn" style="width: 100%; padding: 13px 20px; background: #2B6CB0; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; margin-bottom: 14px;">🖥️ Enter Full Screen</button>
         
-        <input type="password" id="accessCode" style="width: 100%; padding: 14px 18px; font-size: 16px; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #F7FAFC; letter-spacing: 6px; font-weight: 500;" placeholder="Enter Access Code" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'">
+        <input type="password" id="accessCode" style="width: 100%; padding: 14px 18px; font-size: 16px; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #F7FAFC; letter-spacing: 6px; font-weight: 500;" placeholder="Enter Access Code">
         
         <div style="font-size: 12px; color: #A0AEC0; margin-top: 8px;">Contact administrator for access code</div>
         
@@ -2145,7 +2144,7 @@ setInterval(function() {
         <div id="accessError" style="display: none; color: #E53E3E; font-size: 14px; font-weight: 500; margin-top: 14px; padding: 12px 16px; background: #FFF5F5; border-radius: 10px; border: 1px solid #FED7D7; text-align: center;">❌ Invalid access code. Please try again.</div>
       </div>
 
-      <!-- STUDENT DETAILS -->
+      <!-- STUDENT DETAILS SCREEN -->
       <div id="studentDetailsScreen" style="background: #FFFFFF; border-radius: 20px; padding: 32px 35px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); display: none;">
         <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
           <span style="font-size: 26px;">👤</span>
@@ -2155,7 +2154,7 @@ setInterval(function() {
         
         <div style="margin-bottom: 12px;">
           <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 4px;">Full Name</label>
-          <input type="text" id="stuName" style="width: 100%; padding: 13px 16px; font-size: 15px; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #F7FAFC;" placeholder="Enter your full name" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'">
+          <input type="text" id="stuName" style="width: 100%; padding: 13px 16px; font-size: 15px; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #F7FAFC;" placeholder="Enter your full name">
         </div>
 
         <div style="margin-bottom: 12px;">
@@ -2165,12 +2164,12 @@ setInterval(function() {
 
         <div style="margin-bottom: 12px;">
           <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 4px;">Roll Number</label>
-          <input type="text" id="stuRoll" style="width: 100%; padding: 13px 16px; font-size: 15px; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #F7FAFC;" placeholder="Enter roll number" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'">
+          <input type="text" id="stuRoll" style="width: 100%; padding: 13px 16px; font-size: 15px; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #F7FAFC;" placeholder="Enter roll number">
         </div>
 
         <div style="margin-bottom: 18px;">
           <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 4px;">Admission Number</label>
-          <input type="text" id="stuAdm" style="width: 100%; padding: 13px 16px; font-size: 15px; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #F7FAFC;" placeholder="Enter admission number" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'">
+          <input type="text" id="stuAdm" style="width: 100%; padding: 13px 16px; font-size: 15px; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #F7FAFC;" placeholder="Enter admission number">
         </div>
 
         <button id="stuStartBtn" style="width: 100%; padding: 15px 20px; background: linear-gradient(135deg, #2B6CB0, #1A365D); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: none; box-shadow: 0 4px 20px rgba(43,108,176,0.25);">🚀 Start Exam</button>
@@ -2178,7 +2177,6 @@ setInterval(function() {
         <div id="errorMessages" style="margin-top: 12px;"></div>
       </div>
       
-      <!-- Footer -->
       <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #E2E8F0; text-align: center;">
         <span style="font-size: 12px; color: #A0AEC0;">© LFJC 2026 | All Rights Reserved</span>
       </div>
@@ -2189,13 +2187,14 @@ setInterval(function() {
 // ===== MODERN ACCESS DENIED CONTROLS =====
 (function() {
   function showScreen(id) {
-    ['welcomeScreen','waitingScreen','passwordScreen','studentDetailsScreen'].forEach(s => {
+    ['welcomeScreen','waitingScreen','passwordScreen','studentDetailsScreen'].forEach(function(s) {
       document.getElementById(s).style.display = 'none';
     });
     document.getElementById(id).style.display = 'block';
   }
 
-  let timerRan = false, timerInterval = null;
+  var timerRan = false;
+  var timerInterval = null;
 
   document.getElementById('welcomeContinueBtn').onclick = function() {
     if (!timerRan) {
@@ -2210,13 +2209,13 @@ setInterval(function() {
   function startTimer() {
     if (timerRan) return;
     timerRan = true;
-    let seconds = Math.floor(Math.random() * 41) + 5;
-    const display = document.getElementById('delayTimerDisplay');
-    const bar = document.getElementById('waitingProgressBar');
+    var seconds = Math.floor(Math.random() * 41) + 5;
+    var display = document.getElementById('delayTimerDisplay');
+    var bar = document.getElementById('waitingProgressBar');
     display.textContent = seconds;
     bar.style.width = '0%';
     
-    timerInterval = setInterval(() => {
+    timerInterval = setInterval(function() {
       seconds--;
       display.textContent = seconds;
       bar.style.width = ((30 - seconds) / 30 * 100) + '%';
@@ -2229,13 +2228,13 @@ setInterval(function() {
   }
 
   document.getElementById('verifyAccess').onclick = function() {
-    const code = document.getElementById('accessCode').value.trim();
+    var code = document.getElementById('accessCode').value.trim();
     if (code === 'lfjc2025') {
       showScreen('studentDetailsScreen');
       document.getElementById('stuStartBtn').style.display = 'block';
       document.getElementById('stuName').focus();
     } else {
-      const err = document.getElementById('accessError');
+      var err = document.getElementById('accessError');
       err.style.display = 'block';
       err.textContent = '❌ Invalid access code. Please try again.';
       document.getElementById('accessCode').value = '';
