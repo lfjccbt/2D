@@ -5721,11 +5721,10 @@ function startWithSecurity(ok) {
   }
 }
   
-  // SECOND: HIDE ACCESS DENIED and SHOW EXAM AREA
+  // Hide access denied and show exam
   document.getElementById('accessDenied').style.display = 'none';
   document.getElementById('examArea').style.display = 'block';
   
-  // THIRD: Start exam with the student key
   if (typeof startExam === 'function') {
     startExam(studentKey);
   } else {
@@ -5733,6 +5732,8 @@ function startWithSecurity(ok) {
     alert('Error starting exam. Please contact administrator.');
   }
 }
+  
+  
 function startExam(studentKey) {
     isSummaryShowing = false;
     
@@ -8499,140 +8500,8 @@ document.getElementById('teacherPasswordInput').addEventListener('keypress', fun
 // ===== CLICK OUTSIDE TO CLOSE =====
 document.getElementById('teacherOverlay').addEventListener('click', closeTeacherPanel);
 </script>
-  <script>
-// ===== FORCE: Show student details screen after password =====
-document.addEventListener('DOMContentLoaded', function() {
-    // Make sure student details screen is hidden initially
-    document.getElementById('studentDetailsScreen').style.display = 'none';
-    document.getElementById('passwordScreen').style.display = 'none';
-    document.getElementById('waitingScreen').style.display = 'none';
-    document.getElementById('welcomeScreen').style.display = 'block';
-    
-    // Force Start Exam button click handler
-    var startBtn = document.getElementById('stuStartBtn');
-    if (startBtn) {
-        startBtn.onclick = function() {
-            if (typeof validateStudentInputs === 'function') {
-                if (!validateStudentInputs()) return;
-                if (typeof showConfirm === 'function') {
-                    showConfirm("Start Exam?", function(ok) {
-                        if (ok && typeof startWithSecurity === 'function') {
-                            startWithSecurity(true);
-                        }
-                    });
-                }
-            }
-        };
-    }
-    
-    console.log('✅ Student details screen ready');
-    console.log('✅ Start Exam button connected');
-});
-</script>
-  <script>
-// ===== FINAL FIX: Force Start Exam button to work =====
-(function() {
-    // Wait for everything to load
-    setTimeout(function() {
-        var btn = document.getElementById('stuStartBtn');
-        if (btn) {
-            console.log('🔧 Found Start Exam button - attaching handler');
-            btn.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🖱️ Start Exam button clicked');
-                
-                // Get values
-                var name = document.getElementById('stuName').value.trim();
-                var roll = document.getElementById('stuRoll').value.trim();
-                var adm = document.getElementById('stuAdm').value.trim();
-                
-                if (!name) { alert('Please enter your Name'); return; }
-                if (!roll) { alert('Please enter your Roll Number'); return; }
-                if (!adm) { alert('Please enter your Admission Number'); return; }
-                
-                // Show confirm dialog
-                if (confirm('Are you sure you want to start the exam?')) {
-                    console.log('✅ Starting exam for: ' + name);
-                    
-                    // Hide access denied
-                    document.getElementById('accessDenied').style.display = 'none';
-                    document.getElementById('examArea').style.display = 'block';
-                    
-                    // Initialize exam
-                    if (typeof prepareExamData === 'function') prepareExamData();
-                    
-                    // Create progress
-                    if (typeof progress === 'undefined' || progress === null) {
-                        window.progress = {
-                            answers: [],
-                            review: [],
-                            currentIndex: 0,
-                            student: {
-                                name: name,
-                                sec: '2D',
-                                roll: roll,
-                                adm: adm
-                            },
-                            timeLeftSec: 7200
-                        };
-                    }
-                    
-                    // Render exam
-                    if (typeof renderQuestion === 'function') renderQuestion();
-                    if (typeof renderPalette === 'function') renderPalette();
-                    if (typeof startTimer === 'function') startTimer();
-                    if (typeof updateNavButtons === 'function') updateNavButtons();
-                    if (typeof updateProgressBar === 'function') updateProgressBar();
-                    
-                    window.examInProgress = true;
-                    console.log('✅ Exam started successfully!');
-                }
-            };
-            btn.style.display = 'block';
-        } else {
-            console.log('❌ Start Exam button not found');
-        }
-    }, 1000);
-})();
-</script>
-  <script>
-// ===== EMERGENCY FIX: Force exam to render =====
-(function() {
-    // Override renderQuestion to add debug logging
-    var originalRender = window.renderQuestion;
-    if (originalRender) {
-        window.renderQuestion = function() {
-            console.log('🔧 renderQuestion called, examData.files.length =', examData ? examData.files.length : 'undefined');
-            if (!examData || examData.files.length === 0) {
-                console.log('⚠️ examData is empty! Trying to fix...');
-                if (typeof prepareExamData === 'function') {
-                    prepareExamData();
-                }
-                if (!examData || examData.files.length === 0) {
-                    document.getElementById('questionContainer').innerHTML = '<div style="padding:50px;color:red;font-size:20px;">⚠️ No questions loaded. Please contact administrator.</div>';
-                    return;
-                }
-            }
-            originalRender.call(this);
-        };
-    }
-    
-    // Override renderPalette
-    var originalPalette = window.renderPalette;
-    if (originalPalette) {
-        window.renderPalette = function() {
-            console.log('🔧 renderPalette called, examData.files.length =', examData ? examData.files.length : 'undefined');
-            if (!examData || examData.files.length === 0) {
-                console.log('⚠️ examData is empty for palette!');
-                return;
-            }
-            originalPalette.call(this);
-        };
-    }
-    
-    console.log('✅ Emergency fixes applied');
-})();
-</script>
+ 
+ 
+  
 </body>
 </html>   
