@@ -1310,6 +1310,62 @@ button:focus {
 }
 
 
+#resumeExamSection {
+  display: none;
+  margin-top: 20px;
+  padding: 20px;
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 10px;
+  text-align: center;
+}
+
+#resumeExamSection h3 {
+  color: #856404;
+  margin-bottom: 15px;
+}
+
+.resume-student-info {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+  text-align: left;
+  display: inline-block;
+}
+
+.resume-options {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.resume-btn {
+  padding: 10px 25px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.resume-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+#resumeExamBtn {
+  background: linear-gradient(145deg, #32CD32, #228B22);
+  color: white;
+}
+
+#startNewBtn {
+  background: linear-gradient(145deg, #dc3545, #c82333);
+  color: white;
+}
 
 
 @media (max-width: 600px) {
@@ -1963,120 +2019,67 @@ setInterval(function() {
 </div>
 
 
-<div id="accessDenied" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#F0F2F5;z-index:10000;font-family:Arial,sans-serif;overflow:hidden;padding:0;margin:0;">
-
-<!-- LEFT SIDE (45%) -->
-<div style="position:fixed;left:0;top:0;width:45%;height:100%;background:linear-gradient(160deg,#0A1628,#1A365D,#2B6CB0);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;color:white;z-index:1;">
-  <div style="text-align:center;max-width:400px;">
-    <div style="font-size:72px;font-weight:700;">2D</div>
-    <div style="font-size:18px;letter-spacing:2px;color:rgba(255,255,255,0.5);margin:10px 0 30px 0;">LFJC ONLINE EXAMINATION</div>
-    <div style="width:60px;height:2px;background:#FFD700;margin:0 auto 30px auto;"></div>
-    <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:18px 24px;">
-      <div style="font-size:11px;text-transform:uppercase;color:rgba(255,255,255,0.35);">Total Questions</div>
-      <div style="font-size:40px;font-weight:700;color:#FFD700;" id="totalQuestionsDisplay">Loading...</div>
-    </div>
-    <div id="subjectBreakdownDisplay" style="font-size:13px;color:rgba(255,255,255,0.45);margin:15px 0;"></div>
-    <div style="display:flex;gap:12px;justify-content:center;font-size:13px;">
-      <span style="background:rgba(16,185,129,0.12);padding:4px 16px;border-radius:20px;color:#34D399;">+4 Marks</span>
-      <span style="background:rgba(239,68,68,0.10);padding:4px 16px;border-radius:20px;color:#F87171;">-1 Mark</span>
-    </div>
-    <div style="margin-top:30px;font-size:11px;color:rgba(255,255,255,0.15);">© LFJC 2026</div>
-  </div>
-</div>
-
-<!-- RIGHT SIDE (55%) -->
-<div style="position:absolute;left:45%;top:0;width:55%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;background:#F0F2F5;overflow-y:auto;">
-  <div style="max-width:420px;width:100%;">
-
-    <!-- WELCOME -->
-    <div id="welcomeScreen" style="background:#FFFFFF;border-radius:20px;padding:35px 30px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
-      <div style="font-size:48px;margin-bottom:8px;">🎓</div>
-      <div style="font-size:24px;font-weight:700;color:#1A202C;">Welcome to 2D</div>
-      <div style="font-size:14px;color:#718096;margin:5px 0 18px 0;">LFJC ONLINE EXAMINATION</div>
-      <div style="background:#F7FAFC;padding:12px;border-radius:10px;margin-bottom:18px;border:1px solid #E2E8F0;">
-        <div style="font-size:12px;color:#A0AEC0;">Exam Ready</div>
-        <div style="font-size:24px;font-weight:700;color:#2B6CB0;" id="welcomeTotalQuestions">Loading...</div>
-      </div>
-      <button id="welcomeContinueBtn" style="width:100%;padding:14px;background:#2B6CB0;color:white;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;">🖥️ Continue</button>
-      <div style="font-size:11px;color:#A0AEC0;margin-top:10px;">Do not refresh</div>
-    </div>
-
-    <!-- WAITING -->
-    <div id="waitingScreen" style="background:#FFFFFF;border-radius:20px;padding:35px 30px;text-align:center;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
-      <div style="font-size:40px;margin-bottom:8px;">⏳</div>
-      <div style="font-size:20px;font-weight:600;color:#1A202C;">Please Wait</div>
-      <div style="font-size:14px;color:#718096;margin-bottom:18px;">Preparing your exam...</div>
-      <div style="font-size:48px;font-weight:700;color:#2B6CB0;" id="delayTimerDisplay">30</div>
-      <div style="font-size:14px;color:#718096;">seconds remaining</div>
-      <div style="width:100%;height:4px;background:#E2E8F0;border-radius:2px;margin-top:15px;overflow:hidden;">
-        <div id="waitingProgressBar" style="width:0%;height:100%;background:#2B6CB0;border-radius:2px;transition:width 0.5s;"></div>
-      </div>
-    </div>
-
-    <!-- PASSWORD -->
-    <div id="passwordScreen" style="background:#FFFFFF;border-radius:20px;padding:30px 30px;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
-      <div style="font-size:32px;margin-bottom:8px;">🔐</div>
-      <h2 style="font-size:20px;font-weight:600;color:#1A202C;margin:0 0 4px 0;">Access Code</h2>
-      <p style="font-size:14px;color:#718096;margin-bottom:16px;">Enter your secure access code</p>
-      <button id="enterFullScreenBtn" style="width:100%;padding:12px;background:#2B6CB0;color:white;border:none;border-radius:10px;font-size:15px;cursor:pointer;margin-bottom:12px;">🖥️ Full Screen</button>
-      <input type="password" id="accessCode" style="width:100%;padding:12px;font-size:16px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;letter-spacing:4px;text-align:center;" placeholder="Enter Access Code">
-      <button id="verifyAccess" style="width:100%;padding:12px;background:#1A202C;color:white;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;margin-top:14px;">🔓 Verify</button>
-      <div id="accessError" style="display:none;color:#E53E3E;font-size:14px;margin-top:12px;padding:10px;background:#FFF5F5;border-radius:8px;text-align:center;">❌ Invalid code</div>
-    </div>
-
-    <!-- STUDENT DETAILS -->
-    <div id="studentDetailsScreen" style="background:#FFFFFF;border-radius:20px;padding:30px 30px;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
-      <div style="font-size:32px;margin-bottom:8px;">👤</div>
-      <h2 style="font-size:20px;font-weight:600;color:#1A202C;margin:0 0 4px 0;">Student Details</h2>
-      <p style="font-size:14px;color:#718096;margin-bottom:16px;">Please verify your identity</p>
-      
-      <div style="margin-bottom:10px;">
-        <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Full Name</label>
-        <input type="text" id="stuName" style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;" placeholder="Enter your full name">
-      </div>
-      
-      <div style="margin-bottom:10px;">
-        <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Section</label>
-        <input type="text" id="stuSection" value="2D" readonly style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#EDF2F7;color:#718096;cursor:not-allowed;">
-      </div>
-      
-      <div style="margin-bottom:10px;">
-        <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Roll Number</label>
-        <input type="text" id="stuRoll" style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;" placeholder="Enter roll number">
-      </div>
-      
-      <div style="margin-bottom:16px;">
-        <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Admission Number</label>
-        <input type="text" id="stuAdm" style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;" placeholder="Enter admission number">
-      </div>
-      
-      <button id="stuStartBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#2B6CB0,#1A365D);color:white;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;display:none;">🚀 Start Exam</button>
-      <div id="errorMessages" style="margin-top:10px;"></div>
-    </div>
-
-    <!-- RESUME EXAM SECTION -->
-    <div id="resumeExamSection" style="display:none;background:#FFFFFF;border-radius:20px;padding:30px 30px;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
-      <h3 style="color:#856404;margin-bottom:15px;">🔄 Exam In Progress Found</h3>
-      <div style="background:#F7FAFC;padding:15px;border-radius:10px;margin:15px 0;text-align:left;">
-        <p><strong>Student:</strong> <span id="resumeStudentName">Loading...</span></p>
-        <p><strong>Section:</strong> <span id="resumeSection">Loading...</span></p>
-        <p><strong>Progress:</strong> <span id="resumeProgress">Loading...</span></p>
-        <p><strong>Time Left:</strong> <span id="resumeTimeLeft">Loading...</span></p>
-      </div>
-      <p style="margin-bottom:15px;">You have an exam in progress from a previous session.</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button id="resumeExamBtn" style="padding:10px 25px;background:#32CD32;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;flex:1;">Continue Exam</button>
-        <button id="startNewBtn" style="padding:10px 25px;background:#dc3545;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;flex:1;">Start New Exam</button>
-      </div>
-    </div>
-
-    <!-- FOOTER -->
-    <div style="margin-top:16px;padding-top:12px;border-top:1px solid #E2E8F0;text-align:center;font-size:11px;color:#A0AEC0;">© LFJC 2026 | All Rights Reserved</div>
-  </div>
-</div>
+<div id="accessDenied" class="access-denied">
+  <h1>2D</h1>
+ <h1>LFJC ONLINE EXAMINATION</h1>
+    <p style="font-size: 1.2em; margin: 10px 0;" id="totalQuestionsDisplay">Loading...</p>
+    <div id="subjectBreakdownDisplay"></div>
+  <p style="margin: 10px 0; font-weight: bold;" id="correctMarkDisplay">CORRECT ANSWER +4  MARKS</p>  
+  <p style="margin: 5px 0; font-weight: bold;" id="wrongMarkDisplay">WRONG ANSWER -1 MARK</p>
+    <button id="enterFullScreenBtn" class="verify-btn" style="background: #4B0082; color: white; margin-bottom: 15px; width: 300px;">🖥️ Ready </button>
+    <input type="password" id="accessCode" class="access-code-input" placeholder="Enter Access Code">
+    <button id="verifyAccess" class="verify-btn">VERIFY ACCESS</button>
+    <div id="accessError" class="access-error">❌ Invalid access code. Please try again.</div>
 </div>
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
+<div id="studentEntry" style="display:none;">
+  <div class="warning-banner" id="examWarning" style="display:none;">
+    <p>⚠️ WARNING: Exam in progress. Do not refresh or close this window!</p>
+  </div>
+  
+  <div class="form-group"><label>NAME</label><input type="text" id="stuName" placeholder="Only letters & spaces" autocomplete="off"></div>
+ <div class="form-group"><label>SECTION</label><input type="text" id="stuSection" value="2D" readonly style="background: #f0f0f0; cursor: not-allowed;" autocomplete="off"></div>
+  <div class="form-group"><label>ROLL NUMBER</label><input type="text" id="stuRoll" placeholder="Digits only" autocomplete="off"></div>
+  <div class="form-group"><label>ADMISSION NUMBER</label><input type="text" id="stuAdm" placeholder="Digits only" autocomplete="off"></div>
+
+  
+  
+  
+  <div id="resumeExamSection">
+    <h3>🔄 Exam In Progress Found</h3>
+    <div class="resume-student-info">
+      <p><strong>Student:</strong> <span id="resumeStudentName">Loading...</span></p>
+      <p><strong>Section:</strong> <span id="resumeSection">Loading...</span></p>
+      <p><strong>Progress:</strong> <span id="resumeProgress">Loading...</span></p>
+      <p><strong>Time Left:</strong> <span id="resumeTimeLeft">Loading...</span></p>
+    </div>
+    <p style="margin-bottom: 15px;">You have an exam in progress from a previous session.</p>
+    <div class="resume-options">
+      <button id="resumeExamBtn" class="resume-btn">Continue Exam</button>
+      <button id="startNewBtn" class="resume-btn">Start New Exam</button>
+    </div>
+  </div>
+
+ 
+  <div id="resubmissionSection">
+    <h3>🔄 Re-submission Required</h3>
+    <p>You have already submitted within the last 24 hours.</p>
+    <p>To submit again, please enter the re-submission password:</p>
+    <input type="password" id="resubmissionPassword" placeholder="Enter re-submission password">
+    <div>
+      <button id="verifyResubmission" class="resubmit-btn">Verify & Re-submit</button>
+      <button id="cancelResubmission" class="resubmit-btn">Cancel</button>
+    </div>
+  </div>
+
+ 
+  <div id="googleFormsStatus" style="display:none;"></div>
+
+  <div class="form-group"><button id="stuStartBtn" style="display:none;">Start Exam</button></div>
+  <p id="studentMsg"></p>
+  <div id="errorMessages"></div>
+</div>
 
 <div id="examArea" style="display:none;">
 <div id="examHeader">
@@ -2258,8 +2261,51 @@ setInterval(function() {
 // =============================================
 // 📚 CHANGE THIS NUMBER FOR THE WEEK
 // =============================================
-const EXAM_WEEK = 1;  // ← Change this: 1,2,3,4,5,6,7,8,9,10
+const EXAM_WEEK = 2;  // ← Change this: 1,2,3,4,5,6,7,8,9,10
+// =============================================
+// 📚 GOOGLE SHEETS - SECTION WEEK CONTROL
+// =============================================
+const CONFIG_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTaRMrVMbHKpMesuMalA3vLhCSzM0fcmjzrfZ-pUFHMMqBGkUjeFSN7M4Gm_2CBELiINBNqPoKtrDP6/pub?output=csv';
 
+let SECTION_WEEK_MAP = {};
+
+async function loadSectionWeeks() {
+    try {
+        const response = await fetch(CONFIG_SHEET_URL);
+        const csv = await response.text();
+        const rows = csv.split('\n').filter(row => row.trim());
+        
+        rows.forEach(row => {
+            const parts = row.split(',').map(s => s.trim());
+            if (parts.length >= 2) {
+                const section = parts[0].toUpperCase();
+                const week = parseInt(parts[1]);
+                if (section && !isNaN(week) && week >= 1 && week <= 10) {
+                    SECTION_WEEK_MAP[section] = week;
+                }
+            }
+        });
+        
+        const sectionInput = document.getElementById('stuSection');
+        if (sectionInput) {
+            const currentSection = sectionInput.value.toUpperCase();
+            EXAM_WEEK = SECTION_WEEK_MAP[currentSection] || 2;
+        }
+        
+    } catch(e) {
+        console.warn('Using default week:', EXAM_WEEK);
+    }
+}
+
+function getSectionWeek(section) {
+    return SECTION_WEEK_MAP[section.toUpperCase()] || 2;
+}
+
+function updateExamWeekForSection() {
+    const section = document.getElementById('stuSection').value.toUpperCase();
+    EXAM_WEEK = getSectionWeek(section);
+    return EXAM_WEEK;
+}
 // =============================================
 // WEEK PATTERNS (Set this up once)
 // =============================================
@@ -4117,7 +4163,8 @@ function resumeFromPowerLoss(progressData) {
     sessionStorage.setItem('wasPowerLost', 'true');
     
     document.getElementById('powerLossRecoveryOverlay').style.display = 'none';
-   
+    document.getElementById('accessDenied').style.display = 'none';
+    document.getElementById('studentEntry').style.display = 'flex';
     
     const student = progressData.progress.student;
     document.getElementById('stuName').value = student.name || '';
@@ -5447,6 +5494,7 @@ document.getElementById('stuAdm').addEventListener('input', function() {
 });
 document.getElementById('stuStartBtn').onclick = () => { 
   if (!validateStudentInputs()) return; 
+  updateExamWeekForSection();
   showConfirm("Start Exam?", startWithSecurity); 
 };
 
@@ -7771,6 +7819,10 @@ console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
 console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "));
 
+// Load section weeks on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadSectionWeeks();
+});  
 </script>
 <!-- ===== TEACHER ACCESS BUTTON ===== -->
 <button onclick="openTeacherPanel()" style="
