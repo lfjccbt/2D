@@ -5673,18 +5673,12 @@ function generateStudentId(studentData) {
 function startWithSecurity(ok) {
   if (!ok) return;
 
-  // ✅ ADD THIS - Prepare data FIRST
-    if (typeof prepareExamData === 'function') {
-        prepareExamData();
-    }
-    
-    // ✅ ADD THIS - Check if data loaded
-    if (!examData || examData.files.length === 0) {
-        alert('No questions loaded. Please wait and try again.');
-        return;
-    }
-  console.log('🚀 Starting exam...');
-  
+  // ✅ CHECK: Is answer key loaded?
+  if (!keyLoaded) {
+    alert('⏳ Answer key is still loading. Please wait a moment and click Start Exam again.');
+    return;
+  }
+
   // Force full screen
   goFullScreen();
   
@@ -5697,7 +5691,6 @@ function startWithSecurity(ok) {
   const stuRoll = document.getElementById('stuRoll');
   const stuAdm = document.getElementById('stuAdm');
   
-  // Validate inputs
   if (!stuName.value.trim() || !stuRoll.value.trim() || !stuAdm.value.trim()) {
     alert('Please fill all fields');
     return;
@@ -5705,14 +5698,28 @@ function startWithSecurity(ok) {
   
   const studentKey = `${stuName.value}|${stuSection.value}|${stuRoll.value}|${stuAdm.value}`;
   
-  // FIRST: Prepare exam data (this populates examData)
+  // ✅ PREPARE DATA HERE (only after key is loaded)
   if (typeof prepareExamData === 'function') {
     prepareExamData();
-  } else {
-    console.error('prepareExamData function not found');
-    alert('Error preparing exam. Please contact administrator.');
+  }
+  
+  // ✅ CHECK IF DATA IS READY
+  if (!examData || examData.files.length === 0) {
+    alert('No questions loaded. Please contact administrator.');
     return;
   }
+  
+  // Hide access denied and show exam
+  document.getElementById('accessDenied').style.display = 'none';
+  document.getElementById('examArea').style.display = 'block';
+  
+  if (typeof startExam === 'function') {
+    startExam(studentKey);
+  } else {
+    console.error('startExam function not found');
+    alert('Error starting exam. Please contact administrator.');
+  }
+}
   
   // SECOND: HIDE ACCESS DENIED and SHOW EXAM AREA
   document.getElementById('accessDenied').style.display = 'none';
@@ -5729,22 +5736,20 @@ function startWithSecurity(ok) {
 function startExam(studentKey) {
     isSummaryShowing = false;
     
-    // ===== RESET NAVIGATION TRACKER =====
+    // Reset navigation tracker
     navigationHistory = [];
     navigationWarnings = 0;
     lastNavWarningTime = 0;
     isNavWarningShowing = false;
-    console.log('🔄 Navigation tracker reset for new exam');
     
-    // ===== RESET PASSWORD BUFFERS =====
+    // Reset password buffers
     secretPasswordBuffer = '';
     unblurPasswordBuffer = '';
     submitUnlocked = false;
     secretUnlocked = false;
     document.getElementById('submitBtn').style.display = 'none';
-    console.log('🔐 Password buffers reset');
     
-    // ===== RESET REVIEW TRACKER =====
+    // Reset review tracker
     reviewCount = 0;
     lastReviewTime = 0;
     reviewHistory = [];
@@ -5758,29 +5763,29 @@ function startExam(studentKey) {
         reviewCounter.textContent = `✏️ Modify Answers: 0/${MAX_REVIEWS}`;
         reviewCounter.style.color = '#1E90FF';
     }
-    console.log('🔄 Review tracker reset');
     
     if (!keyLoaded) {
         alert('Answer key not loaded. Contact admin.');
         return;
     }
 
-     // ✅ ADD THIS - Ensure examData is prepared
+    // ✅ CHECK: Is examData ready?
     if (!examData || examData.files.length === 0) {
         console.log('⚠️ examData is empty, preparing now...');
         prepareExamData();
     }
     
-    // ✅ ADD THIS - Check if still empty
+    // ✅ CHECK AGAIN
     if (!examData || examData.files.length === 0) {
         alert('No questions loaded. Please contact administrator.');
         return;
     }
+
     const hasViolations = localStorage.getItem('hasViolations') === 'true';
     
     if (hasViolations) {
         hasSubmitted = false;
-        console.log('🔄 Previous violations detected. Starting fresh exam with submit button visible.');
+        console.log('🔄 Previous violations detected.');
     }
 
     const stuName = document.getElementById('stuName');
@@ -5789,20 +5794,6 @@ function startExam(studentKey) {
     const stuAdm = document.getElementById('stuAdm');
 
     localStorage.setItem(studentKey, Date.now());
-    
-    // ===== IMPORTANT: Make sure examData is ready =====
-    if (!examData || examData.files.length === 0) {
-        console.log('⚠️ examData is empty, calling prepareExamData again...');
-        if (typeof prepareExamData === 'function') {
-            prepareExamData();
-        }
-    }
-    
-    // Check if examData is still empty
-    if (!examData || examData.files.length === 0) {
-        alert('Error: No questions loaded. Please contact administrator.');
-        return;
-    }
     
     if (window.pendingRecoveryData) {
         progress = window.pendingRecoveryData.progress;
@@ -5832,7 +5823,7 @@ function startExam(studentKey) {
     document.getElementById('studentEntry').style.display = "none";
     document.getElementById('examArea').style.display = "block";
     
-    // ===== Render the exam =====
+    // ✅ RENDER THE EXAM
     renderQuestion(); 
     renderPalette(); 
     startTimer(); 
@@ -7452,6 +7443,7 @@ window.addEventListener('load', function() {
   
   (async function() {
     await loadAnswerKey();
+    prepareExamData();
   })();
   
   setTimeout(() => {
