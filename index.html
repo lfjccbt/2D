@@ -4117,8 +4117,7 @@ function resumeFromPowerLoss(progressData) {
     sessionStorage.setItem('wasPowerLost', 'true');
     
     document.getElementById('powerLossRecoveryOverlay').style.display = 'none';
-    document.getElementById('accessDenied').style.display = 'none';
-    document.getElementById('studentEntry').style.display = 'flex';
+   
     
     const student = progressData.progress.student;
     document.getElementById('stuName').value = student.name || '';
