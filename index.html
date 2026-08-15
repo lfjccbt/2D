@@ -8481,5 +8481,44 @@ document.getElementById('teacherOverlay').addEventListener('click', closeTeacher
  
  
   
+<script>
+// ===== DIRECT START EXAM =====
+document.getElementById('stuStartBtn').onclick = function() {
+    var name = document.getElementById('stuName').value.trim();
+    var roll = document.getElementById('stuRoll').value.trim();
+    var adm = document.getElementById('stuAdm').value.trim();
+    
+    if (!name) { alert('Please enter Name'); return; }
+    if (!roll) { alert('Please enter Roll Number'); return; }
+    if (!adm) { alert('Please enter Admission Number'); return; }
+    
+    // Hide access denied
+    document.getElementById('accessDenied').style.display = 'none';
+    
+    // Show exam area
+    document.getElementById('examArea').style.display = 'block';
+    
+    // Prepare exam data
+    prepareExamData();
+    
+    // Create progress
+    window.progress = {
+        answers: [],
+        review: [],
+        currentIndex: 0,
+        student: { name: name, sec: '2D', roll: roll, adm: adm },
+        timeLeftSec: 7200
+    };
+    
+    // Render everything
+    renderQuestion();
+    renderPalette();
+    startTimer();
+    updateNavButtons();
+    updateProgressBar();
+    
+    window.examInProgress = true;
+};
+</script>
 </body>
 </html>   
