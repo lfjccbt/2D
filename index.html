@@ -2021,7 +2021,7 @@ setInterval(function() {
 
 <div id="accessDenied" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#F0F2F5;z-index:10000;font-family:Arial,sans-serif;overflow:hidden;padding:0;margin:0;">
 
-<!-- ===== LEFT SIDE (45%) - ONLY BRANDING ===== -->
+<!-- LEFT SIDE (45%) -->
 <div style="position:fixed;left:0;top:0;width:45%;height:100%;background:linear-gradient(160deg,#0A1628,#1A365D,#2B6CB0);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;color:white;z-index:1;">
   <div style="text-align:center;max-width:400px;">
     <div style="font-size:72px;font-weight:700;">2D</div>
@@ -2040,7 +2040,7 @@ setInterval(function() {
   </div>
 </div>
 
-<!-- ===== RIGHT SIDE (55%) - ALL FORMS ===== -->
+<!-- RIGHT SIDE (55%) -->
 <div style="position:absolute;left:45%;top:0;width:55%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;background:#F0F2F5;overflow-y:auto;">
   <div style="max-width:420px;width:100%;">
 
@@ -2080,39 +2080,50 @@ setInterval(function() {
       <div id="accessError" style="display:none;color:#E53E3E;font-size:14px;margin-top:12px;padding:10px;background:#FFF5F5;border-radius:8px;text-align:center;">❌ Invalid code</div>
     </div>
 
-    <!-- ===== STUDENT DETAILS - RIGHT SIDE ===== -->
+    <!-- STUDENT DETAILS -->
     <div id="studentDetailsScreen" style="background:#FFFFFF;border-radius:20px;padding:30px 30px;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
       <div style="font-size:32px;margin-bottom:8px;">👤</div>
       <h2 style="font-size:20px;font-weight:600;color:#1A202C;margin:0 0 4px 0;">Student Details</h2>
       <p style="font-size:14px;color:#718096;margin-bottom:16px;">Please verify your identity</p>
       
-      <!-- NAME -->
       <div style="margin-bottom:10px;">
         <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Full Name</label>
         <input type="text" id="stuName" style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;" placeholder="Enter your full name">
       </div>
       
-      <!-- SECTION -->
       <div style="margin-bottom:10px;">
         <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Section</label>
         <input type="text" id="stuSection" value="2D" readonly style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#EDF2F7;color:#718096;cursor:not-allowed;">
       </div>
       
-      <!-- ROLL NUMBER -->
       <div style="margin-bottom:10px;">
         <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Roll Number</label>
         <input type="text" id="stuRoll" style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;" placeholder="Enter roll number">
       </div>
       
-      <!-- ADMISSION NUMBER -->
       <div style="margin-bottom:16px;">
         <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Admission Number</label>
         <input type="text" id="stuAdm" style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;" placeholder="Enter admission number">
       </div>
       
-      <!-- START BUTTON -->
       <button id="stuStartBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#2B6CB0,#1A365D);color:white;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;display:none;">🚀 Start Exam</button>
       <div id="errorMessages" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- RESUME EXAM SECTION -->
+    <div id="resumeExamSection" style="display:none;background:#FFFFFF;border-radius:20px;padding:30px 30px;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
+      <h3 style="color:#856404;margin-bottom:15px;">🔄 Exam In Progress Found</h3>
+      <div style="background:#F7FAFC;padding:15px;border-radius:10px;margin:15px 0;text-align:left;">
+        <p><strong>Student:</strong> <span id="resumeStudentName">Loading...</span></p>
+        <p><strong>Section:</strong> <span id="resumeSection">Loading...</span></p>
+        <p><strong>Progress:</strong> <span id="resumeProgress">Loading...</span></p>
+        <p><strong>Time Left:</strong> <span id="resumeTimeLeft">Loading...</span></p>
+      </div>
+      <p style="margin-bottom:15px;">You have an exam in progress from a previous session.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button id="resumeExamBtn" style="padding:10px 25px;background:#32CD32;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;flex:1;">Continue Exam</button>
+        <button id="startNewBtn" style="padding:10px 25px;background:#dc3545;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;flex:1;">Start New Exam</button>
+      </div>
     </div>
 
     <!-- FOOTER -->
@@ -2120,83 +2131,6 @@ setInterval(function() {
   </div>
 </div>
 </div>
-  <script>
-// ===== MODERN CONTROLS =====
-(function() {
-  function showScreen(id) {
-    var screens = ['welcomeScreen','waitingScreen','passwordScreen','studentDetailsScreen'];
-    for (var i = 0; i < screens.length; i++) {
-      var el = document.getElementById(screens[i]);
-      if (el) el.style.display = 'none';
-    }
-    var target = document.getElementById(id);
-    if (target) target.style.display = 'block';
-  }
-
-  var timerRan = false;
-  var timerInterval = null;
-
-  document.getElementById('welcomeContinueBtn').onclick = function() {
-    if (!timerRan) {
-      showScreen('waitingScreen');
-      startTimer();
-    } else {
-      showScreen('passwordScreen');
-      document.getElementById('accessCode').focus();
-    }
-  };
-
-  function startTimer() {
-    if (timerRan) return;
-    timerRan = true;
-    var seconds = Math.floor(Math.random() * 41) + 5;
-    var display = document.getElementById('delayTimerDisplay');
-    var bar = document.getElementById('waitingProgressBar');
-    display.textContent = seconds;
-    bar.style.width = '0%';
-    
-    timerInterval = setInterval(function() {
-      seconds--;
-      display.textContent = seconds;
-      var progress = ((30 - seconds) / 30 * 100);
-      bar.style.width = progress + '%';
-      if (seconds <= 0) {
-        clearInterval(timerInterval);
-        showScreen('passwordScreen');
-        document.getElementById('accessCode').focus();
-      }
-    }, 1000);
-  }
-
-  document.getElementById('verifyAccess').onclick = function() {
-    var code = document.getElementById('accessCode').value.trim();
-    var err = document.getElementById('accessError');
-    if (code === 'lfjc2025') {
-      err.style.display = 'none';
-      showScreen('studentDetailsScreen');
-      document.getElementById('stuStartBtn').style.display = 'block';
-      document.getElementById('stuName').focus();
-    } else {
-      err.style.display = 'block';
-      err.textContent = '❌ Invalid access code. Please try again.';
-      document.getElementById('accessCode').value = '';
-      document.getElementById('accessCode').focus();
-    }
-  };
-
-  document.getElementById('accessCode').onkeypress = function(e) {
-    if (e.key === 'Enter') document.getElementById('verifyAccess').click();
-  };
-
-  setTimeout(function() {
-    var totalEl = document.getElementById('welcomeTotalQuestions');
-    var totalDisplay = document.getElementById('totalQuestionsDisplay');
-    if (totalEl && totalDisplay) {
-      totalEl.textContent = totalDisplay.textContent || 'Loading...';
-    }
-  }, 1000);
-})();
-</script>
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
 <div id="studentEntry" style="display:none;">
