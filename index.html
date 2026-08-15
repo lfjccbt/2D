@@ -2262,50 +2262,7 @@ setInterval(function() {
 // 📚 CHANGE THIS NUMBER FOR THE WEEK
 // =============================================
 const EXAM_WEEK = 2;  // ← Change this: 1,2,3,4,5,6,7,8,9,10
-// =============================================
-// 📚 GOOGLE SHEETS - SECTION WEEK CONTROL
-// =============================================
-const CONFIG_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTaRMrVMbHKpMesuMalA3vLhCSzM0fcmjzrfZ-pUFHMMqBGkUjeFSN7M4Gm_2CBELiINBNqPoKtrDP6/pub?output=csv';
 
-let SECTION_WEEK_MAP = {};
-
-async function loadSectionWeeks() {
-    try {
-        const response = await fetch(CONFIG_SHEET_URL);
-        const csv = await response.text();
-        const rows = csv.split('\n').filter(row => row.trim());
-        
-        rows.forEach(row => {
-            const parts = row.split(',').map(s => s.trim());
-            if (parts.length >= 2) {
-                const section = parts[0].toUpperCase();
-                const week = parseInt(parts[1]);
-                if (section && !isNaN(week) && week >= 1 && week <= 10) {
-                    SECTION_WEEK_MAP[section] = week;
-                }
-            }
-        });
-        
-        const sectionInput = document.getElementById('stuSection');
-        if (sectionInput) {
-            const currentSection = sectionInput.value.toUpperCase();
-            EXAM_WEEK = SECTION_WEEK_MAP[currentSection] || 2;
-        }
-        
-    } catch(e) {
-        console.warn('Using default week:', EXAM_WEEK);
-    }
-}
-
-function getSectionWeek(section) {
-    return SECTION_WEEK_MAP[section.toUpperCase()] || 2;
-}
-
-function updateExamWeekForSection() {
-    const section = document.getElementById('stuSection').value.toUpperCase();
-    EXAM_WEEK = getSectionWeek(section);
-    return EXAM_WEEK;
-}
 // =============================================
 // WEEK PATTERNS (Set this up once)
 // =============================================
@@ -5494,7 +5451,6 @@ document.getElementById('stuAdm').addEventListener('input', function() {
 });
 document.getElementById('stuStartBtn').onclick = () => { 
   if (!validateStudentInputs()) return; 
-  updateExamWeekForSection();
   showConfirm("Start Exam?", startWithSecurity); 
 };
 
@@ -7819,10 +7775,6 @@ console.log("📁 Loading answer key from: " + ANSWER_KEY_URL);
 console.log(`📁 Expecting ${TOTAL_QUESTIONS} answers`);
 console.log("✅ Active subjects for this exam:", ACTIVE_EXAM_SUBJECTS.join(", "));
 
-// Load section weeks on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadSectionWeeks();
-});  
 </script>
 <!-- ===== TEACHER ACCESS BUTTON ===== -->
 <button onclick="openTeacherPanel()" style="
