@@ -8520,5 +8520,67 @@ document.getElementById('stuStartBtn').onclick = function() {
     window.examInProgress = true;
 };
 </script>
+<script>
+// ===== FIX: Start Exam Button =====
+document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('stuStartBtn');
+    if (btn) {
+        btn.onclick = function() {
+            var name = document.getElementById('stuName').value.trim();
+            var roll = document.getElementById('stuRoll').value.trim();
+            var adm = document.getElementById('stuAdm').value.trim();
+            
+            if (!name) { alert('Please enter Name'); return; }
+            if (!roll) { alert('Please enter Roll Number'); return; }
+            if (!adm) { alert('Please enter Admission Number'); return; }
+            
+            // Check if answer key is loaded
+            if (!keyLoaded) {
+                alert('⏳ Please wait for answer key to load. Try again in a few seconds.');
+                return;
+            }
+            
+            // Prepare exam data
+            if (typeof prepareExamData === 'function') {
+                prepareExamData();
+            }
+            
+            // Check if questions loaded
+            if (!examData || examData.files.length === 0) {
+                alert('No questions loaded. Please refresh.');
+                return;
+            }
+            
+            // Hide access denied, show exam
+            document.getElementById('accessDenied').style.display = 'none';
+            document.getElementById('examArea').style.display = 'block';
+            
+            // Create progress
+            window.progress = {
+                answers: new Array(examData.files.length).fill(null),
+                review: new Array(examData.files.length).fill(false),
+                currentIndex: 0,
+                student: { 
+                    name: name, 
+                    sec: '2D', 
+                    roll: roll, 
+                    adm: adm 
+                },
+                timeLeftSec: 7200
+            };
+            
+            // Render everything
+            if (typeof renderQuestion === 'function') renderQuestion();
+            if (typeof renderPalette === 'function') renderPalette();
+            if (typeof startTimer === 'function') startTimer();
+            if (typeof updateNavButtons === 'function') updateNavButtons();
+            if (typeof updateProgressBar === 'function') updateProgressBar();
+            
+            window.examInProgress = true;
+            console.log('✅ Exam started with ' + examData.files.length + ' questions');
+        };
+    }
+});
+</script>
 </body>
 </html>   
