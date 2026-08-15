@@ -2019,228 +2019,514 @@ setInterval(function() {
 </div>
 
 
-<!-- ===== ACCESS DENIED - LEFT RIGHT LAYOUT ===== -->
-<div id="accessDenied" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#F0F2F5;z-index:10000;font-family:'SF Pro Display',sans-serif;overflow:hidden;padding:0;margin:0;">
+<!-- ===== ACCESS DENIED - LEFT RIGHT LAYOUT (MODERN) ===== -->
+<div id="accessDenied" class="access-denied" style="
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #F0F2F5;
+  z-index: 10000;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+">
 
-<!-- LEFT SIDE - 40% -->
-<div style="position:fixed;left:0;top:0;width:40%;height:100%;background:linear-gradient(160deg,#0A1628 0%,#1A365D 40%,#2B6CB0 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:50px 40px;color:white;z-index:1;">
-  <div style="text-align:center;width:100%;max-width:400px;">
-    <div style="font-size:56px;font-weight:700;color:#FFFFFF;">2D</div>
-    <div style="font-size:20px;font-weight:500;color:rgba(255,255,255,0.6);margin-bottom:30px;">LFJC ONLINE EXAMINATION</div>
-    <div style="width:60px;height:2px;background:#FFD700;margin:0 auto 25px auto;"></div>
-    <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:18px 24px;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);">Total Questions</div>
-      <div style="font-size:36px;font-weight:700;color:#FFD700;margin-top:2px;" id="totalQuestionsDisplay">Loading...</div>
-    </div>
-    <div id="subjectBreakdownDisplay" style="font-size:14px;color:rgba(255,255,255,0.5);margin:10px 0 16px 0;line-height:1.8;"></div>
-    <div style="display:flex;gap:12px;justify-content:center;">
-      <div style="background:rgba(16,185,129,0.12);padding:6px 18px;border-radius:20px;font-size:13px;font-weight:500;color:#34D399;border:1px solid rgba(16,185,129,0.08);" id="correctMarkDisplay">+4 Marks</div>
-      <div style="background:rgba(239,68,68,0.10);padding:6px 18px;border-radius:20px;font-size:13px;font-weight:500;color:#F87171;border:1px solid rgba(239,68,68,0.08);" id="wrongMarkDisplay">-1 Mark</div>
-    </div>
-  </div>
-</div>
-
-<!-- RIGHT SIDE - 60% -->
-<div style="position:absolute;left:40%;top:0;width:60%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px 50px;background:#F0F2F5;overflow-y:auto;">
-  <div style="max-width:480px;width:100%;">
-    
-    <!-- WELCOME SCREEN -->
-    <div id="welcomeScreen" style="background:#FFFFFF;border-radius:20px;padding:40px 35px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid rgba(255,255,255,0.5);text-align:center;">
-      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);display:flex;align-items:center;justify-content:center;margin:0 auto 18px auto;">
-        <span style="font-size:38px;">🎓</span>
-      </div>
-      <div style="font-size:28px;font-weight:700;color:#1A202C;margin-bottom:4px;">Welcome to 2D</div>
-      <div style="font-size:18px;font-weight:500;color:#2B6CB0;margin-bottom:6px;">LFJC ONLINE EXAMINATION</div>
-      <div style="font-size:14px;color:#718096;margin-bottom:24px;">Please wait while we prepare your exam</div>
-      <div style="background:#F7FAFC;border-radius:12px;padding:16px 20px;margin-bottom:20px;border:1px solid #E2E8F0;">
-        <div style="font-size:13px;color:#A0AEC0;font-weight:500;letter-spacing:1px;text-transform:uppercase;">Total Questions</div>
-        <div style="font-size:28px;font-weight:700;color:#2B6CB0;" id="welcomeTotalQuestions">Loading...</div>
-      </div>
-      <button id="welcomeContinueBtn" style="width:100%;padding:15px 20px;background:linear-gradient(135deg,#2B6CB0,#1A365D);color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:'SF Pro Display',sans-serif;box-shadow:0 4px 20px rgba(43,108,176,0.25);">🖥️ Continue</button>
-      <div style="font-size:12px;color:#A0AEC0;margin-top:14px;">Please do not refresh the page</div>
-    </div>
-
-    <!-- WAITING SCREEN -->
-    <div id="waitingScreen" style="background:#FFFFFF;border-radius:20px;padding:40px 35px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid rgba(255,255,255,0.5);text-align:center;display:none;">
-      <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);display:flex;align-items:center;justify-content:center;margin:0 auto 18px auto;">
-        <span style="font-size:32px;">⏳</span>
-      </div>
-      <div style="font-size:22px;font-weight:600;color:#1A202C;margin-bottom:4px;">Please Wait</div>
-      <div style="font-size:15px;color:#718096;margin-bottom:22px;">Preparing your examination...</div>
-      <div style="font-size:56px;font-weight:700;color:#2B6CB0;margin:8px 0;font-variant-numeric:tabular-nums;" id="delayTimerDisplay">30</div>
-      <div style="font-size:15px;color:#718096;font-weight:500;">seconds remaining</div>
-      <div style="width:100%;height:4px;background:#E2E8F0;border-radius:2px;margin-top:22px;overflow:hidden;">
-        <div id="waitingProgressBar" style="width:0%;height:100%;background:linear-gradient(90deg,#2B6CB0,#4299E1);border-radius:2px;transition:width 0.5s ease;"></div>
-      </div>
-      <div style="font-size:12px;color:#A0AEC0;margin-top:14px;">Please do not refresh the page</div>
-    </div>
-
-    <!-- PASSWORD SCREEN -->
-    <div id="passwordScreen" style="background:#FFFFFF;border-radius:20px;padding:32px 35px 28px 35px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid rgba(255,255,255,0.5);display:none;">
-      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
-        <span style="font-size:26px;">🔐</span>
-      </div>
-      <h2 style="font-size:22px;font-weight:600;color:#1A202C;margin:0 0 4px 0;">Access Code</h2>
-      <p style="font-size:14px;color:#718096;margin:0 0 20px 0;">Enter your secure access code</p>
-      <input type="password" id="accessCode" style="width:100%;padding:14px 18px;font-size:16px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#F7FAFC;color:#1A202C;letter-spacing:6px;font-weight:500;" placeholder="Enter Access Code">
-      <button id="verifyAccess" style="width:100%;padding:14px 20px;background:#1A202C;color:white;border:none;border-radius:12px;font-size:16px;font-weight:500;cursor:pointer;font-family:'SF Pro Display',sans-serif;margin-top:16px;">🔓 Verify Access</button>
-      <div id="accessError" style="display:none;color:#E53E3E;font-size:14px;font-weight:500;margin-top:14px;padding:12px 16px;background:#FFF5F5;border-radius:10px;border:1px solid #FED7D7;text-align:center;">❌ Invalid access code. Please try again.</div>
-    </div>
-
-    <!-- STUDENT DETAILS SCREEN -->
-    <div id="studentDetailsScreen" style="background:#FFFFFF;border-radius:20px;padding:32px 35px 28px 35px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid rgba(255,255,255,0.5);display:none;">
-      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#EBF5FF,#DBEAFE);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
-        <span style="font-size:26px;">👤</span>
-      </div>
-      <h2 style="font-size:22px;font-weight:600;color:#1A202C;margin:0 0 4px 0;">Student Details</h2>
-      <p style="font-size:14px;color:#718096;margin:0 0 20px 0;">Please verify your identity</p>
+  <!-- ===== LEFT SIDE - BRANDING (45%) ===== -->
+  <div style="
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(160deg, #0A1628 0%, #1A365D 40%, #2B6CB0 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 40px;
+    color: white;
+    z-index: 1;
+    overflow: hidden;
+  ">
+    <div style="position: relative; z-index: 1; text-align: center; width: 100%; max-width: 400px;">
+      <div style="font-size: 56px; font-weight: 700; letter-spacing: -1px; margin-bottom: 2px; color: #FFFFFF;">2D</div>
+      <div style="font-size: 18px; font-weight: 500; letter-spacing: 2px; color: rgba(255,255,255,0.5); margin-bottom: 30px;">LFJC ONLINE EXAMINATION</div>
+      <div style="width: 60px; height: 2px; background: #FFD700; margin: 0 auto 28px auto; border-radius: 2px;"></div>
       
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-size:13px;font-weight:500;color:#4A5568;margin-bottom:5px;">Full Name</label>
-        <input type="text" id="stuName" style="width:100%;padding:13px 16px;font-size:15px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#F7FAFC;color:#1A202C;" placeholder="Enter your full name">
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-size:13px;font-weight:500;color:#4A5568;margin-bottom:5px;">Section</label>
-        <input type="text" id="stuSection" value="2D" readonly style="width:100%;padding:13px 16px;font-size:15px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#EDF2F7;color:#718096;cursor:not-allowed;">
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-size:13px;font-weight:500;color:#4A5568;margin-bottom:5px;">Roll Number</label>
-        <input type="text" id="stuRoll" style="width:100%;padding:13px 16px;font-size:15px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#F7FAFC;color:#1A202C;" placeholder="Enter roll number">
-      </div>
-      <div style="margin-bottom:20px;">
-        <label style="display:block;font-size:13px;font-weight:500;color:#4A5568;margin-bottom:5px;">Admission Number</label>
-        <input type="text" id="stuAdm" style="width:100%;padding:13px 16px;font-size:15px;font-family:'SF Pro Display',sans-serif;border:2px solid #E2E8F0;border-radius:12px;outline:none;box-sizing:border-box;background:#F7FAFC;color:#1A202C;" placeholder="Enter admission number">
+      <div style="background: rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 24px; margin-bottom: 14px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05);">
+        <div style="font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35);">Total Questions</div>
+        <div style="font-size: 36px; font-weight: 700; color: #FFD700; letter-spacing: -0.5px; margin-top: 2px;" id="totalQuestionsDisplay">Loading...</div>
       </div>
       
-      <!-- START EXAM BUTTON - SAME ID AS ORIGINAL -->
-      <button id="stuStartBtn" style="width:100%;padding:15px 20px;background:linear-gradient(135deg,#2B6CB0,#1A365D);color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:'SF Pro Display',sans-serif;display:none;box-shadow:0 4px 20px rgba(43,108,176,0.25);">🚀 Start Exam</button>
-      <div id="errorMessages" style="margin-top:12px;"></div>
-    </div>
-    
-    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #E2E8F0;text-align:center;">
-      <span style="font-size:12px;color:#A0AEC0;font-weight:400;">© LFJC 2026 | All Rights Reserved</span>
+      <div id="subjectBreakdownDisplay" style="font-size: 13px; color: rgba(255,255,255,0.45); margin: 12px 0 18px 0; line-height: 1.8;"></div>
+      
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <div style="background: rgba(16,185,129,0.12); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #34D399; border: 1px solid rgba(16,185,129,0.08);" id="correctMarkDisplay">+4 Marks</div>
+        <div style="background: rgba(239,68,68,0.10); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #F87171; border: 1px solid rgba(239,68,68,0.08);" id="wrongMarkDisplay">-1 Mark</div>
+      </div>
+      
+      <div style="margin-top: 35px; font-size: 11px; color: rgba(255,255,255,0.15); letter-spacing: 1px;">© LFJC 2026</div>
     </div>
   </div>
-</div>
+
+  <!-- ===== RIGHT SIDE - FORMS (55%) ===== -->
+  <div style="
+    position: absolute;
+    left: 45%;
+    top: 0;
+    width: 55%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 50px;
+    background: #F0F2F5;
+    overflow-y: auto;
+  ">
+    <div style="max-width: 420px; width: 100%;">
+      
+      <!-- ===== WELCOME SCREEN ===== -->
+      <div id="welcomeScreen" style="
+        background: #FFFFFF;
+        border-radius: 20px;
+        padding: 40px 35px 32px 35px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+        border: 1px solid rgba(255,255,255,0.5);
+        text-align: center;
+      ">
+        <div style="width: 76px; height: 76px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+          <span style="font-size: 36px;">🎓</span>
+        </div>
+        <div style="font-size: 26px; font-weight: 700; color: #1A202C; margin-bottom: 2px;">Welcome to 2D</div>
+        <div style="font-size: 16px; font-weight: 500; color: #2B6CB0; margin-bottom: 4px;">LFJC ONLINE EXAMINATION</div>
+        <div style="font-size: 14px; color: #718096; margin-bottom: 22px;">Please wait while we prepare your exam</div>
+        
+        <div style="background: #F7FAFC; border-radius: 12px; padding: 14px 20px; margin-bottom: 22px; border: 1px solid #E2E8F0;">
+          <div style="font-size: 12px; color: #A0AEC0; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Exam Ready</div>
+          <div style="font-size: 28px; font-weight: 700; color: #2B6CB0;" id="welcomeTotalQuestions">Loading...</div>
+        </div>
+        
+        <button id="welcomeContinueBtn" style="
+          width: 100%;
+          padding: 15px 20px;
+          background: linear-gradient(135deg, #2B6CB0, #1A365D);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-family: inherit;
+          box-shadow: 0 4px 20px rgba(43,108,176,0.25);
+        "
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 30px rgba(43,108,176,0.35)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(43,108,176,0.25)'"
+        >🖥️ Continue to Exam</button>
+        
+        <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
+      </div>
+
+      <!-- ===== WAITING TIMER SCREEN ===== -->
+      <div id="waitingScreen" style="
+        background: #FFFFFF;
+        border-radius: 20px;
+        padding: 40px 35px 32px 35px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+        border: 1px solid rgba(255,255,255,0.5);
+        text-align: center;
+        display: none;
+      ">
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+          <span style="font-size: 32px;">⏳</span>
+        </div>
+        <div style="font-size: 22px; font-weight: 600; color: #1A202C; margin-bottom: 2px;">Please Wait</div>
+        <div style="font-size: 14px; color: #718096; margin-bottom: 20px;">Preparing your examination...</div>
+        
+        <div style="font-size: 54px; font-weight: 700; color: #2B6CB0; margin: 6px 0; font-variant-numeric: tabular-nums;" id="delayTimerDisplay">30</div>
+        <div style="font-size: 14px; color: #718096; font-weight: 500;">seconds remaining</div>
+        
+        <div style="width: 100%; height: 4px; background: #E2E8F0; border-radius: 2px; margin-top: 22px; overflow: hidden;">
+          <div id="waitingProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #2B6CB0, #4299E1); border-radius: 2px; transition: width 0.5s ease;"></div>
+        </div>
+        
+        <div style="font-size: 12px; color: #A0AEC0; margin-top: 14px;">Please do not refresh the page</div>
+      </div>
+
+      <!-- ===== PASSWORD SCREEN ===== -->
+      <div id="passwordScreen" style="
+        background: #FFFFFF;
+        border-radius: 20px;
+        padding: 32px 35px 28px 35px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+        border: 1px solid rgba(255,255,255,0.5);
+        display: none;
+      ">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+          <span style="font-size: 26px;">🔐</span>
+        </div>
+        <h2 style="font-size: 22px; font-weight: 600; color: #1A202C; margin: 0 0 2px 0;">Access Code</h2>
+        <p style="font-size: 14px; color: #718096; margin: 0 0 18px 0;">Enter your secure access code</p>
+        
+        <button id="enterFullScreenBtn" style="
+          width: 100%;
+          padding: 13px 20px;
+          background: #2B6CB0;
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 15px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          margin-bottom: 14px;
+          font-family: inherit;
+        "
+        onmouseover="this.style.background='#1A365D'; this.style.transform='translateY(-1px)'"
+        onmouseout="this.style.background='#2B6CB0'; this.style.transform='translateY(0)'"
+        >🖥️ Enter Full Screen</button>
+        
+        <input type="password" id="accessCode" style="
+          width: 100%;
+          padding: 14px 18px;
+          font-size: 16px;
+          font-family: inherit;
+          border: 2px solid #E2E8F0;
+          border-radius: 12px;
+          outline: none;
+          transition: all 0.2s ease;
+          box-sizing: border-box;
+          background: #F7FAFC;
+          color: #1A202C;
+          letter-spacing: 6px;
+          font-weight: 500;
+        "
+        placeholder="Enter Access Code"
+        onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'"
+        onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
+        
+        <div style="font-size: 12px; color: #A0AEC0; margin-top: 8px;">Contact administrator for access code</div>
+        
+        <button id="verifyAccess" style="
+          width: 100%;
+          padding: 14px 20px;
+          background: #1A202C;
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-family: inherit;
+          margin-top: 16px;
+        "
+        onmouseover="this.style.background='#2D3748'; this.style.transform='translateY(-1px)'"
+        onmouseout="this.style.background='#1A202C'; this.style.transform='translateY(0)'"
+        >🔓 Verify Access</button>
+        
+        <div id="accessError" style="display: none; color: #E53E3E; font-size: 14px; font-weight: 500; margin-top: 14px; padding: 12px 16px; background: #FFF5F5; border-radius: 10px; border: 1px solid #FED7D7; text-align: center;">❌ Invalid access code. Please try again.</div>
+      </div>
+
+      <!-- ===== STUDENT DETAILS SCREEN ===== -->
+      <div id="studentDetailsScreen" style="
+        background: #FFFFFF;
+        border-radius: 20px;
+        padding: 32px 35px 28px 35px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+        border: 1px solid rgba(255,255,255,0.5);
+        display: none;
+      ">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #EBF5FF, #DBEAFE); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+          <span style="font-size: 26px;">👤</span>
+        </div>
+        <h2 style="font-size: 22px; font-weight: 600; color: #1A202C; margin: 0 0 2px 0;">Student Details</h2>
+        <p style="font-size: 14px; color: #718096; margin: 0 0 20px 0;">Please verify your identity</p>
+        
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 4px;">Full Name</label>
+          <input type="text" id="stuName" style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: inherit; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; transition: all 0.2s ease; box-sizing: border-box; background: #F7FAFC; color: #1A202C;" placeholder="Enter your full name" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 4px;">Section</label>
+          <input type="text" id="stuSection" value="2D" readonly style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: inherit; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; box-sizing: border-box; background: #EDF2F7; color: #718096; cursor: not-allowed;">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 4px;">Roll Number</label>
+          <input type="text" id="stuRoll" style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: inherit; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; transition: all 0.2s ease; box-sizing: border-box; background: #F7FAFC; color: #1A202C;" placeholder="Enter roll number" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <label style="display: block; font-size: 13px; font-weight: 500; color: #4A5568; margin-bottom: 4px;">Admission Number</label>
+          <input type="text" id="stuAdm" style="width: 100%; padding: 13px 16px; font-size: 15px; font-family: inherit; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; transition: all 0.2s ease; box-sizing: border-box; background: #F7FAFC; color: #1A202C;" placeholder="Enter admission number" onfocus="this.style.borderColor='#2B6CB0'; this.style.background='#FFFFFF'; this.style.boxShadow='0 0 0 4px rgba(43,108,176,0.08)'" onblur="this.style.borderColor='#E2E8F0'; this.style.background='#F7FAFC'; this.style.boxShadow='none'">
+        </div>
+
+        <button id="stuStartBtn" style="
+          width: 100%;
+          padding: 15px 20px;
+          background: linear-gradient(135deg, #2B6CB0, #1A365D);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-family: inherit;
+          display: none;
+          box-shadow: 0 4px 20px rgba(43,108,176,0.25);
+        "
+        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 30px rgba(43,108,176,0.35)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(43,108,176,0.25)'"
+        >🚀 Start Exam</button>
+        
+        <div id="errorMessages" style="margin-top: 12px;"></div>
+      </div>
+      
+      <!-- Footer -->
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #E2E8F0; text-align: center;">
+        <span style="font-size: 12px; color: #A0AEC0; font-weight: 400;">© LFJC 2026 | All Rights Reserved</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
-@keyframes appleError {
+@keyframes shakeError {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
 }
-#accessError.show { display:block !important; animation:appleError 0.4s ease; }
-@media (max-width:768px) {
-  #accessDenied { flex-direction:column; overflow-y:auto; }
-  #accessDenied > div:first-child { width:100% !important; height:auto !important; min-height:220px; padding:30px 20px !important; position:relative !important; }
-  #accessDenied > div:last-child { width:100% !important; height:auto !important; padding:20px !important; position:relative !important; left:0 !important; }
+#accessError.show { display: block !important; animation: shakeError 0.4s ease; }
+
+@media (max-width: 768px) {
+  #accessDenied { flex-direction: column; overflow-y: auto; }
+  #accessDenied > div:first-child { width: 100% !important; height: auto !important; min-height: 200px; padding: 30px 20px !important; position: relative !important; }
+  #accessDenied > div:last-child { width: 100% !important; height: auto !important; padding: 20px !important; position: relative !important; left: 0 !important; }
+  #accessDenied > div:last-child > div { max-width: 100% !important; }
+}
+@media (max-width: 480px) {
+  #accessDenied > div:first-child { min-height: 160px; padding: 20px 16px !important; }
+  #accessDenied > div:first-child div:first-child { font-size: 36px !important; }
+  #accessDenied > div:last-child { padding: 12px !important; }
+  #accessDenied > div:last-child > div > div { padding: 24px 18px !important; }
 }
 </style>
+  // ===== MODERN ACCESS DENIED CONTROLS =====
+(function() {
+  // Screen management
+  function showScreen(screenId) {
+    const screens = ['welcomeScreen', 'waitingScreen', 'passwordScreen', 'studentDetailsScreen'];
+    screens.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const target = document.getElementById(screenId);
+    if (target) target.style.display = 'block';
+  }
 
-<script>
-// ===== CONNECT NEW BUTTONS TO ORIGINAL FUNCTIONS =====
-document.addEventListener('DOMContentLoaded', function() {
-    // Continue button
-    var continueBtn = document.getElementById('welcomeContinueBtn');
-    if (continueBtn) {
-        continueBtn.addEventListener('click', function() {
-            document.getElementById('welcomeScreen').style.display = 'none';
-            document.getElementById('waitingScreen').style.display = 'block';
-            startTimerCountdown();
-        });
-    }
-    
-    // Verify Access button
-    var verifyBtn = document.getElementById('verifyAccess');
-    if (verifyBtn) {
-        verifyBtn.addEventListener('click', function() {
-            verifyAccessCodeNew();
-        });
-    }
-    
-    var accessCodeInput = document.getElementById('accessCode');
-    if (accessCodeInput) {
-        accessCodeInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') verifyAccessCodeNew();
-        });
-    }
-    
-    // Timer function
-    function startTimerCountdown() {
-        var waitTime = Math.floor(Math.random() * 41) + 5;
-        var seconds = waitTime;
-        var timerDisplay = document.getElementById('delayTimerDisplay');
-        var progressBar = document.getElementById('waitingProgressBar');
-        if (timerDisplay) timerDisplay.textContent = seconds;
-        if (progressBar) progressBar.style.width = '0%';
-        var interval = setInterval(function() {
-            seconds--;
-            if (timerDisplay) timerDisplay.textContent = seconds;
-            if (progressBar) {
-                progressBar.style.width = ((waitTime - seconds) / waitTime * 100) + '%';
-            }
-            if (seconds <= 0) {
-                clearInterval(interval);
-                document.getElementById('waitingScreen').style.display = 'none';
-                document.getElementById('passwordScreen').style.display = 'block';
-                document.getElementById('accessCode').focus();
-            }
-        }, 1000);
-    }
-    
-    // Update total questions
-    setTimeout(function() {
-        var totalEl = document.getElementById('welcomeTotalQuestions');
-        var totalDisplay = document.getElementById('totalQuestionsDisplay');
-        if (totalEl && totalDisplay) {
-            totalEl.textContent = totalDisplay.textContent || 'Loading...';
-        }
-    }, 1000);
-    
-    // Remove old loading screen
-    var old = document.getElementById('delay-loading');
-    if (old) old.remove();
-});
+  // Full screen
+  function goFullScreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+    else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen();
+    else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+  }
 
-// ===== NEW VERIFY ACCESS CODE FUNCTION =====
-function verifyAccessCodeNew() {
-    var enteredCode = document.getElementById('accessCode').value.trim();
-    var errorElement = document.getElementById('accessError');
-    
-    if (enteredCode === 'lfjc2025') {
-        errorElement.style.display = 'none';
-        document.getElementById('passwordScreen').style.display = 'none';
-        document.getElementById('studentDetailsScreen').style.display = 'block';
-        document.getElementById('stuStartBtn').style.display = 'block';
-        
-        // Set default section
-        document.getElementById('stuSection').value = '2D';
-        
-        setTimeout(function() { 
-            document.getElementById('stuName').focus(); 
+  let timerRan = false;
+  let timerInterval = null;
+
+  // Welcome continue button
+  const continueBtn = document.getElementById('welcomeContinueBtn');
+  if (continueBtn) {
+    continueBtn.addEventListener('click', function() {
+      goFullScreen();
+      if (!timerRan) {
+        showScreen('waitingScreen');
+        startTimer();
+      } else {
+        showScreen('passwordScreen');
+        setTimeout(() => {
+          const codeInput = document.getElementById('accessCode');
+          if (codeInput) codeInput.focus();
         }, 300);
-        
-        // Call validation
-        if (typeof validateStudentInputs === 'function') {
-            validateStudentInputs();
-        }
-    } else {
-        errorElement.style.display = 'block';
-        errorElement.textContent = '❌ Invalid access code. Please try again.';
-        document.getElementById('accessCode').value = '';
-        document.getElementById('accessCode').focus();
-    }
-}
+      }
+    });
+  }
 
-// ===== OVERRIDE: Fix the original verifyAccessCode =====
-var originalVerifyAccess = window.verifyAccessCode;
-window.verifyAccessCode = function() {
-    verifyAccessCodeNew();
-};
-</script>
+  function startTimer() {
+    if (timerRan) {
+      showScreen('passwordScreen');
+      return;
+    }
+    timerRan = true;
+    const waitTime = Math.floor(Math.random() * 41) + 5;
+    let seconds = waitTime;
+    const timerDisplay = document.getElementById('delayTimerDisplay');
+    const progressBar = document.getElementById('waitingProgressBar');
+    if (timerDisplay) timerDisplay.textContent = seconds;
+    if (progressBar) progressBar.style.width = '0%';
+    
+    timerInterval = setInterval(function() {
+      seconds--;
+      if (timerDisplay) timerDisplay.textContent = seconds;
+      if (progressBar) {
+        progressBar.style.width = ((waitTime - seconds) / waitTime * 100) + '%';
+      }
+      if (seconds <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        showScreen('passwordScreen');
+        setTimeout(() => {
+          const codeInput = document.getElementById('accessCode');
+          if (codeInput) codeInput.focus();
+        }, 300);
+      }
+    }, 1000);
+  }
+
+  // Verify access
+const verifyBtn = document.getElementById('verifyAccess');
+if (verifyBtn) {
+    verifyBtn.addEventListener('click', function() {
+        const enteredCode = document.getElementById('accessCode').value.trim();
+        const errorElement = document.getElementById('accessError');
+        if (enteredCode === 'lfjc2025') {
+            if (errorElement) {
+                errorElement.style.display = 'none';
+                errorElement.classList.remove('show');
+            }
+            showScreen('studentDetailsScreen');
+            const startBtn = document.getElementById('stuStartBtn');
+            if (startBtn) {
+                startBtn.style.display = 'block';
+                // Re-bind click to use existing startExam
+                startBtn.onclick = function() {
+                    // Validate inputs using existing validation
+                    if (typeof validateStudentInputs === 'function') {
+                        if (validateStudentInputs()) {
+                            // Get student data
+                            const name = document.getElementById('stuName').value.trim();
+                            const section = document.getElementById('stuSection').value.trim();
+                            const roll = document.getElementById('stuRoll').value.trim();
+                            const adm = document.getElementById('stuAdm').value.trim();
+                            const studentKey = `${name}|${section}|${roll}|${adm}`;
+                            
+                            // Hide access denied
+                            document.getElementById('accessDenied').style.display = 'none';
+                            document.getElementById('examArea').style.display = 'block';
+                            
+                            // Call existing startExam with studentKey
+                            if (typeof startExam === 'function') {
+                                startExam(studentKey);
+                            }
+                        }
+                    }
+                };
+            }
+            setTimeout(() => {
+                const nameInput = document.getElementById('stuName');
+                if (nameInput) nameInput.focus();
+            }, 300);
+        } else {
+            if (errorElement) {
+                errorElement.style.display = 'block';
+                errorElement.classList.add('show');
+                errorElement.textContent = '❌ Invalid access code. Please try again.';
+            }
+            const codeInput = document.getElementById('accessCode');
+            if (codeInput) {
+                codeInput.value = '';
+                codeInput.focus();
+            }
+            setTimeout(() => {
+                if (errorElement) errorElement.classList.remove('show');
+            }, 500);
+        }
+    });
+}
+  // Enter key on access code
+  const codeInput = document.getElementById('accessCode');
+  if (codeInput) {
+    codeInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const verifyBtn2 = document.getElementById('verifyAccess');
+        if (verifyBtn2) verifyBtn2.click();
+      }
+    });
+  }
+
+  // Update total questions
+  setTimeout(function() {
+    const totalEl = document.getElementById('welcomeTotalQuestions');
+    const totalDisplay = document.getElementById('totalQuestionsDisplay');
+    if (totalEl && totalDisplay) {
+      totalEl.textContent = totalDisplay.textContent || 'Loading...';
+    }
+  }, 1000);
+
+  // Force full screen
+  setTimeout(goFullScreen, 500);
+  setTimeout(goFullScreen, 1000);
+  setTimeout(goFullScreen, 2000);
+})();
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
+<div id="studentEntry" style="display:none;">
+  <div class="warning-banner" id="examWarning" style="display:none;">
+    <p>⚠️ WARNING: Exam in progress. Do not refresh or close this window!</p>
+  </div>
+  
+  <div class="form-group"><label>NAME</label><input type="text" id="stuName" placeholder="Only letters & spaces" autocomplete="off"></div>
+ <div class="form-group"><label>SECTION</label><input type="text" id="stuSection" value="2D" readonly style="background: #f0f0f0; cursor: not-allowed;" autocomplete="off"></div>
+  <div class="form-group"><label>ROLL NUMBER</label><input type="text" id="stuRoll" placeholder="Digits only" autocomplete="off"></div>
+  <div class="form-group"><label>ADMISSION NUMBER</label><input type="text" id="stuAdm" placeholder="Digits only" autocomplete="off"></div>
+
+  
+  
+  
+  <div id="resumeExamSection">
+    <h3>🔄 Exam In Progress Found</h3>
+    <div class="resume-student-info">
+      <p><strong>Student:</strong> <span id="resumeStudentName">Loading...</span></p>
+      <p><strong>Section:</strong> <span id="resumeSection">Loading...</span></p>
+      <p><strong>Progress:</strong> <span id="resumeProgress">Loading...</span></p>
+      <p><strong>Time Left:</strong> <span id="resumeTimeLeft">Loading...</span></p>
+    </div>
+    <p style="margin-bottom: 15px;">You have an exam in progress from a previous session.</p>
+    <div class="resume-options">
+      <button id="resumeExamBtn" class="resume-btn">Continue Exam</button>
+      <button id="startNewBtn" class="resume-btn">Start New Exam</button>
+    </div>
+  </div>
+
+ 
+  <div id="resubmissionSection">
+    <h3>🔄 Re-submission Required</h3>
+    <p>You have already submitted within the last 24 hours.</p>
+    <p>To submit again, please enter the re-submission password:</p>
+    <input type="password" id="resubmissionPassword" placeholder="Enter re-submission password">
+    <div>
+      <button id="verifyResubmission" class="resubmit-btn">Verify & Re-submit</button>
+      <button id="cancelResubmission" class="resubmit-btn">Cancel</button>
+    </div>
+  </div>
+
+ 
+  <div id="googleFormsStatus" style="display:none;"></div>
+
+  <div class="form-group"><button id="stuStartBtn" style="display:none;">Start Exam</button></div>
+  <p id="studentMsg"></p>
+  <div id="errorMessages"></div>
+</div>
 
 <div id="examArea" style="display:none;">
 <div id="examHeader">
@@ -5583,60 +5869,37 @@ document.addEventListener('contextmenu', function(e) { e.preventDefault(); retur
 
 
 
-// ===== STUDENT INPUT VALIDATION FOR NEW LAYOUT =====
-document.addEventListener('DOMContentLoaded', function() {
-    // Name validation
-    document.getElementById('stuName').addEventListener('input', function() {
-        this.value = this.value.toUpperCase();
-        this.value = this.value.replace(/[^A-Z .]/g, '');
-        if (typeof validateStudentInputs === 'function') validateStudentInputs();
-    });
+["stuName", "stuSection", "stuRoll", "stuAdm"].forEach(id => {
+  document.getElementById(id).addEventListener("input", validateStudentInputs);
+});
 
-    // Section - lock to 2D
-    document.getElementById('stuSection').addEventListener('input', function() {
-        this.value = '2D';
-    });
+// Additional handler for Name - force uppercase and only letters/spaces
+document.getElementById('stuName').addEventListener('input', function() {
+  this.value = this.value.toUpperCase();
+  this.value = this.value.replace(/[^A-Z .]/g, '');
+});
 
-    // Roll number validation
-    document.getElementById('stuRoll').addEventListener('input', function() {
-        if (this.value.length > 1 && this.value.startsWith('0')) {
-            this.value = this.value.replace(/^0+/, '');
-        }
-        this.value = this.value.replace(/[^0-9]/g, '');
-        if (typeof validateStudentInputs === 'function') validateStudentInputs();
-    });
+// Additional handler for Section - lock to "2D"
+document.getElementById('stuSection').addEventListener('input', function() {
+  this.value = '2D';
+});
 
-    // Admission number validation
-    document.getElementById('stuAdm').addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        if (typeof validateStudentInputs === 'function') validateStudentInputs();
-    });
+// Additional handler for Roll Number - prevent leading zeros
+document.getElementById('stuRoll').addEventListener('input', function() {
+  if (this.value.length > 1 && this.value.startsWith('0')) {
+    this.value = this.value.replace(/^0+/, '');
+  }
+  this.value = this.value.replace(/[^0-9]/g, '');
+});
 
-   // Start Exam button
-var startBtn = document.getElementById('stuStartBtn');
-if (startBtn) {
-    startBtn.onclick = function() {
-        console.log('✅ Start Exam button clicked');
-        if (typeof validateStudentInputs === 'function') {
-            if (!validateStudentInputs()) return;
-        }
-        // Show confirmation dialog
-        if (typeof showConfirm === 'function') {
-            showConfirm("Start Exam?", function(ok) {
-                if (ok) {
-                    console.log('✅ User confirmed - starting exam');
-                    startWithSecurity(true);
-                } else {
-                    console.log('❌ User cancelled');
-                }
-            });
-        } else {
-            // Fallback - directly start
-            startWithSecurity(true);
-        }
-    };
-    console.log('✅ Start Exam button connected');
-}
+// Additional handler for Admission Number - only digits
+document.getElementById('stuAdm').addEventListener('input', function() {
+  this.value = this.value.replace(/[^0-9]/g, '');
+});
+document.getElementById('stuStartBtn').onclick = () => { 
+  if (!validateStudentInputs()) return; 
+  showConfirm("Start Exam?", startWithSecurity); 
+};
 
 document.getElementById('verifyResubmission').addEventListener('click', verifyResubmissionPassword);
 document.getElementById('cancelResubmission').addEventListener('click', cancelResubmission);
@@ -5672,53 +5935,57 @@ function generateStudentId(studentData) {
 
 function startWithSecurity(ok) {
   if (!ok) return;
-
+  
+  // Force full screen
   goFullScreen();
   
   tabSwitchCount = 0;
   lastTabSwitchTime = 0;
-  if (systemTrayDetector) systemTrayDetector.reset();
+  systemTrayDetector.reset();
   
-  var stuName = document.getElementById('stuName');
-  var stuSection = document.getElementById('stuSection');
-  var stuRoll = document.getElementById('stuRoll');
-  var stuAdm = document.getElementById('stuAdm');
+  const stuName = document.getElementById('stuName');
+  const stuSection = document.getElementById('stuSection');
+  const stuRoll = document.getElementById('stuRoll');
+  const stuAdm = document.getElementById('stuAdm');
   
-  if (!stuName.value.trim() || !stuRoll.value.trim() || !stuAdm.value.trim()) {
-    alert('Please fill all fields');
-    return;
-  }
+  const studentKey = `${stuName.value}|${stuSection.value}|${stuRoll.value}|${stuAdm.value}`;
   
-  var studentKey = stuName.value + '|' + stuSection.value + '|' + stuRoll.value + '|' + stuAdm.value;
-  
-  prepareExamData();
-  
-  document.getElementById('accessDenied').style.display = 'none';
-  document.getElementById('examArea').style.display = 'block';
-  
-  startExam(studentKey);
+  examSecurity.enable().then(() => {
+    // Add random delay to stagger student starts (0.5-2 seconds)
+    const delay = Math.random() * 1500 + 500;
+    console.log(`⏳ Student ${stuName.value} starting in ${(delay/1000).toFixed(1)} seconds`);
+    setTimeout(() => {
+      startExam(studentKey);
+    }, delay);
+  }).catch(err => {
+    console.error('Failed to enable security:', err);
+    alert('⚠️ Please allow full-screen mode to start the exam.');
+    // Still try to start
+    goFullScreen();
+    setTimeout(() => {
+      startExam(studentKey);
+    }, 500);
+  });
 }
-  
-
-  
-  
 function startExam(studentKey) {
     isSummaryShowing = false;
     
-    // Reset navigation tracker
+    // ===== RESET NAVIGATION TRACKER =====
     navigationHistory = [];
     navigationWarnings = 0;
     lastNavWarningTime = 0;
     isNavWarningShowing = false;
+    console.log('🔄 Navigation tracker reset for new exam');
     
-    // Reset password buffers
+    // ===== RESET PASSWORD BUFFERS =====
     secretPasswordBuffer = '';
     unblurPasswordBuffer = '';
     submitUnlocked = false;
     secretUnlocked = false;
     document.getElementById('submitBtn').style.display = 'none';
+    console.log('🔐 Password buffers reset');
     
-    // Reset review tracker
+    // ===== RESET REVIEW TRACKER =====
     reviewCount = 0;
     lastReviewTime = 0;
     reviewHistory = [];
@@ -5732,21 +5999,10 @@ function startExam(studentKey) {
         reviewCounter.textContent = `✏️ Modify Answers: 0/${MAX_REVIEWS}`;
         reviewCounter.style.color = '#1E90FF';
     }
+    console.log('🔄 Review tracker reset');
     
     if (!keyLoaded) {
         alert('Answer key not loaded. Contact admin.');
-        return;
-    }
-
-    // ✅ CHECK: Is examData ready?
-    if (!examData || examData.files.length === 0) {
-        console.log('⚠️ examData is empty, preparing now...');
-        prepareExamData();
-    }
-    
-    // ✅ CHECK AGAIN
-    if (!examData || examData.files.length === 0) {
-        alert('No questions loaded. Please contact administrator.');
         return;
     }
 
@@ -5754,7 +6010,7 @@ function startExam(studentKey) {
     
     if (hasViolations) {
         hasSubmitted = false;
-        console.log('🔄 Previous violations detected.');
+        console.log('🔄 Previous violations detected. Starting fresh exam with submit button visible.');
     }
 
     const stuName = document.getElementById('stuName');
@@ -5763,6 +6019,7 @@ function startExam(studentKey) {
     const stuAdm = document.getElementById('stuAdm');
 
     localStorage.setItem(studentKey, Date.now());
+    prepareExamData();
     
     if (window.pendingRecoveryData) {
         progress = window.pendingRecoveryData.progress;
@@ -5791,8 +6048,6 @@ function startExam(studentKey) {
     
     document.getElementById('studentEntry').style.display = "none";
     document.getElementById('examArea').style.display = "block";
-    
-    // ✅ RENDER THE EXAM
     renderQuestion(); 
     renderPalette(); 
     startTimer(); 
@@ -5813,8 +6068,6 @@ function startExam(studentKey) {
     secretUnlocked = false;
     submitUnlocked = false;
     document.getElementById('submitBtn').style.display = 'none';
-    
-    console.log('✅ Exam started with ' + examData.files.length + ' questions');
 }
 
 function updateQuestionInfo() {
@@ -7398,7 +7651,7 @@ window.addEventListener('load', function() {
   console.log('✅ Active subjects for Google Forms:', ACTIVE_EXAM_SUBJECTS.join(", "));
   
   document.getElementById('accessDenied').style.display = 'flex';
-  document.getElementById('studentEntry').style.display = 'none';
+  document.getElementById('studentEntry').style.display = 'none'; // Hide old entry
   document.getElementById('examArea').style.display = 'none';
   document.getElementById('summaryArea').style.display = 'none';
   document.getElementById('reviewArea').style.display = 'none';
@@ -7412,7 +7665,6 @@ window.addEventListener('load', function() {
   
   (async function() {
     await loadAnswerKey();
-    prepareExamData();
   })();
   
   setTimeout(() => {
@@ -8468,9 +8720,5 @@ document.getElementById('teacherPasswordInput').addEventListener('keypress', fun
 // ===== CLICK OUTSIDE TO CLOSE =====
 document.getElementById('teacherOverlay').addEventListener('click', closeTeacherPanel);
 </script>
- 
- 
-  
-
 </body>
 </html>   
