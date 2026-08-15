@@ -5664,10 +5664,15 @@ function verifyAccessCode() {
     const errorElement = document.getElementById('accessError');
     const accessDenied = document.getElementById('accessDenied');
     
+    // Hide error initially
     errorElement.style.display = 'none';
     
+    // Check if code matches
     if (enteredCode === ACCESS_CODE) {
-        // Try full screen on verify
+        // Correct code - proceed
+        console.log('✅ Access granted');
+        
+        // Try full screen
         const elem = document.documentElement;
         if (elem.requestFullscreen) {
             elem.requestFullscreen().catch(function(err) {});
@@ -5677,12 +5682,16 @@ function verifyAccessCode() {
             elem.mozRequestFullScreen();
         }
         
+        // Hide password page, show student entry
         accessDenied.style.display = 'none';
         document.getElementById('studentEntry').style.display = 'flex';
         document.getElementById('accessCode').value = '';
         document.getElementById('stuName').focus();
     } else {
+        // Wrong code - show error
+        console.log('❌ Wrong password');
         errorElement.style.display = 'block';
+        errorElement.textContent = '❌ Invalid access code. Please try again.';
         document.getElementById('accessCode').value = '';
         document.getElementById('accessCode').focus();
         accessDenied.style.animation = 'shake 0.5s';
