@@ -1492,6 +1492,54 @@ body.anti-sleep-active {
     min-height: calc(100vh - 140px);
     flex-direction: row;
 }
+  /* ===== MODERN PALETTE STYLES ===== */
+.palette-item {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 2px solid #E2E8F0;
+  background: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4A5568;
+  font-family: inherit;
+  min-width: 0;
+  min-height: 0;
+}
+
+.palette-item:hover {
+  transform: scale(1.05);
+  border-color: #2B6CB0;
+  box-shadow: 0 2px 8px rgba(43,108,176,0.15);
+}
+
+.palette-item.active {
+  border-color: #2B6CB0;
+  background: #EBF5FF;
+  color: #2B6CB0;
+}
+
+.palette-item.answered {
+  background: #48BB78;
+  border-color: #48BB78;
+  color: white;
+}
+
+.palette-item.review {
+  background: #F6AD55;
+  border-color: #F6AD55;
+  color: white;
+}
+
+.palette-item.current {
+  border: 3px solid #E53E3E;
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px rgba(229,62,62,0.15);
+}
 .exam-main {
     flex: 1;
     min-width: 0;
