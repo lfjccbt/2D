@@ -5672,7 +5672,17 @@ function generateStudentId(studentData) {
 
 function startWithSecurity(ok) {
   if (!ok) return;
-  
+
+  // ✅ ADD THIS - Prepare data FIRST
+    if (typeof prepareExamData === 'function') {
+        prepareExamData();
+    }
+    
+    // ✅ ADD THIS - Check if data loaded
+    if (!examData || examData.files.length === 0) {
+        alert('No questions loaded. Please wait and try again.');
+        return;
+    }
   console.log('🚀 Starting exam...');
   
   // Force full screen
@@ -5755,6 +5765,17 @@ function startExam(studentKey) {
         return;
     }
 
+     // ✅ ADD THIS - Ensure examData is prepared
+    if (!examData || examData.files.length === 0) {
+        console.log('⚠️ examData is empty, preparing now...');
+        prepareExamData();
+    }
+    
+    // ✅ ADD THIS - Check if still empty
+    if (!examData || examData.files.length === 0) {
+        alert('No questions loaded. Please contact administrator.');
+        return;
+    }
     const hasViolations = localStorage.getItem('hasViolations') === 'true';
     
     if (hasViolations) {
