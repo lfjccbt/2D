@@ -1310,62 +1310,6 @@ button:focus {
 }
 
 
-#resumeExamSection {
-  display: none;
-  margin-top: 20px;
-  padding: 20px;
-  background: #fff3cd;
-  border: 2px solid #ffc107;
-  border-radius: 10px;
-  text-align: center;
-}
-
-#resumeExamSection h3 {
-  color: #856404;
-  margin-bottom: 15px;
-}
-
-.resume-student-info {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  text-align: left;
-  display: inline-block;
-}
-
-.resume-options {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-.resume-btn {
-  padding: 10px 25px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.resume-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-#resumeExamBtn {
-  background: linear-gradient(145deg, #32CD32, #228B22);
-  color: white;
-}
-
-#startNewBtn {
-  background: linear-gradient(145deg, #dc3545, #c82333);
-  color: white;
-}
 
 
 @media (max-width: 600px) {
@@ -2133,53 +2077,6 @@ setInterval(function() {
 </div>
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
-<div id="studentEntry" style="display:none;">
-  <div class="warning-banner" id="examWarning" style="display:none;">
-    <p>⚠️ WARNING: Exam in progress. Do not refresh or close this window!</p>
-  </div>
-  
-  <div class="form-group"><label>NAME</label><input type="text" id="stuName" placeholder="Only letters & spaces" autocomplete="off"></div>
- <div class="form-group"><label>SECTION</label><input type="text" id="stuSection" value="2D" readonly style="background: #f0f0f0; cursor: not-allowed;" autocomplete="off"></div>
-  <div class="form-group"><label>ROLL NUMBER</label><input type="text" id="stuRoll" placeholder="Digits only" autocomplete="off"></div>
-  <div class="form-group"><label>ADMISSION NUMBER</label><input type="text" id="stuAdm" placeholder="Digits only" autocomplete="off"></div>
-
-  
-  
-  
-  <div id="resumeExamSection">
-    <h3>🔄 Exam In Progress Found</h3>
-    <div class="resume-student-info">
-      <p><strong>Student:</strong> <span id="resumeStudentName">Loading...</span></p>
-      <p><strong>Section:</strong> <span id="resumeSection">Loading...</span></p>
-      <p><strong>Progress:</strong> <span id="resumeProgress">Loading...</span></p>
-      <p><strong>Time Left:</strong> <span id="resumeTimeLeft">Loading...</span></p>
-    </div>
-    <p style="margin-bottom: 15px;">You have an exam in progress from a previous session.</p>
-    <div class="resume-options">
-      <button id="resumeExamBtn" class="resume-btn">Continue Exam</button>
-      <button id="startNewBtn" class="resume-btn">Start New Exam</button>
-    </div>
-  </div>
-
- 
-  <div id="resubmissionSection">
-    <h3>🔄 Re-submission Required</h3>
-    <p>You have already submitted within the last 24 hours.</p>
-    <p>To submit again, please enter the re-submission password:</p>
-    <input type="password" id="resubmissionPassword" placeholder="Enter re-submission password">
-    <div>
-      <button id="verifyResubmission" class="resubmit-btn">Verify & Re-submit</button>
-      <button id="cancelResubmission" class="resubmit-btn">Cancel</button>
-    </div>
-  </div>
-
- 
-  <div id="googleFormsStatus" style="display:none;"></div>
-
-  <div class="form-group"><button id="stuStartBtn" style="display:none;">Start Exam</button></div>
-  <p id="studentMsg"></p>
-  <div id="errorMessages"></div>
-</div>
 
 <div id="examArea" style="display:none;">
 <div id="examHeader">
