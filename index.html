@@ -5673,52 +5673,30 @@ function generateStudentId(studentData) {
 function startWithSecurity(ok) {
   if (!ok) return;
 
-  // ✅ CHECK: Is answer key loaded?
-  if (!keyLoaded) {
-    alert('⏳ Answer key is still loading. Please wait a moment and click Start Exam again.');
-    return;
-  }
-
-  // Force full screen
   goFullScreen();
   
   tabSwitchCount = 0;
   lastTabSwitchTime = 0;
   if (systemTrayDetector) systemTrayDetector.reset();
   
-  const stuName = document.getElementById('stuName');
-  const stuSection = document.getElementById('stuSection');
-  const stuRoll = document.getElementById('stuRoll');
-  const stuAdm = document.getElementById('stuAdm');
+  var stuName = document.getElementById('stuName');
+  var stuSection = document.getElementById('stuSection');
+  var stuRoll = document.getElementById('stuRoll');
+  var stuAdm = document.getElementById('stuAdm');
   
   if (!stuName.value.trim() || !stuRoll.value.trim() || !stuAdm.value.trim()) {
     alert('Please fill all fields');
     return;
   }
   
-  const studentKey = `${stuName.value}|${stuSection.value}|${stuRoll.value}|${stuAdm.value}`;
+  var studentKey = stuName.value + '|' + stuSection.value + '|' + stuRoll.value + '|' + stuAdm.value;
   
-  // ✅ PREPARE DATA HERE (only after key is loaded)
-  if (typeof prepareExamData === 'function') {
-    prepareExamData();
-  }
+  prepareExamData();
   
-  // ✅ CHECK IF DATA IS READY
-  if (!examData || examData.files.length === 0) {
-    alert('No questions loaded. Please contact administrator.');
-    return;
-  }
-  
-  // Hide access denied and show exam
   document.getElementById('accessDenied').style.display = 'none';
   document.getElementById('examArea').style.display = 'block';
   
-  if (typeof startExam === 'function') {
-    startExam(studentKey);
-  } else {
-    console.error('startExam function not found');
-    alert('Error starting exam. Please contact administrator.');
-  }
+  startExam(studentKey);
 }
   
   // Hide access denied and show exam
