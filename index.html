@@ -2021,7 +2021,7 @@ setInterval(function() {
 
 <div id="accessDenied" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#F0F2F5;z-index:10000;font-family:Arial,sans-serif;overflow:hidden;padding:0;margin:0;">
 
-<!-- ===== LEFT SIDE (45%) - Always Visible ===== -->
+<!-- ===== LEFT SIDE (45%) - ONLY BRANDING ===== -->
 <div style="position:fixed;left:0;top:0;width:45%;height:100%;background:linear-gradient(160deg,#0A1628,#1A365D,#2B6CB0);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;color:white;z-index:1;">
   <div style="text-align:center;max-width:400px;">
     <div style="font-size:72px;font-weight:700;">2D</div>
@@ -2040,11 +2040,11 @@ setInterval(function() {
   </div>
 </div>
 
-<!-- ===== RIGHT SIDE (55%) - All Forms ===== -->
+<!-- ===== RIGHT SIDE (55%) - ALL FORMS ===== -->
 <div style="position:absolute;left:45%;top:0;width:55%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;background:#F0F2F5;overflow-y:auto;">
   <div style="max-width:420px;width:100%;">
 
-    <!-- WELCOME SCREEN -->
+    <!-- WELCOME -->
     <div id="welcomeScreen" style="background:#FFFFFF;border-radius:20px;padding:35px 30px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
       <div style="font-size:48px;margin-bottom:8px;">🎓</div>
       <div style="font-size:24px;font-weight:700;color:#1A202C;">Welcome to 2D</div>
@@ -2057,7 +2057,7 @@ setInterval(function() {
       <div style="font-size:11px;color:#A0AEC0;margin-top:10px;">Do not refresh</div>
     </div>
 
-    <!-- WAITING SCREEN -->
+    <!-- WAITING -->
     <div id="waitingScreen" style="background:#FFFFFF;border-radius:20px;padding:35px 30px;text-align:center;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
       <div style="font-size:40px;margin-bottom:8px;">⏳</div>
       <div style="font-size:20px;font-weight:600;color:#1A202C;">Please Wait</div>
@@ -2067,10 +2067,9 @@ setInterval(function() {
       <div style="width:100%;height:4px;background:#E2E8F0;border-radius:2px;margin-top:15px;overflow:hidden;">
         <div id="waitingProgressBar" style="width:0%;height:100%;background:#2B6CB0;border-radius:2px;transition:width 0.5s;"></div>
       </div>
-      <div style="font-size:11px;color:#A0AEC0;margin-top:12px;">Do not refresh</div>
     </div>
 
-    <!-- PASSWORD SCREEN -->
+    <!-- PASSWORD -->
     <div id="passwordScreen" style="background:#FFFFFF;border-radius:20px;padding:30px 30px;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
       <div style="font-size:32px;margin-bottom:8px;">🔐</div>
       <h2 style="font-size:20px;font-weight:600;color:#1A202C;margin:0 0 4px 0;">Access Code</h2>
@@ -2081,32 +2080,37 @@ setInterval(function() {
       <div id="accessError" style="display:none;color:#E53E3E;font-size:14px;margin-top:12px;padding:10px;background:#FFF5F5;border-radius:8px;text-align:center;">❌ Invalid code</div>
     </div>
 
-    <!-- STUDENT DETAILS SCREEN -->
+    <!-- ===== STUDENT DETAILS - RIGHT SIDE ===== -->
     <div id="studentDetailsScreen" style="background:#FFFFFF;border-radius:20px;padding:30px 30px;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.04);">
       <div style="font-size:32px;margin-bottom:8px;">👤</div>
       <h2 style="font-size:20px;font-weight:600;color:#1A202C;margin:0 0 4px 0;">Student Details</h2>
       <p style="font-size:14px;color:#718096;margin-bottom:16px;">Please verify your identity</p>
       
+      <!-- NAME -->
       <div style="margin-bottom:10px;">
-        <label style="display:block;font-size:12px;font-weight:600;color:#4A5568;margin-bottom:3px;">Full Name</label>
+        <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Full Name</label>
         <input type="text" id="stuName" style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;" placeholder="Enter your full name">
       </div>
       
+      <!-- SECTION -->
       <div style="margin-bottom:10px;">
-        <label style="display:block;font-size:12px;font-weight:600;color:#4A5568;margin-bottom:3px;">Section</label>
+        <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Section</label>
         <input type="text" id="stuSection" value="2D" readonly style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#EDF2F7;color:#718096;cursor:not-allowed;">
       </div>
       
+      <!-- ROLL NUMBER -->
       <div style="margin-bottom:10px;">
-        <label style="display:block;font-size:12px;font-weight:600;color:#4A5568;margin-bottom:3px;">Roll Number</label>
+        <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Roll Number</label>
         <input type="text" id="stuRoll" style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;" placeholder="Enter roll number">
       </div>
       
+      <!-- ADMISSION NUMBER -->
       <div style="margin-bottom:16px;">
-        <label style="display:block;font-size:12px;font-weight:600;color:#4A5568;margin-bottom:3px;">Admission Number</label>
+        <label style="display:block;font-size:13px;font-weight:600;color:#4A5568;margin-bottom:4px;">Admission Number</label>
         <input type="text" id="stuAdm" style="width:100%;padding:12px;font-size:15px;border:2px solid #E2E8F0;border-radius:10px;outline:none;box-sizing:border-box;background:#F7FAFC;" placeholder="Enter admission number">
       </div>
       
+      <!-- START BUTTON -->
       <button id="stuStartBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#2B6CB0,#1A365D);color:white;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;display:none;">🚀 Start Exam</button>
       <div id="errorMessages" style="margin-top:10px;"></div>
     </div>
