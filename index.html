@@ -2345,7 +2345,10 @@ setInterval(function() {
     </div>
   </div>
 </div>
-
+/* Hide old resume section initially */
+#resumeExamSection {
+    display: none !important;
+}
 <style>
 @keyframes shakeError {
   0%, 100% { transform: translateX(0); }
@@ -2526,6 +2529,82 @@ if (verifyBtn) {
   setTimeout(goFullScreen, 1000);
   setTimeout(goFullScreen, 2000);
 })();
+ // ===== FIX CONTINUE EXAM BUTTON =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Fix the resume exam button
+    const resumeBtn = document.getElementById('resumeExamBtn');
+    if (resumeBtn) {
+        resumeBtn.onclick = function() {
+            // Get saved progress from localStorage
+            const savedProgress = localStorage.getItem('lfjc_exam_progress_v2');
+            if (!savedProgress) {
+                showToast('❌ No saved exam found', 'error', 3000);
+                return;
+            }
+            
+            try {
+                const progressData = JSON.parse(savedProgress);
+                const student = progressData.progress.student;
+                
+                // Fill the student details form
+                document.getElementById('stuName').value = student.name || '';
+                document.getElementById('stuSection').value = student.sec || '2D';
+                document.getElementById('stuRoll').value = student.roll || '';
+                document.getElementById('stuAdm').value = student.adm || '';
+                
+                // Hide access denied and show student entry
+                document.getElementById('accessDenied').style.display = 'none';
+                document.getElementById('studentEntry').style.display = 'flex';
+                
+                // Show the resume section
+                document.getElementById('resumeExamSection').style.display = 'block';
+                
+                // Update resume info
+                const answered = progressData.progress.answers.filter(a => a !== null).length;
+                const total = progressData.progress.answers.length;
+                document.getElementById('resumeProgress').textContent = `${answered}/${total} questions`;
+                
+                // Store recovery data
+                window.pendingRecoveryData = progressData;
+                
+                // Update the "Continue Exam" button in the student entry to use recovery
+                const startBtn = document.getElementById('stuStartBtn');
+                if (startBtn) {
+                    startBtn.style.display = 'inline-block';
+                    startBtn.textContent = 'Continue Exam';
+                    startBtn.onclick = function() {
+                        if (window.pendingRecoveryData) {
+                            // Use the existing startExamWithRecovery function
+                            if (typeof startExamWithRecovery === 'function') {
+                                startExamWithRecovery(window.pendingRecoveryData);
+                            } else {
+                                // Fallback: use startExam
+                                const name = document.getElementById('stuName').value.trim();
+                                const section = document.getElementById('stuSection').value.trim();
+                                const roll = document.getElementById('stuRoll').value.trim();
+                                const adm = document.getElementById('stuAdm').value.trim();
+                                const studentKey = `${name}|${section}|${roll}|${adm}`;
+                                
+                                document.getElementById('accessDenied').style.display = 'none';
+                                document.getElementById('examArea').style.display = 'block';
+                                
+                                if (typeof startExam === 'function') {
+                                    startExam(studentKey);
+                                }
+                            }
+                        }
+                    };
+                }
+                
+                showToast('✅ Exam found! Click "Continue Exam" to resume.', 'success', 4000);
+                
+            } catch (error) {
+                console.error('Error resuming exam:', error);
+                showToast('❌ Error loading saved exam', 'error', 3000);
+            }
+        };
+    }
+});       
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
 <div id="studentEntry" style="display:none;">
