@@ -2120,51 +2120,101 @@ setInterval(function() {
         const waitTime = Math.floor(Math.random() * 41) + 5;
         console.log(`⏳ Delay: ${waitTime} seconds`);
 
-        // Create the loading screen overlay
+        // Create the loading screen overlay - LEFT-RIGHT STYLE
         const loading = document.createElement('div');
         loading.id = 'delay-loading';
         loading.style.cssText = `
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(145deg, #E6E6FA, #af82ba);
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-            z-index: 999999; font-family: 'SF Pro Display', Arial, sans-serif; 
-            color: #4B0082; text-align: center; padding: 20px;
+            display: flex;
+            z-index: 999999;
+            font-family: 'SF Pro Display', Arial, sans-serif;
         `;
         loading.innerHTML = `
-            <div style="max-width: 500px;">
-                <h1 style="font-size: 4.8em; margin-bottom: 10px; color: #4B0082;">2D</h1>
-                <h1 style="font-size: 2.8em; margin-bottom: 10px; color: #4B0082;">🎓 Welcome to LFJC ONLINE EXAMINATION</h1>
-                <p style="font-size: 1.2em; color: #5a2d82; margin-bottom: 30px;">Please wait while we prepare your exam...</p>
-                
-                <!-- Spinner -->
-                <div style="width: 60px; height: 60px; border: 5px solid #f3f3f3; 
-                            border-top: 5px solid #4B0082; border-radius: 50%; 
-                            animation: spin 1s linear infinite; margin: 20px auto;">
+            <!-- LEFT SIDE: SLIDER (65%) -->
+            <div style="flex:0 0 65%; background:linear-gradient(145deg, #af82ba, #E6E6FA); display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:30px; left:40px; font-size:28px; font-weight:700; color:#4B0082; z-index:10;">📚 LFJC</div>
+                <div style="position:relative; z-index:5; text-align:center; color:white; max-width:500px; padding:40px; background:rgba(75,0,130,0.3); backdrop-filter:blur(10px); border-radius:20px; border:1px solid rgba(255,255,255,0.2);">
+                    <div style="font-size:60px; margin-bottom:15px;">⏳</div>
+                    <h1 style="font-size:38px; font-weight:800; color:white; margin-bottom:10px; text-shadow:0 2px 10px rgba(0,0,0,0.3);">Preparing Your Exam</h1>
+                    <p style="font-size:18px; opacity:0.9; color:white;">Please wait while we set up your test</p>
+                    <div style="width:60px; height:60px; border:5px solid rgba(255,255,255,0.3); border-top:5px solid white; border-radius:50%; animation:spin 1s linear infinite; margin:30px auto;"></div>
+                    <div style="margin-top:20px; background:rgba(255,255,255,0.2); padding:8px 20px; border-radius:30px; font-size:14px; display:inline-block;">🔒 Secure Connection</div>
                 </div>
-                
-                <!-- Countdown Timer -->
-                <p style="font-size: 1.5em; font-weight: bold; margin-top: 20px;">
-                    ⏳ <span id="delay-timer">${waitTime}</span> seconds remaining
-                </p>
-                <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Do not refresh the page</p>
-                
-                <!-- Full Screen Button on Loading Screen -->
-                <button id="loadingFullScreenBtn" style="
-                    background: #4B0082; 
-                    color: white; 
-                    padding: 15px 40px; 
-                    font-size: 18px; 
-                    border-radius: 10px; 
-                    border: none; 
-                    cursor: pointer; 
-                    margin-top: 20px;
-                    font-weight: bold;
-                    box-shadow: 0 4px 15px rgba(75,0,130,0.3);
-                ">🖥️ CLICK TO CONTINUE </button>
+            </div>
+            
+            <!-- RIGHT SIDE: WELCOME (35%) -->
+            <div style="flex:0 0 35%; background:white; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px;">
+                <div style="max-width:400px; text-align:center; width:100%;">
+                    <div style="font-size:70px; margin-bottom:10px;">🎓</div>
+                    <h1 style="font-size:3em; background:linear-gradient(145deg, #4B0082, #8A2BE2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:900; margin-bottom:5px;">2D</h1>
+                    <h2 style="color:#4B0082; font-size:24px; font-weight:700; margin-bottom:10px;">LFJC ONLINE EXAMINATION</h2>
+                    <p style="color:#666; font-size:16px; margin-bottom:30px;">Your exam is being prepared</p>
+                    
+                    <div style="background:#f8f6fc; border-radius:12px; padding:20px; margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
+                            <span style="color:#888;">⏳ Time Remaining</span>
+                            <span style="font-weight:bold; color:#4B0082;"><span id="delay-timer">${waitTime}</span> seconds</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; padding:8px 0;">
+                            <span style="color:#888;">📋 Status</span>
+                            <span style="font-weight:bold; color:#32CD32;">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <button id="loadingFullScreenBtn" style="width:100%; padding:14px; background:linear-gradient(145deg, #4B0082, #8A2BE2); color:white; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 15px rgba(75,0,130,0.3); transition:all 0.3s ease;">
+                        🖥️ Enter Full Screen
+                    </button>
+                    <p style="font-size:12px; color:#aaa; margin-top:10px;">Do not refresh the page</p>
+                </div>
             </div>
         `;
         document.body.appendChild(loading);
 
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+        document.head.appendChild(style);
+
+        // Countdown timer
+        let seconds = waitTime;
+        const timer = document.getElementById('delay-timer');
+        const interval = setInterval(() => {
+            seconds--;
+            if (timer) timer.textContent = seconds;
+            if (seconds <= 0) clearInterval(interval);
+        }, 1000);
+
+        // Full Screen Button on Loading Screen
+        document.getElementById('loadingFullScreenBtn').addEventListener('click', function() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().then(function() {
+                    this.textContent = '✅ Full Screen Active';
+                    this.style.background = '#32CD32';
+                }.bind(this)).catch(function() {
+                    alert('Please click "Allow" to enable full screen mode.');
+                });
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        });
+
+        // After delay, remove loading screen
+        setTimeout(() => {
+            const el = document.getElementById('delay-loading');
+            if (el) el.remove();
+            console.log('✅ Delay complete. Your exam page is now visible.');
+            
+            setTimeout(goFullScreen, 100);
+            setTimeout(goFullScreen, 500);
+            setTimeout(goFullScreen, 1000);
+        }, waitTime * 1000);
+    })();
+</script>
         // Add spin animation
         const style = document.createElement('style');
         style.textContent = `@keyframes spin { 
@@ -2283,49 +2333,82 @@ setInterval(function() {
     </div>
 </div>
 
-<div id="studentEntry" style="display:none;">
-  
-  <div class="form-group"><label>NAME</label><input type="text" id="stuName" placeholder="Only letters & spaces" autocomplete="off"></div>
- <div class="form-group"><label>SECTION</label><input type="text" id="stuSection" value="2D" readonly style="background: #f0f0f0; cursor: not-allowed;" autocomplete="off"></div>
-  <div class="form-group"><label>ROLL NUMBER</label><input type="text" id="stuRoll" placeholder="Digits only" autocomplete="off"></div>
-  <div class="form-group"><label>ADMISSION NUMBER</label><input type="text" id="stuAdm" placeholder="Digits only" autocomplete="off"></div>
-
-  
-  
-  
-  <div id="resumeExamSection">
-    <h3>🔄 Exam In Progress Found</h3>
-    <div class="resume-student-info">
-      <p><strong>Student:</strong> <span id="resumeStudentName">Loading...</span></p>
-      <p><strong>Section:</strong> <span id="resumeSection">Loading...</span></p>
-      <p><strong>Progress:</strong> <span id="resumeProgress">Loading...</span></p>
-      <p><strong>Time Left:</strong> <span id="resumeTimeLeft">Loading...</span></p>
+<!-- ===== STUDENT ENTRY - LEFT-RIGHT STYLE ===== -->
+<div id="studentEntry" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:10001; background:white;">
+    <div style="display:flex; width:100%; height:100%;">
+        <!-- LEFT SIDE: SLIDER (65%) -->
+        <div style="flex:0 0 65%; background:linear-gradient(145deg, #af82ba, #E6E6FA); position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px;">
+            <div style="position:absolute; top:30px; left:40px; font-size:28px; font-weight:700; color:#4B0082; z-index:10;">📚 LFJC</div>
+            <div style="position:relative; z-index:5; text-align:center; color:white; max-width:500px; padding:40px; background:rgba(75,0,130,0.3); backdrop-filter:blur(10px); border-radius:20px; border:1px solid rgba(255,255,255,0.2);">
+                <h1 style="font-size:38px; font-weight:800; color:white; margin-bottom:15px; text-shadow:0 2px 10px rgba(0,0,0,0.3);">Student Verification</h1>
+                <p style="font-size:18px; opacity:0.9; color:white;">Enter your details to begin the exam</p>
+                <div style="margin-top:20px; background:rgba(255,255,255,0.2); padding:8px 20px; border-radius:30px; font-size:14px; display:inline-block;">🔒 Secure & Proctored</div>
+            </div>
+        </div>
+        
+        <!-- RIGHT SIDE: FORM (35%) -->
+        <div style="flex:0 0 35%; display:flex; align-items:center; justify-content:center; padding:40px; background:white; overflow-y:auto;">
+            <div style="width:100%; max-width:400px;">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <img src="uploads/myskoolcom/myskoolcom_logo.jpg" alt="Logo" width="100">
+                    <h2 style="color:#4B0082; font-weight:700; font-size:22px; margin-top:10px; margin-bottom:5px;">Student Details</h2>
+                    <p style="color:#888; font-size:14px;">Please fill in your information</p>
+                </div>
+                
+                <div id="errorMessages" style="margin-bottom:15px;"></div>
+                
+                <div style="margin-bottom:20px;">
+                    <label style="font-weight:600; color:#4B0082; font-size:14px; display:block; margin-bottom:5px;">NAME</label>
+                    <input type="text" id="stuName" placeholder="Only letters & spaces" autocomplete="off" style="width:100%; padding:12px 16px; border:2px solid #e0d6f0; border-radius:10px; font-size:15px; box-sizing:border-box; transition:all 0.3s ease; background:#faf8ff;">
+                </div>
+                
+                <div style="margin-bottom:20px;">
+                    <label style="font-weight:600; color:#4B0082; font-size:14px; display:block; margin-bottom:5px;">SECTION</label>
+                    <input type="text" id="stuSection" value="2D" readonly style="width:100%; padding:12px 16px; border:2px solid #e0d6f0; border-radius:10px; font-size:15px; box-sizing:border-box; background:#f0f0f0; cursor:not-allowed;">
+                </div>
+                
+                <div style="margin-bottom:20px;">
+                    <label style="font-weight:600; color:#4B0082; font-size:14px; display:block; margin-bottom:5px;">ROLL NUMBER</label>
+                    <input type="text" id="stuRoll" placeholder="Digits only" autocomplete="off" style="width:100%; padding:12px 16px; border:2px solid #e0d6f0; border-radius:10px; font-size:15px; box-sizing:border-box; transition:all 0.3s ease; background:#faf8ff;">
+                </div>
+                
+                <div style="margin-bottom:25px;">
+                    <label style="font-weight:600; color:#4B0082; font-size:14px; display:block; margin-bottom:5px;">ADMISSION NUMBER</label>
+                    <input type="text" id="stuAdm" placeholder="Digits only" autocomplete="off" style="width:100%; padding:12px 16px; border:2px solid #e0d6f0; border-radius:10px; font-size:15px; box-sizing:border-box; transition:all 0.3s ease; background:#faf8ff;">
+                </div>
+                
+                <!-- Resume Exam Section -->
+                <div id="resumeExamSection" style="display:none; background:#fff3cd; border:2px solid #ffc107; border-radius:10px; padding:15px; margin-bottom:20px; text-align:center;">
+                    <h3 style="color:#856404; margin-bottom:10px; font-size:16px;">🔄 Exam In Progress Found</h3>
+                    <div class="resume-student-info" style="background:white; padding:12px; border-radius:8px; margin:10px 0; text-align:left; font-size:14px;">
+                        <p><strong>Student:</strong> <span id="resumeStudentName">Loading...</span></p>
+                        <p><strong>Progress:</strong> <span id="resumeProgress">Loading...</span></p>
+                        <p><strong>Time Left:</strong> <span id="resumeTimeLeft">Loading...</span></p>
+                    </div>
+                    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                        <button id="resumeExamBtn" style="padding:10px 25px; background:linear-gradient(145deg, #32CD32, #228B22); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Continue Exam</button>
+                        <button id="startNewBtn" style="padding:10px 25px; background:linear-gradient(145deg, #dc3545, #c82333); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Start New</button>
+                    </div>
+                </div>
+                
+                <!-- Resubmission Section -->
+                <div id="resubmissionSection" style="display:none; background:#fff3cd; border:2px solid #ffc107; border-radius:10px; padding:15px; margin-bottom:20px; text-align:center;">
+                    <h3 style="color:#856404; margin-bottom:10px; font-size:16px;">🔄 Re-submission Required</h3>
+                    <p style="font-size:14px; color:#856404;">Enter re-submission password:</p>
+                    <input type="password" id="resubmissionPassword" placeholder="Enter password" style="padding:10px; border:1px solid #ffc107; border-radius:5px; margin:10px 0; width:100%; box-sizing:border-box;">
+                    <div style="display:flex; gap:10px; justify-content:center;">
+                        <button id="verifyResubmission" style="padding:10px 20px; background:linear-gradient(145deg, #ffc107, #e0a800); color:#856404; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Verify</button>
+                        <button id="cancelResubmission" style="padding:10px 20px; background:#6c757d; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Cancel</button>
+                    </div>
+                </div>
+                
+                <button id="stuStartBtn" style="display:none; width:100%; padding:14px; background:linear-gradient(145deg, #4B0082, #8A2BE2); color:white; border:none; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer; box-shadow:0 4px 15px rgba(75,0,130,0.3); transition:all 0.3s ease;">Start Exam</button>
+                
+                <div id="googleFormsStatus" style="display:none;"></div>
+                <p id="studentMsg"></p>
+            </div>
+        </div>
     </div>
-    <p style="margin-bottom: 15px;">You have an exam in progress from a previous session.</p>
-    <div class="resume-options">
-      <button id="resumeExamBtn" class="resume-btn">Continue Exam</button>
-      <button id="startNewBtn" class="resume-btn">Start New Exam</button>
-    </div>
-  </div>
-
- 
-  <div id="resubmissionSection">
-    <h3>🔄 Re-submission Required</h3>
-    <p>You have already submitted within the last 24 hours.</p>
-    <p>To submit again, please enter the re-submission password:</p>
-    <input type="password" id="resubmissionPassword" placeholder="Enter re-submission password">
-    <div>
-      <button id="verifyResubmission" class="resubmit-btn">Verify & Re-submit</button>
-      <button id="cancelResubmission" class="resubmit-btn">Cancel</button>
-    </div>
-  </div>
-
- 
-  <div id="googleFormsStatus" style="display:none;"></div>
-
-  <div class="form-group"><button id="stuStartBtn" style="display:none;">Start Exam</button></div>
-  <p id="studentMsg"></p>
-  <div id="errorMessages"></div>
 </div>
 
 <div id="examArea" style="display:none;">
