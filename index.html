@@ -8580,44 +8580,51 @@ document.getElementById('teacherPasswordInput').addEventListener('keypress', fun
 // ===== CLICK OUTSIDE TO CLOSE =====
 document.getElementById('teacherOverlay').addEventListener('click', closeTeacherPanel);
 </script>
-  <script>
+ <script>
 // ===== FIX: VERIFY ACCESS BUTTON =====
 (function() {
     console.log('🔧 Fixing verify access button...');
     
-    // Get the button and input elements
-    const verifyBtn = document.getElementById('verifyAccess');
-    const accessInput = document.getElementById('accessCode');
-    const errorElement = document.getElementById('accessError');
-    const accessDenied = document.getElementById('accessDenied');
-    
-    // Remove any existing listeners by cloning
-    if (verifyBtn) {
+    // Wait for DOM to be ready
+    function initVerifyButton() {
+        // Get the button and input elements
+        const verifyBtn = document.getElementById('verifyAccess');
+        const accessInput = document.getElementById('accessCode');
+        const errorElement = document.getElementById('accessError');
+        const accessDenied = document.getElementById('accessDenied');
+        const studentEntry = document.getElementById('studentEntry');
+        
+        if (!verifyBtn) {
+            console.log('⚠️ Verify button not found, retrying...');
+            setTimeout(initVerifyButton, 500);
+            return;
+        }
+        
+        // Remove old listeners by cloning
         const newBtn = verifyBtn.cloneNode(true);
         verifyBtn.parentNode.replaceChild(newBtn, verifyBtn);
         
-        // Add click event to the new button
+        // Add click event
         newBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            const enteredCode = accessInput.value.trim();
+            const enteredCode = accessInput ? accessInput.value.trim() : '';
             console.log('🔐 Verify clicked, entered:', enteredCode);
             
-            // Hide error initially
             if (errorElement) {
                 errorElement.style.display = 'none';
             }
             
-            // Check if code matches
-            if (enteredCode === 'lfjc2025') {
+            // Use the ACCESS_CODE variable or hardcode
+            const correctCode = typeof ACCESS_CODE !== 'undefined' ? ACCESS_CODE : 'lfjc2025';
+            
+            if (enteredCode === correctCode) {
                 console.log('✅ Access granted');
                 
-                // Hide password page, show student entry
                 if (accessDenied) {
                     accessDenied.style.display = 'none';
                 }
-                const studentEntry = document.getElementById('studentEntry');
                 if (studentEntry) {
                     studentEntry.style.display = 'flex';
                 }
@@ -8626,20 +8633,21 @@ document.getElementById('teacherOverlay').addEventListener('click', closeTeacher
                 }
                 const stuName = document.getElementById('stuName');
                 if (stuName) {
-                    stuName.focus();
+                    setTimeout(function() { stuName.focus(); }, 100);
                 }
             } else {
                 console.log('❌ Wrong password');
                 if (errorElement) {
                     errorElement.style.display = 'block';
                     errorElement.textContent = '❌ Invalid access code. Please try again.';
+                    errorElement.style.animation = 'appleShake 0.4s ease';
                 }
                 if (accessInput) {
                     accessInput.value = '';
-                    accessInput.focus();
+                    setTimeout(function() { accessInput.focus(); }, 100);
                 }
                 if (accessDenied) {
-                    accessDenied.style.animation = 'shake 0.5s';
+                    accessDenied.style.animation = 'appleShake 0.5s';
                     setTimeout(function() {
                         accessDenied.style.animation = '';
                     }, 500);
@@ -8647,52 +8655,34 @@ document.getElementById('teacherOverlay').addEventListener('click', closeTeacher
             }
         });
         
-        console.log('✅ Verify button fixed');
-    }
-    
-    // Fix Enter key on password input
-    if (accessInput) {
-        const newInput = accessInput.cloneNode(true);
-        accessInput.parentNode.replaceChild(newInput, accessInput);
-        
-        newInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                console.log('🔐 Enter key pressed');
-                // Trigger the verify button click
-                const btn = document.getElementById('verifyAccess');
-                if (btn) {
-                    btn.click();
+        // Fix Enter key on password input
+        if (accessInput) {
+            const newInput = accessInput.cloneNode(true);
+            accessInput.parentNode.replaceChild(newInput, accessInput);
+            
+            newInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔐 Enter key pressed');
+                    const btn = document.getElementById('verifyAccess');
+                    if (btn) {
+                        btn.click();
+                    }
                 }
-            }
-        });
+            });
+        }
         
-        console.log('✅ Enter key fixed');
+        console.log('✅ Verify button fully fixed');
     }
     
-    // Also fix the "Ready" button (full screen)
-    const readyBtn = document.getElementById('enterFullScreenBtn');
-    if (readyBtn) {
-        const newReadyBtn = readyBtn.cloneNode(true);
-        readyBtn.parentNode.replaceChild(newReadyBtn, readyBtn);
-        
-        newReadyBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('🖥️ Ready button clicked');
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(function(err) {});
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            } else if (elem.mozRequestFullScreen) {
-                elem.mozRequestFullScreen();
-            } else if (elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
-            }
-        });
+    // Start the fix
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVerifyButton);
+    } else {
+        initVerifyButton();
     }
     
-    console.log('✅ All fixes applied');
 })();
 </script>
 </body>
