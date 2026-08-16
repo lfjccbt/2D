@@ -5659,9 +5659,10 @@ function renderPalette() {
     btn.setAttribute('data-index', i);
     
     if (examData.questionTypes[i] === 'fill-blank') {
-      btn.style.background = '#FFD700';
-      btn.style.color = '#000';
-    }
+  btn.style.background = '#4A90D9';
+  btn.style.color = 'white';
+  btn.style.borderColor = '#2C6B9E';
+}
     
     if (progress.answers[i] !== null) btn.classList.add('selected');
     if (progress.review[i]) btn.classList.add('reviewed');
@@ -6777,30 +6778,29 @@ function submitExam() {
         };
         
         const ans = progress.answers[i];
-        const questionType = examData.questionTypes[i];
-        
-        if (questionType === 'mcq') {
-            subjData[subjectName].mcq.total++;
-        } else {
-            subjData[subjectName].fillBlank.total++;
-        }
-        
-        if (ans === null) {
-            subjData[subjectName].blank++;
-        } else if (ans === examData.keys[i]) {
-            subjData[subjectName].correct++;
-            subjData[subjectName].marks += MARK_PER_CORRECT;
-            
-            if (questionType === 'mcq') {
-                subjData[subjectName].mcq.correct++;
-            } else {
-                subjData[subjectName].fillBlank.correct++;
-            }
-        } else {
-            subjData[subjectName].wrong++;
-            subjData[subjectName].marks += MARK_PER_WRONG;
-        }
-        subjData[subjectName].total++;
+const questionType = examData.questionTypes[i];
+const isCorrect = ans === examData.keys[i];
+
+// Count by type
+if (questionType === 'mcq') {
+  subjData[subjectName].mcq.total++;
+  if (isCorrect) subjData[subjectName].mcq.correct++;
+} else if (questionType === 'fill-blank') {
+  subjData[subjectName].fillBlank.total++;
+  if (isCorrect) subjData[subjectName].fillBlank.correct++;
+}
+
+// Count overall
+if (ans === null || ans === '' || ans === undefined) {
+  subjData[subjectName].blank++;
+} else if (isCorrect) {
+  subjData[subjectName].correct++;
+  subjData[subjectName].marks += MARK_PER_CORRECT;
+} else {
+  subjData[subjectName].wrong++;
+  subjData[subjectName].marks += MARK_PER_WRONG;
+}
+subjData[subjectName].total++;
     });
 
     currentSubjData = subjData;
