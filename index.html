@@ -8580,110 +8580,99 @@ document.getElementById('teacherPasswordInput').addEventListener('keypress', fun
 // ===== CLICK OUTSIDE TO CLOSE =====
 document.getElementById('teacherOverlay').addEventListener('click', closeTeacherPanel);
 </script>
- <script>
-// ===== FIX: VERIFY ACCESS BUTTON =====
-(function() {
-    console.log('🔧 Fixing verify access button...');
+<script>
+// ===== SIMPLE FIX: VERIFY ACCESS BUTTON =====
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Setting up verify access button...');
     
-    // Wait for DOM to be ready
-    function initVerifyButton() {
-        // Get the button and input elements
-        const verifyBtn = document.getElementById('verifyAccess');
-        const accessInput = document.getElementById('accessCode');
-        const errorElement = document.getElementById('accessError');
-        const accessDenied = document.getElementById('accessDenied');
-        const studentEntry = document.getElementById('studentEntry');
+    // Get elements
+    const verifyBtn = document.getElementById('verifyAccess');
+    const accessInput = document.getElementById('accessCode');
+    const errorElement = document.getElementById('accessError');
+    const accessDenied = document.getElementById('accessDenied');
+    const studentEntry = document.getElementById('studentEntry');
+    
+    if (!verifyBtn) {
+        console.error('❌ Verify button not found!');
+        return;
+    }
+    
+    // Remove all existing listeners by cloning
+    const newBtn = verifyBtn.cloneNode(true);
+    verifyBtn.parentNode.replaceChild(newBtn, verifyBtn);
+    
+    // Add click handler
+    newBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         
-        if (!verifyBtn) {
-            console.log('⚠️ Verify button not found, retrying...');
-            setTimeout(initVerifyButton, 500);
-            return;
+        const enteredCode = accessInput ? accessInput.value.trim() : '';
+        console.log('🔐 Verify clicked, entered:', enteredCode);
+        
+        // Hide error
+        if (errorElement) {
+            errorElement.style.display = 'none';
         }
         
-        // Remove old listeners by cloning
-        const newBtn = verifyBtn.cloneNode(true);
-        verifyBtn.parentNode.replaceChild(newBtn, verifyBtn);
-        
-        // Add click event
-        newBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+        // Check code (hardcoded for reliability)
+        if (enteredCode === 'lfjc2025') {
+            console.log('✅ Access granted');
             
-            const enteredCode = accessInput ? accessInput.value.trim() : '';
-            console.log('🔐 Verify clicked, entered:', enteredCode);
-            
-            if (errorElement) {
-                errorElement.style.display = 'none';
+            // Hide access page, show student entry
+            if (accessDenied) {
+                accessDenied.style.display = 'none';
             }
-            
-            // Use the ACCESS_CODE variable or hardcode
-            const correctCode = typeof ACCESS_CODE !== 'undefined' ? ACCESS_CODE : 'lfjc2025';
-            
-            if (enteredCode === correctCode) {
-                console.log('✅ Access granted');
-                
-                if (accessDenied) {
-                    accessDenied.style.display = 'none';
-                }
-                if (studentEntry) {
-                    studentEntry.style.display = 'flex';
-                }
-                if (accessInput) {
-                    accessInput.value = '';
-                }
-                const stuName = document.getElementById('stuName');
-                if (stuName) {
-                    setTimeout(function() { stuName.focus(); }, 100);
-                }
-            } else {
-                console.log('❌ Wrong password');
-                if (errorElement) {
-                    errorElement.style.display = 'block';
-                    errorElement.textContent = '❌ Invalid access code. Please try again.';
-                    errorElement.style.animation = 'appleShake 0.4s ease';
-                }
-                if (accessInput) {
-                    accessInput.value = '';
-                    setTimeout(function() { accessInput.focus(); }, 100);
-                }
-                if (accessDenied) {
-                    accessDenied.style.animation = 'appleShake 0.5s';
-                    setTimeout(function() {
-                        accessDenied.style.animation = '';
-                    }, 500);
+            if (studentEntry) {
+                studentEntry.style.display = 'flex';
+            }
+            if (accessInput) {
+                accessInput.value = '';
+            }
+            // Focus on name field
+            const stuName = document.getElementById('stuName');
+            if (stuName) {
+                setTimeout(function() { stuName.focus(); }, 200);
+            }
+        } else {
+            console.log('❌ Wrong password');
+            if (errorElement) {
+                errorElement.style.display = 'block';
+                errorElement.textContent = '❌ Invalid access code. Please try again.';
+            }
+            if (accessInput) {
+                accessInput.value = '';
+                setTimeout(function() { accessInput.focus(); }, 200);
+            }
+            // Shake animation
+            if (accessDenied) {
+                accessDenied.style.animation = 'appleShake 0.5s';
+                setTimeout(function() {
+                    accessDenied.style.animation = '';
+                }, 500);
+            }
+        }
+    });
+    
+    // Enter key on access input
+    if (accessInput) {
+        const newInput = accessInput.cloneNode(true);
+        accessInput.parentNode.replaceChild(newInput, accessInput);
+        
+        newInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔐 Enter key pressed');
+                const btn = document.getElementById('verifyAccess');
+                if (btn) {
+                    btn.click();
                 }
             }
         });
-        
-        // Fix Enter key on password input
-        if (accessInput) {
-            const newInput = accessInput.cloneNode(true);
-            accessInput.parentNode.replaceChild(newInput, accessInput);
-            
-            newInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🔐 Enter key pressed');
-                    const btn = document.getElementById('verifyAccess');
-                    if (btn) {
-                        btn.click();
-                    }
-                }
-            });
-        }
-        
-        console.log('✅ Verify button fully fixed');
     }
     
-    // Start the fix
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initVerifyButton);
-    } else {
-        initVerifyButton();
-    }
-    
-})();
+    console.log('✅ Verify button fix applied successfully');
+});
 </script>
 </body>
 </html>   
