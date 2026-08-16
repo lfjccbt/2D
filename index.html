@@ -1762,22 +1762,30 @@ body.anti-sleep-active {
     font-size: 14px;
     margin-top: 8px;
 }
-/* ============================================================ */
-/* ===== LEFT-RIGHT LAYOUT STYLES ===== */
-/* ============================================================ */
-
-.main-wrapper {
-    display: flex;
-    flex-wrap: wrap;
+  /* ===== LEFT-RIGHT ACCESS SCREEN ===== */
+.access-denied {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
     min-height: 100vh;
+    background: #f2f2f2;
+    padding: 0;
+    margin: 0;
 }
 
-/* LEFT SIDE - SLIDER */
-.slider-area {
-    position: relative;
+.access-wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    background: white;
+}
+
+/* LEFT SLIDER */
+.access-slider {
     flex: 0 0 65%;
     min-height: 100vh;
     background: linear-gradient(145deg, #af82ba, #E6E6FA);
+    position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1786,7 +1794,7 @@ body.anti-sleep-active {
     padding: 40px;
 }
 
-.slider-area .brand {
+.access-slider .brand {
     position: absolute;
     top: 30px;
     left: 40px;
@@ -1794,9 +1802,46 @@ body.anti-sleep-active {
     font-weight: 700;
     color: #4B0082;
     z-index: 10;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.3);
 }
 
+.access-slider .slider-content {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    color: white;
+    max-width: 500px;
+    padding: 40px;
+    background: rgba(75, 0, 130, 0.3);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.access-slider .slider-content h1 {
+    font-size: 38px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.access-slider .slider-content p {
+    font-size: 18px;
+    opacity: 0.9;
+    margin: 5px 0;
+    color: white;
+}
+
+.access-slider .slider-content .secure-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* SLIDE IMAGES */
 .slide-image {
     position: absolute;
     top: -100%;
@@ -1820,118 +1865,131 @@ body.anti-sleep-active {
     100% { top: 0; opacity: 1; }
 }
 
-.slider-area .overlay-content {
-    position: relative;
-    z-index: 5;
-    text-align: center;
-    color: white;
-    max-width: 500px;
-    padding: 40px;
-    background: rgba(75, 0, 130, 0.3);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.2);
-    animation: fadeInUp 1s ease;
-}
-
-.slider-area .overlay-content h1 {
-    font-size: 42px;
-    font-weight: 800;
-    color: white;
-    margin-bottom: 15px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-.slider-area .overlay-content p {
-    font-size: 18px;
-    opacity: 0.9;
-    margin-bottom: 5px;
-}
-
-.slider-area .overlay-content .badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.2);
-    padding: 8px 20px;
-    border-radius: 30px;
-    font-size: 14px;
-    margin-top: 10px;
-    backdrop-filter: blur(5px);
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* RIGHT SIDE - LOGIN */
-.login-section {
+/* RIGHT FORM */
+.access-form {
     flex: 0 0 35%;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    background: #ffffff;
+    padding: 40px;
+    background: white;
 }
 
-.login-box {
+.form-container {
     width: 100%;
     max-width: 400px;
-    padding: 2rem;
-    border-radius: 1rem;
-    background: #fff;
-    box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
-.login-box .logo {
+.form-container .logo {
     text-align: center;
     margin-bottom: 20px;
 }
 
-.login-box .logo img {
+.form-container .logo img {
     max-width: 120px;
-    height: auto;
 }
 
-.login-box h2 {
+.form-container h2 {
     color: #4B0082;
     font-weight: 700;
     font-size: 24px;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
 }
 
-.login-box .subtitle {
+.form-container .subtitle {
     text-align: center;
     color: #888;
     font-size: 14px;
     margin-bottom: 25px;
 }
 
+.fs-btn {
+    width: 100%;
+    padding: 12px;
+    background: #4B0082;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.fs-btn:hover {
+    background: #6a1b9a;
+    transform: translateY(-2px);
+}
+
+.access-input {
+    width: 100%;
+    padding: 14px 20px;
+    border: 2px solid #e0d6f0;
+    border-radius: 10px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.access-input:focus {
+    border-color: #4B0082;
+    box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.1);
+    outline: none;
+}
+
+.access-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(145deg, #4B0082, #8A2BE2);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(75, 0, 130, 0.3);
+}
+
+.access-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(75, 0, 130, 0.4);
+}
+
+.access-error {
+    color: #dc3545;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
-    .main-wrapper {
+    .access-wrapper {
         flex-direction: column;
     }
     
-    .slider-area {
-        flex: 0 0 50vh;
-        min-height: 50vh;
+    .access-slider {
+        flex: 0 0 40vh;
+        min-height: 40vh;
     }
     
-    .login-section {
-        flex: 0 0 50vh;
-        min-height: 50vh;
+    .access-form {
+        flex: 0 0 60vh;
+        min-height: 60vh;
     }
     
-    .slider-area .overlay-content h1 {
+    .access-slider .slider-content h1 {
         font-size: 28px;
     }
+    
+    .access-slider .slider-content {
+        padding: 20px;
+    }
 }
-
-/* ============================================================ */
-/* ===== END LEFT-RIGHT LAYOUT ===== */
-/* ============================================================ */  
 </style>
 </head>
 
@@ -2191,17 +2249,39 @@ setInterval(function() {
 </div>
 
 
-<div id="accessDenied" class="access-denied">
-  <h1>2D</h1>
- <h1>LFJC ONLINE EXAMINATION</h1>
-    <p style="font-size: 1.2em; margin: 10px 0;" id="totalQuestionsDisplay">Loading...</p>
-    <div id="subjectBreakdownDisplay"></div>
-  <p style="margin: 10px 0; font-weight: bold;" id="correctMarkDisplay">CORRECT ANSWER +4  MARKS</p>  
-  <p style="margin: 5px 0; font-weight: bold;" id="wrongMarkDisplay">WRONG ANSWER -1 MARK</p>
-    <button id="enterFullScreenBtn" class="verify-btn" style="background: #4B0082; color: white; margin-bottom: 15px; width: 300px;">🖥️ Ready </button>
-    <input type="password" id="accessCode" class="access-code-input" placeholder="Enter Access Code">
-    <button id="verifyAccess" class="verify-btn">VERIFY ACCESS</button>
-    <div id="accessError" class="access-error">❌ Invalid access code. Please try again.</div>
+<!-- ===== MODERN LEFT-RIGHT ACCESS SCREEN ===== -->
+<div id="accessDenied" class="access-denied" style="display:flex;">
+    <div class="access-wrapper">
+        <!-- LEFT SIDE: SLIDER -->
+        <div class="access-slider" id="sliderArea">
+            <div class="brand">📚 LFJC</div>
+            <div class="slider-content">
+                <h1>LFJC ONLINE EXAMINATION</h1>
+                <p id="totalQuestionsDisplay">Loading...</p>
+                <div id="subjectBreakdownDisplay"></div>
+                <p id="correctMarkDisplay">CORRECT ANSWER +4 MARKS</p>  
+                <p id="wrongMarkDisplay">WRONG ANSWER -1 MARK</p>
+                <div class="secure-badge">🔒 Secure & Proctored</div>
+            </div>
+            <!-- Slide images will be injected here -->
+        </div>
+        
+        <!-- RIGHT SIDE: ACCESS FORM -->
+        <div class="access-form">
+            <div class="form-container">
+                <div class="logo">
+                    <img src="uploads/myskoolcom/myskoolcom_logo.jpg" alt="Logo" width="120">
+                </div>
+                <h2>Student Access</h2>
+                <p class="subtitle">Enter access code to continue</p>
+                
+                <button id="enterFullScreenBtn" class="fs-btn">🖥️ Full Screen</button>
+                <input type="password" id="accessCode" class="access-input" placeholder="Enter Access Code">
+                <button id="verifyAccess" class="access-btn">VERIFY ACCESS</button>
+                <div id="accessError" class="access-error">❌ Invalid access code</div>
+            </div>
+        </div>
+    </div>
 </div>
 <header>2D-LFJC ONLINE EXAMINATION</header>
 
