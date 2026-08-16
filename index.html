@@ -5751,14 +5751,23 @@ function updatePalette() {
     btn.className = 'palette-btn';
     
     if (examData.questionTypes[i] === 'fill-blank') {
-      btn.style.background = '#FFD700';
-      btn.style.color = '#000';
+      btn.style.background = '#4A90D9';
+      btn.style.color = 'white';
+      btn.style.borderColor = '#2C6B9E';
     } else {
       btn.style.background = '';
       btn.style.color = '';
+      btn.style.borderColor = '';
     }
     
-    if (progress.answers[i] !== null) btn.classList.add('selected');
+    if (progress.answers[i] !== null) {
+      btn.classList.add('selected');
+      if (examData.questionTypes[i] === 'fill-blank') {
+        btn.style.background = '#2ECC71';
+        btn.style.color = 'white';
+        btn.style.borderColor = '#27AE60';
+      }
+    }
     if (progress.review[i]) btn.classList.add('reviewed');
     if (i === progress.currentIndex) btn.classList.add('current');
   });
