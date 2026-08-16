@@ -5625,6 +5625,11 @@ function verifyAccessCode() {
         setTimeout(() => accessDenied.style.animation = '', 500);
     }
 }
+  // ===== ADD EVENT LISTENERS FOR ACCESS VERIFICATION =====
+document.getElementById('verifyAccess').addEventListener('click', verifyAccessCode);
+document.getElementById('accessCode').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') verifyAccessCode();
+});
 // Full Screen Button Handler
 document.addEventListener('DOMContentLoaded', function() {
     const fsBtn = document.getElementById('enterFullScreenBtn');
