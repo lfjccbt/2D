@@ -2250,41 +2250,20 @@ setInterval(function() {
 
 
 <!-- ===== MODERN LEFT-RIGHT ACCESS SCREEN ===== -->
-<div id="accessDenied" class="access-denied" style="display:flex;">
-    <div class="access-wrapper">
+<div id="accessDenied" class="access-denied" style="display:flex; flex-direction:column;">
+    <header style="background:transparent; color:#4B0082; padding:10px; font-size:24px; width:100%;">2D-LFJC ONLINE EXAMINATION</header>
+    <div class="access-wrapper" style="flex:1;">
         <!-- LEFT SIDE: SLIDER -->
         <div class="access-slider" id="sliderArea">
-            <div class="brand">📚 LFJC</div>
-            <div class="slider-content">
-                <h1>LFJC ONLINE EXAMINATION</h1>
-                <p id="totalQuestionsDisplay">Loading...</p>
-                <div id="subjectBreakdownDisplay"></div>
-                <p id="correctMarkDisplay">CORRECT ANSWER +4 MARKS</p>  
-                <p id="wrongMarkDisplay">WRONG ANSWER -1 MARK</p>
-                <div class="secure-badge">🔒 Secure & Proctored</div>
-            </div>
-            <!-- Slide images will be injected here -->
+            ...
         </div>
-        
         <!-- RIGHT SIDE: ACCESS FORM -->
         <div class="access-form">
-            <div class="form-container">
-                <div class="logo">
-                    <img src="uploads/myskoolcom/myskoolcom_logo.jpg" alt="Logo" width="120">
-                </div>
-                <h2>Student Access</h2>
-                <p class="subtitle">Enter access code to continue</p>
-                
-                <button id="enterFullScreenBtn" class="fs-btn">🖥️ Full Screen</button>
-                <input type="password" id="accessCode" class="access-input" placeholder="Enter Access Code">
-                <button id="verifyAccess" class="access-btn">VERIFY ACCESS</button>
-                <div id="accessError" class="access-error">❌ Invalid access code</div>
-            </div>
+            ...
         </div>
     </div>
+    <footer style="background:transparent; color:#4B0082; padding:10px; width:100%; position:relative;">© LFJC 2026 | All Rights Reserved</footer>
 </div>
-<header>2D-LFJC ONLINE EXAMINATION</header>
-
 <div id="studentEntry" style="display:none;">
   <div class="warning-banner" id="examWarning" style="display:none;">
     <p>⚠️ WARNING: Exam in progress. Do not refresh or close this window!</p>
@@ -2478,7 +2457,7 @@ setInterval(function() {
   </div>
 </div>
 
-<footer>© LFJC 2026 | All Rights Reserved</footer>
+
 
 
 <div id="fullRedOverlay"></div>
