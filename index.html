@@ -2318,8 +2318,8 @@ function buildExamSetup() {
         subjects: subjects,
         duration: 120,
         activeForForms: subjects.map(s => s.name),
-        correctMark: 4,
-        wrongMark: -1
+        correctMark: 1,
+        wrongMark: 0
     };
 }
 
@@ -2381,7 +2381,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('subjectBreakdownDisplay').innerHTML = breakdownHTML;
 });
 
-let MARK_PER_CORRECT = 4 , MARK_PER_WRONG = -1;
+let MARK_PER_CORRECT = 1 , MARK_PER_WRONG = 0;
 const STORAGE_KEY_PREFIX = "lfjc_exam_";
 const ACCESS_CODE = "lfjc2025";
 const ADMIN_PASSWORD = "admin2025";
