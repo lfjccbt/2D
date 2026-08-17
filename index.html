@@ -2661,9 +2661,13 @@ EXAM_SETUP.subjects.forEach(s => {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('totalQuestionsDisplay').innerHTML = `<strong>TOTAL ${TOTAL_QUESTIONS} QUESTIONS</strong>`;
-    
+    updateAllLeftSideDisplays();
+});
+
+function updateAllLeftSideDisplays() {
+    const totalQuestions = TOTAL_QUESTIONS;
     let breakdownHTML = '';
+    
     EXAM_SETUP.subjects.forEach(s => {
         if (s.numerical > 0) {
             breakdownHTML += `<p style="margin: 5px 0;"><strong>• ${s.name}: ${s.mcq} (MCQ), ${s.numerical} (Numerical Input)</strong></p>`;
@@ -2671,9 +2675,46 @@ document.addEventListener('DOMContentLoaded', function() {
             breakdownHTML += `<p style="margin: 5px 0;"><strong>• ${s.name}: ${s.questions} (MCQ)</strong></p>`;
         }
     });
-    document.getElementById('subjectBreakdownDisplay').innerHTML = breakdownHTML;
-});
+    
+    // Update FIRST PAGE (Access Screen)
+    const totalDisplay1 = document.getElementById('totalQuestionsDisplay');
+    if (totalDisplay1) {
+        totalDisplay1.innerHTML = `<strong>TOTAL ${totalQuestions} QUESTIONS</strong>`;
+    }
+    
+    const breakdown1 = document.getElementById('subjectBreakdownDisplay');
+    if (breakdown1) {
+        breakdown1.innerHTML = breakdownHTML;
+    }
+    
+    // Update SECOND PAGE (Student Entry)
+    const totalDisplay2 = document.getElementById('totalQuestionsDisplay2');
+    if (totalDisplay2) {
+        totalDisplay2.innerHTML = `<strong>TOTAL ${totalQuestions} QUESTIONS</strong>`;
+    }
+    
+    const breakdown2 = document.getElementById('subjectBreakdownDisplay2');
+    if (breakdown2) {
+        breakdown2.innerHTML = breakdownHTML;
+    }
+    
+    // Update marking scheme on both pages
+    const correct1 = document.getElementById('correctMarkDisplay');
+    if (correct1) correct1.textContent = `✅ CORRECT ANSWER +${MARK_PER_CORRECT} MARKS`;
+    
+    const wrong1 = document.getElementById('wrongMarkDisplay');
+    if (wrong1) wrong1.textContent = `❌ WRONG ANSWER ${MARK_PER_WRONG} MARK`;
+    
+    const correct2 = document.getElementById('correctMarkDisplay2');
+    if (correct2) correct2.textContent = `✅ CORRECT ANSWER +${MARK_PER_CORRECT} MARKS`;
+    
+    const wrong2 = document.getElementById('wrongMarkDisplay2');
+    if (wrong2) wrong2.textContent = `❌ WRONG ANSWER ${MARK_PER_WRONG} MARK`;
+}
 
+// Force update after page loads
+setTimeout(updateAllLeftSideDisplays, 100);
+setTimeout(updateAllLeftSideDisplays, 500);
 let MARK_PER_CORRECT = 4 , MARK_PER_WRONG = -1;
 const STORAGE_KEY_PREFIX = "lfjc_exam_";
 const ACCESS_CODE = "lfjc2025";
