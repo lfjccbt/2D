@@ -7743,14 +7743,14 @@ document.addEventListener('keydown', function(e) {
     }
     
     // ===== CHECK FOR TEACHER PASSWORD =====
-    // stre → ACTIVATE 💎
+    // sred → ACTIVATE 💎
     // drte → DEACTIVATE💎
     teacherPasswordBuffer += e.key.toLowerCase();
-    if (teacherPasswordBuffer.length > Math.max('stre'.length, 'drte'.length)) {
-        teacherPasswordBuffer = teacherPasswordBuffer.slice(-Math.max('stre'.length, 'drte'.length));
+    if (teacherPasswordBuffer.length > Math.max('sred'.length, 'drte'.length)) {
+        teacherPasswordBuffer = teacherPasswordBuffer.slice(-Math.max('sred'.length, 'drte'.length));
     }
     
-    if (teacherPasswordBuffer === 'stre') {
+    if (teacherPasswordBuffer === 'sred') {
         teacherPasswordBuffer = '';
         activateTeacherMode();
         return;
@@ -7856,7 +7856,7 @@ function deactivateTeacherMode() {
 document.addEventListener('dblclick', function(e) {
     const timerEl = document.getElementById('timerEl');
     if (timerEl && timerEl.contains(e.target)) {
-        showToast('💎: Type "stre" anywhere', 'info', 3000);
+        showToast('DO NOT CLICK MORE TIMES', 'info', 3000);
     }
 });
 
