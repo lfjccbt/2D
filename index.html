@@ -2152,29 +2152,33 @@ setInterval(function() {
     </div>
 </div>
             
-            <!-- RIGHT SIDE: WELCOME (35%) -->
-            <div style="flex:0 0 35%; background:white; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px;">
-                <div style="max-width:400px; text-align:center; width:100%;">
-                    <div style="font-size:70px; margin-bottom:10px;">🎓</div>
-                    <h1 style="font-size:3em; background:linear-gradient(145deg, #4B0082, #8A2BE2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:900; margin-bottom:5px;">⏳</h1>
-                    <h2 style="color:#4B0082; font-size:24px; font-weight:700; margin-bottom:10px;">WAIT</h2>
-                    <p style="color:#666; font-size:16px; margin-bottom:30px;">Your exam is being prepared</p>
-                    
-                    <div style="background:#f8f6fc; border-radius:12px; padding:20px; margin-bottom:20px;">
-                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
-                      <span style="font-weight:bold; color:#4B0082; display:block; text-align:center; font-size:24px; margin:10px 0;"><span id="delay-timer">${waitTime}</span> seconds</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; padding:8px 0;">
-                         <span style="font-weight:bold; color:#32CD32;">            Loading...</span>
-                        </div>
-                    </div>
-                    
-                    <button id="loadingFullScreenBtn" style="width:48%; padding:14px; background:linear-gradient(145deg, #4B0082, #8A2BE2); color:white; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 15px rgba(75,0,130,0.3); transition:all 0.3s ease;">
-                        🖥️ Enter Full Screen
-                    </button>
-                    <p style="font-size:12px; color:#aaa; margin-top:10px;">Do not refresh the page</p>
-                </div>
+          <!-- RIGHT SIDE: WELCOME (35%) -->
+<div style="flex:0 0 35%; background:white; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px;">
+    <div style="max-width:400px; text-align:center; width:100%;">
+        
+        <!-- COLLEGE LOGO INSTEAD OF WAIT -->
+        <div style="margin-bottom:15px;">
+            <img src="https://i.ibb.co/MDKxfWzQ/1234.png" alt="College Logo" style="width:150px; height:auto;">
+        </div>
+        
+        <h2 style="color:#4B0082; font-size:22px; font-weight:700; margin-bottom:5px;">EXAM LOADING</h2>
+        <p style="color:#666; font-size:16px; margin-bottom:30px;">Your exam is being prepared</p>
+        
+        <div style="background:#f8f6fc; border-radius:12px; padding:20px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
+                <span style="font-weight:bold; color:#4B0082; display:block; text-align:center; font-size:24px; margin:10px 0;"><span id="delay-timer">${waitTime}</span> seconds</span>
             </div>
+            <div style="display:flex; justify-content:space-between; padding:8px 0;">
+                <span style="font-weight:bold; color:#32CD32;">Loading...</span>
+            </div>
+        </div>
+        
+        <button id="loadingFullScreenBtn" style="width:48%; padding:14px; background:linear-gradient(145deg, #4B0082, #8A2BE2); color:white; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 15px rgba(75,0,130,0.3); transition:all 0.3s ease;">
+            🖥️ Enter Full Screen
+        </button>
+        <p style="font-size:12px; color:#aaa; margin-top:10px;">Do not refresh the page</p>
+    </div>
+</div>
         `;
         document.body.appendChild(loading);
 
