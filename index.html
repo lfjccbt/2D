@@ -2288,20 +2288,30 @@ setInterval(function() {
             </div>
         </div>
         
-        <!-- RIGHT SIDE: ACCESS FORM (35%) -->
-        <div style="flex:0 0 35%; display:flex; align-items:center; justify-content:center; padding:40px; background:white;">
-            <div style="width:100%; max-width:400px;">
-               <div style="text-align:center; margin-top:20px; margin-bottom:20px;">
-    <img src="https://i.ibb.co/MDKxfWzQ/1234.png" alt="L" width="150" style="display:block; margin:0 auto;">
-</div>
-                <h2 style="color:#4B0082; font-weight:700; font-size:24px; text-align:center; margin-bottom:5px;">Student Access</h2>
-                <p style="text-align:center; color:#888; font-size:14px; margin-bottom:25px;"></p>
-                <button id="enterFullScreenBtn" style="width:65%; padding:12px; background:#4B0082; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer; margin-bottom:15px; display:block; margin-left:auto; margin-right:auto;">🖥️ Full Screen</button>
-               <input type="password" id="accessCode" style="width:65%; padding:14px 20px; border:2px solid #e0d6f0; border-radius:10px; font-size:16px; margin-bottom:15px; box-sizing:border-box; display:block; margin-left:auto; margin-right:auto; background:white;" placeholder="Enter Access Code">
-               <button id="verifyAccess" style="width:65%; padding:14px; background:linear-gradient(145deg, #4B0082, #8A2BE2); color:white; border:none; border-radius:10px; font-weight:700; font-size:16px; cursor:pointer; display:block; margin-left:auto; margin-right:auto;">VERIFY ACCESS</button>
-                <div id="accessError" style="color:#dc3545; text-align:center; margin-top:10px; display:none;">❌ Invalid access code</div>
-            </div>
+       <!-- RIGHT SIDE: ACCESS FORM (35%) -->
+<div style="flex:0 0 35%; display:flex; align-items:center; justify-content:center; padding:40px; background:white;">
+    <div style="width:100%; max-width:400px;">
+        
+        <div style="text-align:center; margin-top:20px; margin-bottom:20px;">
+            <img src="https://i.ibb.co/MDKxfWzQ/1234.png" alt="L" width="150" style="display:block; margin:0 auto;">
         </div>
+        
+        <h2 style="color:#4B0082; font-weight:700; font-size:24px; text-align:center; margin-bottom:5px;">Student Access</h2>
+        <p style="text-align:center; color:#888; font-size:14px; margin-bottom:25px;"></p>
+        
+        <!-- ACCESS CODE with Label -->
+        <div style="text-align:center; margin-bottom:15px;">
+            <label style="font-weight:700; color:#4B0082; font-size:15px; display:block; margin-bottom:8px;">ACCESS CODE</label>
+            <input type="password" id="accessCode" style="width:65%; padding:14px 20px; border:2px solid #e0d6f0; border-radius:10px; font-size:16px; box-sizing:border-box; background:white; text-align:center;" placeholder="Enter Access Code">
+        </div>
+        
+        <button id="enterFullScreenBtn" style="width:65%; padding:12px; background:#4B0082; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer; margin-bottom:15px; display:block; margin-left:auto; margin-right:auto;">🖥️ Full Screen</button>
+        
+        <button id="verifyAccess" style="width:65%; padding:14px; background:linear-gradient(145deg, #4B0082, #8A2BE2); color:white; border:none; border-radius:10px; font-weight:700; font-size:16px; cursor:pointer; display:block; margin-left:auto; margin-right:auto;">VERIFY ACCESS</button>
+        
+        <div id="accessError" style="color:#dc3545; text-align:center; margin-top:10px; display:none;">❌ Invalid access code</div>
+    </div>
+</div>
     </div>
 </div>
 
