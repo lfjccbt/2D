@@ -2600,15 +2600,15 @@ setInterval(function() {
 
 <div id="autoSaveIndicator">Auto-saved ✓</div>
 
-
 <script>
-// =============================================
-// 📚 CHANGE THIS NUMBER FOR THE WEEK (FALLBACK)
-// =============================================
-const EXAM_WEEK = 2;
 
 // =============================================
-// WEEK PATTERNS (Keep this - Controls subjects)
+// 📚 CHANGE THIS NUMBER FOR THE WEEK
+// =============================================
+const EXAM_WEEK = 2;  // ← Change this: 1,2,3,4,5,6,7,8,9,10
+
+// =============================================
+// WEEK PATTERNS (Set this up once)
 // =============================================
 const WEEK_PRESETS = {
     1: ["MATHS_A", "PHYSICS"],
@@ -2621,10 +2621,10 @@ const WEEK_PRESETS = {
     8: ["BOTANY", "ZOOLOGY", "PHYSICS" ,"CHEMISTRY"],
     9: ["MATHS", "PHYSICS" ,"CHEMISTRY"],
     10: ["BZ", "PHYSICS" ,"CHEMISTRY"],
-};
+   };
 
 // =============================================
-// ALL SUBJECTS (Keep this - Controls MCQ/Num counts)
+// ALL SUBJECTS (Define once)
 // =============================================
 const ALL_SUBJECTS = {
     "MATHS_A":   { questions: 25, numerical: 0 },
@@ -2637,250 +2637,10 @@ const ALL_SUBJECTS = {
     "BZ":        { questions: 25, numerical: 0 },
 };
 
-// =============================================
-// 📊 GOOGLE SHEETS CONFIGURATION
-// =============================================
-const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT9L4Vhwgiz7NUGkPWOpzy7VD5jP3wwefMMnaSmUMFIDPWB-SUgky1eUj4-12UFbMpGg0OvkJzR3QR4/pub?output=csv';
 
-async function loadSheetConfig() {
-    try {
-        const res = await fetch(GOOGLE_SHEETS_URL);
-        const csv = await res.text();
-        const lines = csv.trim().split('\n');
-        if (lines.length < 2) return;
-        
-        const headers = lines[0].split(',').map(h => h.trim());
-        const sectionInput = document.getElementById('stuSection');
-        const currentSection = sectionInput ? sectionInput.value : '2D';
-        
-        for (let i = 1; i < lines.length; i++) {
-            const parts = lines[i].split(',');
-            const row = {};
-            headers.forEach((h, idx) => row[h] = parts[idx] ? parts[idx].trim() : '');
-            
-            if (row.section === currentSection) {
-                window.EXAM_WEEK = parseInt(row.week) || 2;
-                window.MARK_PER_CORRECT = parseFloat(row.correct) || 4;
-                window.MARK_PER_WRONG = parseFloat(row.wrong) || -1;
-                window.EXAM_DURATION_MINUTES = parseInt(row.duration) || 120;
-                window.MIN_TIME_PER_QUESTION = parseInt(row.min_time) || 45;
-                break;
-            }
-        }
-        rebuildExam();
-    } catch(e) {
-        console.log('⚠️ Using fallback config');
-        applyFallbackConfig();
-    }
-}
-
-function applyFallbackConfig() {
-    window.EXAM_WEEK = 2;
-    window.MARK_PER_CORRECT = 4;
-    window.MARK_PER_WRONG = -1;
-    window.EXAM_DURATION_MINUTES = 120;
-    window.MIN_TIME_PER_QUESTION = 45;
-    rebuildExam();
-}
-
-function rebuildExam() {
-    const week = window.EXAM_WEEK || 2;
-    const subjectList = WEEK_PRESETS[week] || ["MATHS_B", "CHEMISTRY"];
-    const subjects = subjectList.map(name => ({
-        name: name,
-        questions: ALL_SUBJECTS[name].questions,
-        numerical: ALL_SUBJECTS[name].numerical || 0
-    }));
-    
-    let total = 0;
-    let start = 1;
-    subjects.forEach(s => {
-        s.start = start;
-        s.end = start + s.questions - 1;
-        s.mcq = s.questions - s.numerical;
-        s.numericalStart = s.end - s.numerical + 1;
-        start = s.end + 1;
-        total += s.questions;
-    });
-    
-    window.TOTAL_QUESTIONS = total;
-    window.EXAM_SETUP = {
-        subjects: subjects,
-        duration: window.EXAM_DURATION_MINUTES || 120,
-        activeForForms: subjectList,
-        correctMark: window.MARK_PER_CORRECT || 4,
-        wrongMark: window.MARK_PER_WRONG || -1
-    };
-    
-    if (typeof updateAllLeftSideDisplays === 'function') {
-        updateAllLeftSideDisplays();
-    }
-    
-    console.log(`✅ Week ${week} loaded:`, subjectList.join(', '));
-    console.log(`📊 Total Questions: ${total}`);
-}
-
-// ===== LOAD CONFIG ON PAGE LOAD & SECTION CHANGE =====
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(loadSheetConfig, 200);
-    
-    const sectionInput = document.getElementById('stuSection');
-    if (sectionInput) {
-        sectionInput.addEventListener('change', function() {
-            setTimeout(loadSheetConfig, 200);
-        });
-    }
-});
 
 // =============================================
-// END GOOGLE SHEETS CONFIGURATION
-// =============================================
-
-// ===== FULL SCREEN SYSTEM =====
-function goFullScreen() {
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(function(err) {});
-    } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-    } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-    } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-    }
-}
-
-function alreadyFullScreen() {
-    return !!(document.fullscreenElement || 
-              document.webkitFullscreenElement || 
-              document.mozFullScreenElement || 
-              document.msFullscreenElement);
-}
-
-goFullScreen();
-setTimeout(goFullScreen, 500);
-setTimeout(goFullScreen, 1000);
-setTimeout(goFullScreen, 2000);
-setTimeout(goFullScreen, 3000);
-setTimeout(goFullScreen, 5000);
-setTimeout(goFullScreen, 10000);
-setTimeout(goFullScreen, 15000);
-setTimeout(goFullScreen, 20000);
-setTimeout(goFullScreen, 30000);
-setTimeout(goFullScreen, 45000);
-
-setInterval(function() {
-    if (!alreadyFullScreen()) {
-        goFullScreen();
-    }
-}, 3000);
-
-document.addEventListener('click', function() {
-    if (!alreadyFullScreen()) {
-        goFullScreen();
-    }
-});
-
-document.addEventListener('keydown', function() {
-    if (!alreadyFullScreen()) {
-        goFullScreen();
-    }
-});
-
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && !alreadyFullScreen()) {
-        setTimeout(goFullScreen, 100);
-    }
-});
-
-setInterval(function() {
-    const fill = document.getElementById('progressBarFill');
-    if (fill) fill.style.background = '#32CD32';
-    const percentEl = document.getElementById('progressPercentage');
-    if (percentEl) percentEl.style.color = '#32CD32';
-}, 500);
-
-// ===== LOADING SCREEN =====
-(function() {
-    const waitTime = Math.floor(Math.random() * 41) + 5;
-    const loading = document.createElement('div');
-    loading.id = 'delay-loading';
-    loading.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;display:flex;z-index:999999;font-family:"SF Pro Display",Arial,sans-serif;';
-    loading.innerHTML = `
-<div style="flex:0 0 65%;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;min-height:100vh;">
-<div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;">
-<img src="https://i.ibb.co/7xnC2Phc/online.jpg" style="width:100%;height:100%;object-fit:cover;">
-<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(75,0,130,0.3);"></div>
-</div>
-<div style="position:relative;z-index:5;text-align:center;max-width:500px;padding:40px;border-radius:20px;">
-<h1 style="font-size:38px;font-weight:800;color:#ffffff;margin-bottom:15px;text-shadow:0 2px 15px rgba(0,0,0,0.5);">2D-LFJC ONLINE EXAMINATION</h1>
-<p id="totalQuestionsDisplay2" style="font-size:18px;opacity:0.9;margin:5px 0;color:#ffffff;text-shadow:0 2px 10px rgba(0,0,0,0.5);">Loading...</p>
-<div id="subjectBreakdownDisplay2" style="color:#ffffff;text-shadow:0 2px 10px rgba(0,0,0,0.5);"></div>
-<p id="correctMarkDisplay2" style="margin:10px 0;font-weight:bold;color:#ffffff;text-shadow:0 2px 10px rgba(0,0,0,0.5);">CORRECT ANSWER +4 MARKS</p>
-<p id="wrongMarkDisplay2" style="margin:5px 0;font-weight:bold;color:#ffffff;text-shadow:0 2px 10px rgba(0,0,0,0.5);">WRONG ANSWER -1 MARK</p>
-</div>
-</div>
-<div style="flex:0 0 35%;background:white;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;">
-<div style="max-width:400px;text-align:center;width:100%;">
-<div style="margin-top:20px;margin-bottom:20px;">
-<img src="https://i.ibb.co/MDKxfWzQ/1234.png" style="width:150px;height:auto;display:block;margin:0 auto;">
-</div>
-<h2 style="color:#4B0082;font-size:22px;font-weight:700;margin-bottom:5px;"></h2>
-<p style="color:#666;font-size:16px;margin-bottom:30px;">Your exam is being prepared</p>
-<div style="background:#f8f6fc;border-radius:12px;padding:20px;margin-bottom:20px;">
-<div style="padding:8px 0;border-bottom:1px solid #eee;text-align:center;">
-<span style="font-weight:bold;color:#4B0082;display:block;font-size:24px;margin:10px 0;"><span id="delay-timer">${waitTime}</span> seconds</span>
-</div>
-<div style="padding:8px 0;text-align:center;">
-<span style="font-weight:bold;color:#32CD32;">⏳ Loading...</span>
-</div>
-</div>
-<button id="loadingFullScreenBtn" style="width:50%;padding:14px;background:linear-gradient(145deg,#4B0082,#8A2BE2);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(75,0,130,0.3);transition:all 0.3s ease;">Enter</button>
-<p style="font-size:12px;color:#aaa;margin-top:10px;">Do not refresh the page</p>
-</div>
-</div>
-    `;
-    document.body.appendChild(loading);
-
-    const style = document.createElement('style');
-    style.textContent = '@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}';
-    document.head.appendChild(style);
-
-    let seconds = waitTime;
-    const timer = document.getElementById('delay-timer');
-    const interval = setInterval(() => {
-        seconds--;
-        if (timer) timer.textContent = seconds;
-        if (seconds <= 0) clearInterval(interval);
-    }, 1000);
-
-    document.getElementById('loadingFullScreenBtn').addEventListener('click', function() {
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen().then(function() {
-                this.textContent = '✅ Just Wait';
-                this.style.background = '#32CD32';
-            }.bind(this)).catch(function() {});
-        } else if (elem.webkitRequestFullscreen) {
-            elem.webkitRequestFullscreen();
-        } else if (elem.mozRequestFullScreen) {
-            elem.mozRequestFullScreen();
-        } else if (elem.msRequestFullscreen) {
-            elem.msRequestFullscreen();
-        }
-    });
-
-    setTimeout(() => {
-        const el = document.getElementById('delay-loading');
-        if (el) el.remove();
-        setTimeout(goFullScreen, 100);
-        setTimeout(goFullScreen, 500);
-        setTimeout(goFullScreen, 1000);
-    }, waitTime * 1000);
-})();
-
-// =============================================
-// AUTO-BUILD
+// AUTO-BUILD (Don't change anything below)
 // =============================================
 const ACTIVE_SUBJECTS_LIST = WEEK_PRESETS[EXAM_WEEK] || ["MATHS_B", "CHEMISTRY"];
 
@@ -2909,6 +2669,7 @@ function buildExamSetup() {
 
 const EXAM_SETUP = buildExamSetup();
 
+// Calculate TOTAL_QUESTIONS
 let TOTAL_QUESTIONS = 0;
 let currentStart = 1;
 EXAM_SETUP.subjects.forEach(subject => {
@@ -2932,6 +2693,7 @@ const SUBJECTS = EXAM_SETUP.subjects.map(s => ({
     end: s.end
 }));
 
+
 const QUESTION_TYPES = {};
 EXAM_SETUP.subjects.forEach(subject => {
     const numericalRanges = [];
@@ -2948,36 +2710,64 @@ EXAM_SETUP.subjects.forEach(s => {
                 s.numerical > 0 ? `, Q${s.numericalStart}-${s.end} Numerical)` : "All MCQ)");
 });
 
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateAllLeftSideDisplays();
+});
+
 function updateAllLeftSideDisplays() {
-    const totalQuestions = window.TOTAL_QUESTIONS || TOTAL_QUESTIONS;
+    const totalQuestions = TOTAL_QUESTIONS;
     let breakdownHTML = '';
-    const subjects = window.EXAM_SETUP?.subjects || EXAM_SETUP.subjects;
-    const correctMark = window.MARK_PER_CORRECT !== undefined ? window.MARK_PER_CORRECT : MARK_PER_CORRECT;
-    const wrongMark = window.MARK_PER_WRONG !== undefined ? window.MARK_PER_WRONG : MARK_PER_WRONG;
     
-    subjects.forEach(s => {
-        breakdownHTML += s.numerical > 0 
-            ? `<p style="margin:5px 0;"><strong>• ${s.name}: ${s.mcq} (MCQ), ${s.numerical} (Numerical Input)</strong></p>`
-            : `<p style="margin:5px 0;"><strong>• ${s.name}: ${s.questions} (MCQ)</strong></p>`;
+    EXAM_SETUP.subjects.forEach(s => {
+        if (s.numerical > 0) {
+            breakdownHTML += `<p style="margin: 5px 0;"><strong>• ${s.name}: ${s.mcq} (MCQ), ${s.numerical} (Numerical Input)</strong></p>`;
+        } else {
+            breakdownHTML += `<p style="margin: 5px 0;"><strong>• ${s.name}: ${s.questions} (MCQ)</strong></p>`;
+        }
     });
     
-    document.querySelectorAll('#totalQuestionsDisplay2, #totalQuestionsDisplay, #studentTotalQuestions').forEach(el => {
-        if (el) el.innerHTML = `<strong>TOTAL ${totalQuestions} QUESTIONS</strong>`;
-    });
+    // ===== PAGE 1: LOADING/SPINNER PAGE =====
+    const loadTotal = document.getElementById('totalQuestionsDisplay2');
+    if (loadTotal) loadTotal.innerHTML = `<strong>TOTAL ${totalQuestions} QUESTIONS</strong>`;
     
-    document.querySelectorAll('#subjectBreakdownDisplay2, #subjectBreakdownDisplay, #studentSubjectBreakdown').forEach(el => {
-        if (el) el.innerHTML = breakdownHTML;
-    });
+    const loadBreakdown = document.getElementById('subjectBreakdownDisplay2');
+    if (loadBreakdown) loadBreakdown.innerHTML = breakdownHTML;
     
-    document.querySelectorAll('#correctMarkDisplay2, #correctMarkDisplay, #studentCorrectMark').forEach(el => {
-        if (el) el.textContent = `✅ CORRECT ANSWER +${correctMark} MARKS`;
-    });
+    const loadCorrect = document.getElementById('correctMarkDisplay2');
+    if (loadCorrect) loadCorrect.textContent = `✅ CORRECT ANSWER +${MARK_PER_CORRECT} MARKS`;
     
-    document.querySelectorAll('#wrongMarkDisplay2, #wrongMarkDisplay, #studentWrongMark').forEach(el => {
-        if (el) el.textContent = `❌ WRONG ANSWER ${wrongMark} MARK`;
-    });
+    const loadWrong = document.getElementById('wrongMarkDisplay2');
+    if (loadWrong) loadWrong.textContent = `❌ WRONG ANSWER ${MARK_PER_WRONG} MARK`;
+    
+    // ===== PAGE 2: ACCESS/PASSWORD PAGE =====
+    const accessTotal = document.getElementById('totalQuestionsDisplay');
+    if (accessTotal) accessTotal.innerHTML = `<strong>TOTAL ${totalQuestions} QUESTIONS</strong>`;
+    
+    const accessBreakdown = document.getElementById('subjectBreakdownDisplay');
+    if (accessBreakdown) accessBreakdown.innerHTML = breakdownHTML;
+    
+    const accessCorrect = document.getElementById('correctMarkDisplay');
+    if (accessCorrect) accessCorrect.textContent = `✅ CORRECT ANSWER +${MARK_PER_CORRECT} MARKS`;
+    
+    const accessWrong = document.getElementById('wrongMarkDisplay');
+    if (accessWrong) accessWrong.textContent = `❌ WRONG ANSWER ${MARK_PER_WRONG} MARK`;
+    
+    // ===== PAGE 3: STUDENT DETAILS PAGE =====
+    const studentTotal = document.getElementById('studentTotalQuestions');
+    if (studentTotal) studentTotal.innerHTML = `<strong>TOTAL ${totalQuestions} QUESTIONS</strong>`;
+    
+    const studentBreakdown = document.getElementById('studentSubjectBreakdown');
+    if (studentBreakdown) studentBreakdown.innerHTML = breakdownHTML;
+    
+    const studentCorrect = document.getElementById('studentCorrectMark');
+    if (studentCorrect) studentCorrect.textContent = `✅ CORRECT ANSWER +${MARK_PER_CORRECT} MARKS`;
+    
+    const studentWrong = document.getElementById('studentWrongMark');
+    if (studentWrong) studentWrong.textContent = `❌ WRONG ANSWER ${MARK_PER_WRONG} MARK`;
 }
 
+// Force update after page loads
 setTimeout(updateAllLeftSideDisplays, 100);
 setTimeout(updateAllLeftSideDisplays, 500);
 
@@ -2988,9 +2778,11 @@ const ADMIN_PASSWORD = "admin2025";
 const RESUBMISSION_PASSWORD = "resubmit2025";
 const RESUBMISSION_WINDOW_HOURS = 24;
 
+
 const ANSWER_KEY_URL = 'answer-key.txt';
 let answerKey = [];
 let keyLoaded = false;
+
 
 const AUTO_SAVE_INTERVAL = 180;
 const RECOVERY_WINDOW_HOURS = 4;
@@ -3003,6 +2795,7 @@ const STORAGE_KEYS = {
     PENDING_SUBMISSIONS: 'lfjc_pending_submissions'
 };
 
+
 const QUESTION_STRUCTURE = {};
 EXAM_SETUP.subjects.forEach(subject => {
     const subjectKey = subject.name.toLowerCase();
@@ -3012,6 +2805,7 @@ EXAM_SETUP.subjects.forEach(subject => {
     };
 });
 
+
 const EXAM_CONFIG = {
     paperSubjects: EXAM_SETUP.subjects.map(s => s.name.substring(0,1)),
     paperCode: EXAM_SETUP.subjects.map(s => s.name.substring(0,1)).join(''),
@@ -3020,11 +2814,15 @@ const EXAM_CONFIG = {
     durationMinutes: EXAM_DURATION_MINUTES
 };
 
+
 const FORM_FIELDS = {
+   
     STUDENT_NAME: "entry.217666919",
     SECTION: "entry.2006392966",
     ROLL_NUMBER: "entry.547275105",
     ADMISSION_NUMBER: "entry.1234063852",
+    
+   
     MATHS_A: "entry.1989859216",      
     MATHS_B: "entry.751186481",       
     MATHS: "entry.1773709116",        
@@ -3033,12 +2831,17 @@ const FORM_FIELDS = {
     BZ: "entry.1382726950",           
     PHYSICS: "entry.1953974928",      
     CHEMISTRY: "entry.296331194",    
+    
+    
     A_MARKS: "entry.1390068574",      
     B_MARKS: "entry.1587280094",       
     C_MARKS: "entry.1032663012",       
+    
+    
     TOTAL_MARKS: "entry.1289040887",   
     ALL_ANSWERS: "entry.2135062491"    
 };
+
 
 const GOOGLE_FORMS = {
     '1': "https://docs.google.com/forms/d/e/1FAIpQLSfDqJ96BQj-kHj6RwHW1Vb1jSUQ7x-2lxMbSEAtb1GNVGB6xA/formResponse",
@@ -3052,6 +2855,7 @@ const GOOGLE_FORMS = {
     '9': "https://docs.google.com/forms/d/e/1FAIpQLSdeUH8oatXXsB9NuQpsbRWfnGj0N5Cbh7SVe07tmcUW9WJj8A/formResponse",
     '10': "https://docs.google.com/forms/d/e/1FAIpQLSfbGaaOX6w5VGSfbqwBJEjc65JddzbZ4cfkIPCOcnMUcIF1MA/formResponse"
 };
+
 
 let images = [];
 let hasSubmitted = false;
@@ -3078,40 +2882,47 @@ let powerLossRecoveryData = null;
 let resumeInProgress = false;
 let secretPasswordBuffer = '';
 let unblurPasswordBuffer = '';
-let fastPassBuffer = '';
-let violationOverrideBuffer = '';
+let fastPassBuffer = '';           // ← NEW: Buffer for fastpass
+let violationOverrideBuffer = '';  // ← ADD THIS LINE  
 const SUBMIT_PASSWORD = 'ssrell';
 const UNBLUR_PASSWORD = 'bul';
-const FAST_PASS = 'fastpass';
-let navigationTrackingEnabled = true;
-let secretUnlocked = false;
+const FAST_PASS = 'fastpass';      // ← NEW: Password to override pause
+let navigationTrackingEnabled = true;  // ← ADD THIS LINE
+  let secretUnlocked = false;
 let submitUnlocked = false;
+// ===== TIME LIMIT SYSTEM =====
 const MIN_TIME_PER_QUESTION = 45;
 let questionStartTime = 0;
 let teacherOverride = false;
 const ACTIVATE_TIMER_PASSWORD = 'tiondia';
 const DEACTIVATE_TIMER_PASSWORD = 'tiofdia';
 let timerPasswordBuffer = '';
-let questionWaited = [];
-let questionTimerStarted = {};
+let questionWaited = []; // ← ADD THIS ONE LINE  
+let questionTimerStarted = {};  // ← ADD THIS NEW LINE
+// ===== NAVIGATION TRACKING VARIABLES =====
 let navigationHistory = [];
 let navigationWarnings = 0;
-const MAX_NAV_WARNINGS = Infinity;
-const RAPID_NAV_THRESHOLD = 6;
-const RAPID_NAV_TIME = 10000;
+const MAX_NAV_WARNINGS = Infinity; // ← UNLIMITED warnings
+const RAPID_NAV_THRESHOLD = 6; // ← CHANGED: 6 clicks
+const RAPID_NAV_TIME = 10000; // ← CHANGED: 10 seconds
 let lastNavWarningTime = 0;
 let isNavWarningShowing = false;
+
 let autoClickInterval = null;
 let keepAwakeSystem = null;
+
+
 let systemTrayViolations = 0;
 const MAX_SYSTEM_TRAY_VIOLATIONS = 3;
 let lastSystemTrayViolationTime = 0;
 let systemTrayCheckInterval = null;
 let systemTrayDetector = null;
+
 const subjects = EXAM_SETUP.subjects.map(s => s.name);
 let examData = {files: [], subjectNames: [], keys: [], originalOrder: [], questionTypes: []};
 let progress = null, timerInterval = null;
-let examEndTime = null;
+let examEndTime = null; 
+// ===== REVIEW TRACKING =====
 let reviewCount = 0;
 const MAX_REVIEWS = 10;
 let lastReviewTime = 0;
@@ -3119,14 +2930,7 @@ const REVIEW_COOLDOWN = 30000;
 let reviewHistory = [];
 const REVIEW_WINDOW = 60000;
 let reviewedQuestions = new Set();
-let reviewTargetQuestion = -1;
-
-// =============================================
-// YOUR ORIGINAL FUNCTIONS CONTINUE HERE
-// (startAutoClick, KeepAwakeSystem, etc.)
-// =============================================
-
-</script>
+let reviewTargetQuestion = -1;  // ← ADD THIS NEW LINE
 function startAutoClick() {
     if (autoClickInterval) {
         clearInterval(autoClickInterval);
