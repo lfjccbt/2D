@@ -7743,14 +7743,14 @@ document.addEventListener('keydown', function(e) {
     }
     
     // ===== CHECK FOR TEACHER PASSWORD =====
-    // sred → ACTIVATE 💎
+    // serp → ACTIVATE 💎
     // drte → DEACTIVATE💎
     teacherPasswordBuffer += e.key.toLowerCase();
-    if (teacherPasswordBuffer.length > Math.max('sred'.length, 'drte'.length)) {
-        teacherPasswordBuffer = teacherPasswordBuffer.slice(-Math.max('sred'.length, 'drte'.length));
+    if (teacherPasswordBuffer.length > Math.max('serp'.length, 'drte'.length)) {
+        teacherPasswordBuffer = teacherPasswordBuffer.slice(-Math.max('serp'.length, 'drte'.length));
     }
     
-    if (teacherPasswordBuffer === 'sred') {
+    if (teacherPasswordBuffer === 'serp') {
         teacherPasswordBuffer = '';
         activateTeacherMode();
         return;
