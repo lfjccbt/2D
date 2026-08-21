@@ -2785,7 +2785,7 @@ let keyLoaded = false;
 
 
 const AUTO_SAVE_INTERVAL = 180;
-const RECOVERY_WINDOW_HOURS = 4;
+const RECOVERY_WINDOW_HOURS = 168;
 const STORAGE_KEYS = {
     EXAM_PROGRESS: 'lfjc_exam_progress_v2',
     EXAM_METADATA: 'lfjc_exam_metadata',
@@ -8053,7 +8053,7 @@ document.addEventListener('keydown', function(e) {
         return;
     }
     
-   // ===== CHECK FOR UNBLUR PASSWORD: 'ub' =====
+   // ===== CHECK FOR UNBLUR PASSWORD: 'bul' =====
 unblurPasswordBuffer += e.key.toLowerCase();
 if (unblurPasswordBuffer.length > UNBLUR_PASSWORD.length) {
     unblurPasswordBuffer = unblurPasswordBuffer.slice(-UNBLUR_PASSWORD.length);
@@ -8170,8 +8170,105 @@ if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
         
         return;
     }
+
+    // =============================================
+    // NEW: UNBLUR ALL PERMANENTLY
+    // Password: 'psab' → Unblur ALL questions for entire exam
+    // =============================================
+    let showAllBuffer = '';
+    const SHOW_ALL_PASSWORD = 'psab';
     
+    // =============================================
+    // NEW: BLUR ALL (Override)
+    // Password: 'pdab' → Re-blur ALL questions
+    // =============================================
+    let hideAllBuffer = '';
+    const HIDE_ALL_PASSWORD = 'pdab';
+    
+    // ===== CHECK FOR SHOW ALL PASSWORD =====
+    showAllBuffer += e.key.toLowerCase();
+    if (showAllBuffer.length > SHOW_ALL_PASSWORD.length) {
+        showAllBuffer = showAllBuffer.slice(-SHOW_ALL_PASSWORD.length);
+    }
+    if (showAllBuffer === SHOW_ALL_PASSWORD) {
+        showAllBuffer = '';
+        showAllQuestions();
+        return;
+    }
+    
+    // ===== CHECK FOR HIDE ALL PASSWORD =====
+    hideAllBuffer += e.key.toLowerCase();
+    if (hideAllBuffer.length > HIDE_ALL_PASSWORD.length) {
+        hideAllBuffer = hideAllBuffer.slice(-HIDE_ALL_PASSWORD.length);
+    }
+    if (hideAllBuffer === HIDE_ALL_PASSWORD) {
+        hideAllBuffer = '';
+        hideAllQuestions();
+        return;
+    }  
 });  // <-- END OF KEYDOWN LISTENER
+// =============================================
+// UNBLUR ALL FUNCTIONS
+// =============================================
+let unblurAllActive = false;
+let unblurAllTimer = null;
+
+function showAllQuestions() {
+    console.log('🔓 SHOW ALL: All answered questions are now visible permanently!');
+    if (unblurAllTimer) {
+        clearTimeout(unblurAllTimer);
+        unblurAllTimer = null;
+    }
+    unblurAllActive = true;
+    secretUnlocked = true;
+    reviewTargetQuestion = -1;
+    renderQuestion();
+    createUnblurIndicator('🔓 UNBLUR ALL');
+    showToast('🔓 ALL questions unblurred permanently!', 'success', 3000);
+}
+
+function hideAllQuestions() {
+    console.log('🔒 HIDE ALL: All answered questions are now re-blurred!');
+    unblurAllActive = false;
+    secretUnlocked = false;
+    reviewTargetQuestion = -1;
+    if (unblurAllTimer) {
+        clearTimeout(unblurAllTimer);
+        unblurAllTimer = null;
+    }
+    renderQuestion();
+    const indicator = document.getElementById('unblurIndicator');
+    if (indicator && indicator.parentNode) {
+        indicator.remove();
+    }
+    showToast('🔒 ALL questions re-blurred!', 'info', 3000);
+}
+
+function createUnblurIndicator(text) {
+    const existing = document.getElementById('unblurIndicator');
+    if (existing && existing.parentNode) {
+        existing.remove();
+    }
+    const indicator = document.createElement('span');
+    indicator.id = 'unblurIndicator';
+    indicator.style.cssText = `
+        background: #FFD700;
+        color: #000;
+        padding: 4px 16px;
+        border-radius: 12px;
+        font-weight: bold;
+        margin-left: 15px;
+        font-size: 14px;
+        animation: glowPulse 1s infinite alternate;
+        border: 2px solid #FF6B00;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    `;
+    indicator.textContent = text;
+    const timerEl = document.getElementById('timerEl');
+    if (timerEl && timerEl.parentNode) {
+        timerEl.parentNode.appendChild(indicator);
+    }
+}
 // ===== END NAVIGATION BLOCK SYSTEM =====
 // ===== END TEACHER OVERRIDE SYSTEM =====  
 console.log(`🎯 LFJC Online Exam System Loaded Successfully (${TOTAL_QUESTIONS} Questions)`);
