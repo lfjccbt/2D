@@ -5287,10 +5287,11 @@ function renderQuestion() {
   const imagePath = getBestImagePath(originalIndex);
   const questionType = examData.questionTypes[idx];
   
-  // ===== FIX: Check if THIS specific question should be unblurred =====
+   // ===== FIX: Check if THIS specific question should be unblurred =====
   const isAnswered = progress.answers[idx] !== null && progress.answers[idx] !== '';
   const isCurrentlyReviewed = reviewTargetQuestion === idx && secretUnlocked;
-  const shouldBlur = isAnswered && !isCurrentlyReviewed;
+  // ===== ADD unblurAllActive CHECK HERE =====
+  const shouldBlur = isAnswered && !isCurrentlyReviewed && !unblurAllActive;
   
   console.log(`🖼️ Loading: ${imagePath} (Question ${originalIndex}/${TOTAL_QUESTIONS}) - ${examData.subjectNames[idx]} - ${questionType} ${shouldBlur ? '(BLURRED)' : ''}`);
   
@@ -5354,8 +5355,8 @@ function renderQuestion() {
       ${optionsHTML}
   `;
 
-  // ===== FIX: Show overlay only for THIS question when it's answered and NOT being reviewed =====
-  if (isAnswered && !isCurrentlyReviewed) {
+   // ===== FIX: Show overlay only for THIS question when it's answered and NOT being reviewed =====
+  if (isAnswered && !isCurrentlyReviewed && !unblurAllActive) {
     containerHTML += `
       <div id="blurOverlay-${idx}" style="
         position: absolute;
