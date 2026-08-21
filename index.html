@@ -5961,26 +5961,29 @@ function hideInstructions() {
     document.getElementById('instructionsPanel').style.display = 'none';
 }
 
-document.getElementById('instructionCheckbox').addEventListener('change', function() {
-    const btn = document.getElementById('instructionProceedBtn');
-    if (this.checked) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.pointerEvents = 'auto';
-    } else {
-        btn.disabled = true;
-        btn.style.opacity = '0.5';
-        btn.style.pointerEvents = 'none';
-    }
-});
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('instructionCheckbox').addEventListener('change', function() {
+        const btn = document.getElementById('instructionProceedBtn');
+        if (this.checked) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+        } else {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.pointerEvents = 'none';
+        }
+    });
 
-document.getElementById('instructionProceedBtn').addEventListener('click', function() {
-    if (this.disabled) return;
-    hideInstructions();
-    showConfirm("Start Exam?", startWithSecurity);
-});
+    document.getElementById('instructionProceedBtn').addEventListener('click', function() {
+        if (this.disabled) return;
+        hideInstructions();
+        showConfirm("Start Exam?", startWithSecurity);
+    });
 
-document.getElementById('instructionBackBtn').addEventListener('click', hideInstructions);
+    document.getElementById('instructionBackBtn').addEventListener('click', hideInstructions);
+});
 
 // =============================================
 // END INSTRUCTIONS PANEL
