@@ -2152,9 +2152,14 @@ setInterval(function() {
     </div>
 </div>
             
-          <!-- RIGHT SIDE: WELCOME (35%) -->
-<div style="flex:0 0 35%; background:white; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px;">
-    <div style="max-width:400px; text-align:center; width:100%;">
+         <!-- RIGHT SIDE: WELCOME (35%) -->
+<div style="flex:0 0 35%; position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px; min-height:100vh;">
+    <div style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; background:#ffffff;">
+        <img src="https://i.ibb.co/7nL9TzH/background-image.jpg" 
+             style="width:100%; height:100%; object-fit:cover;"
+             onerror="this.style.display='none'">
+    </div>
+    <div style="max-width:400px; text-align:center; width:100%; position:relative; z-index:1;">
         
         <!-- COLLEGE LOGO INSTEAD OF WAIT -->
         <!-- COLLEGE LOGO - Fixed Position -->
