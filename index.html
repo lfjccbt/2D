@@ -3872,14 +3872,18 @@ function submitWithWindowOpen(answersData) {
 async function loadAnswerKey() {
     try {
         console.log("📥 LOADING ANSWER KEY FROM EXTERNAL FILE...");
+        console.log("📁 Looking for: " + ANSWER_KEY_URL);
         
         const response = await fetch(ANSWER_KEY_URL);
         
         if (!response.ok) {
-            throw new Error(`Failed to load answer key: HTTP ${response.status}`);
+            throw new Error(`Failed to load answer key: HTTP ${response.status} - File not found`);
         }
         
         const text = await response.text();
+        console.log("📄 File content length:", text.length);
+        console.log("📄 First 50 chars:", text.substring(0, 50));
+        
         answerKey = parseAnswerKeyFile(text);
       
         if (answerKey.length !== TOTAL_QUESTIONS) {
@@ -3924,8 +3928,14 @@ async function loadAnswerKey() {
             images.push(`questions/${i}.png`);
         }
         
-        // ✅ UNCOMMENT THIS - Call preloadAllImages to start lazy loading
-        await preloadAllImages();
+        // ===== FIX: Try to load images but don't block if it fails =====
+        try {
+            console.log("🖼️ Starting image preloading...");
+            await preloadAllImages();
+        } catch (imgError) {
+            console.warn("⚠️ Image loading error (non-critical):", imgError);
+            // Continue even if images fail
+        }
         
         showToast('✅ Answer key loaded! Enter access code.', 'success', 3000);
         
@@ -3940,7 +3950,7 @@ async function loadAnswerKey() {
             <div style="color: red; padding: 15px; border: 2px solid red; border-radius: 5px;">
                 <strong>❌ ANSWER KEY ERROR</strong><br><br>
                 ${error.message}<br><br>
-                <small>Please check the answer-key.txt file format and ensure it exists.</small>
+                <small>Please check that answer-key.txt exists in the same folder as this HTML file.</small>
             </div>
         `);
         
