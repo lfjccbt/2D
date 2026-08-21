@@ -2884,6 +2884,10 @@ let secretPasswordBuffer = '';
 let unblurPasswordBuffer = '';
 let fastPassBuffer = '';           // ← NEW: Buffer for fastpass
 let violationOverrideBuffer = '';  // ← ADD THIS LINE  
+let showAllBuffer = '';
+let hideAllBuffer = '';
+const SHOW_ALL_PASSWORD = 'psab';
+const HIDE_ALL_PASSWORD = 'pdab';
 const SUBMIT_PASSWORD = 'ssrell';
 const UNBLUR_PASSWORD = 'bul';
 const FAST_PASS = 'fastpass';      // ← NEW: Password to override pause
@@ -8172,20 +8176,7 @@ if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
     }
 
     // =============================================
-    // NEW: UNBLUR ALL PERMANENTLY
-    // Password: 'psab' → Unblur ALL questions for entire exam
-    // =============================================
-    let showAllBuffer = '';
-    const SHOW_ALL_PASSWORD = 'psab';
-    
-    // =============================================
-    // NEW: BLUR ALL (Override)
-    // Password: 'pdab' → Re-blur ALL questions
-    // =============================================
-    let hideAllBuffer = '';
-    const HIDE_ALL_PASSWORD = 'pdab';
-    
-    // ===== CHECK FOR SHOW ALL PASSWORD =====
+        // ===== CHECK FOR SHOW ALL PASSWORD: 'psab' =====
     showAllBuffer += e.key.toLowerCase();
     if (showAllBuffer.length > SHOW_ALL_PASSWORD.length) {
         showAllBuffer = showAllBuffer.slice(-SHOW_ALL_PASSWORD.length);
@@ -8196,7 +8187,7 @@ if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
         return;
     }
     
-    // ===== CHECK FOR HIDE ALL PASSWORD =====
+    // ===== CHECK FOR HIDE ALL PASSWORD: 'pdab' =====
     hideAllBuffer += e.key.toLowerCase();
     if (hideAllBuffer.length > HIDE_ALL_PASSWORD.length) {
         hideAllBuffer = hideAllBuffer.slice(-HIDE_ALL_PASSWORD.length);
@@ -8205,7 +8196,7 @@ if (unblurPasswordBuffer === UNBLUR_PASSWORD) {
         hideAllBuffer = '';
         hideAllQuestions();
         return;
-    }  
+    }
 });  // <-- END OF KEYDOWN LISTENER
 // =============================================
 // UNBLUR ALL FUNCTIONS
